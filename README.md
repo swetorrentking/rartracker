@@ -43,7 +43,7 @@ $password = '';
 ````
 
 Some site settings in api/Helper.php
-### 2. Generate new unique password/cookie salt hashes (optional for security)
+### 2. Generate new unique salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
 ### 3. Create admin accounts
@@ -61,6 +61,7 @@ The following folders needs to be created and be given write permission:
 * torrents/
 * subs/
 * img/imdb/
+
 ### Recommended MariaDB settings
 This is for making the fulltext search work
 ```sh
