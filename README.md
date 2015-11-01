@@ -32,8 +32,17 @@ $ bower install
 # Configurations
 
 ### 1. Basic config
-* Database config in api/secrets.php
-* Some site settings in api/Helper.php
+Create the file **secrets.php** in the api/ folder.
+````
+<?php
+$database = 'mysql';
+$host = '127.0.0.1';
+$dbname = 'rartracker';
+$username = 'root';
+$password = '';
+````
+
+Some site settings in api/Helper.php
 ### 2. Generate new unique password/cookie salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
@@ -41,14 +50,13 @@ $ bower install
 Use built in account named "**System**" password: "**password**" to create invites and register new admin-accounts
 The "System" account **must remain** as a parked account and have Staff rights because it's used as deleter of torrents, sender of PM and creation of forum topics etc. Change System password.
 
-
 ## Server settings
 ### Recommended packages
 ``php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql php5-memcache``
 ### Enable rewrite module for .htaccess
 ``a2enmod rewrite``
 ### Permissions
-The following folders needs write permission:
+The following folders needs to be created and be given write permission:
 
 * torrents/
 * subs/
