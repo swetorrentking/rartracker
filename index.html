@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<base href="/">
+<html lang="sv" ng-app="tracker" ng-controller="HeaderController">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+	<title>Rartracker</title>
+	<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
+	<link href="/css/rartracker.css?id=1" rel="stylesheet">
+	<link ng-if="myself.design == 1" ng-href="{{ myself.css }}" rel="stylesheet" />
+	<link ng-if="myself.design == 2" ng-href="/css/themes/blue/blue-angular-tracker.css" rel="stylesheet" />
+	<link ng-if="myself.design == 3" ng-href="/css/themes/swebits/swebitstracker.css" rel="stylesheet" />
+	<link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.min.css">
+	<script src="bower_components/angular/angular.min.js"></script>
+	<script src="bower_components/angular-cookies/angular-cookies.min.js"></script>
+	<script src="bower_components/angular-resource/angular-resource.min.js"></script>
+	<script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+	<script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+	<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="bower_components/Chart.js/Chart.min.js"></script>
+	<script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
+	<script src="dist/app-dist.js"></script>
+	<script src="dist/app-templates.js"></script>
+	<script src="dist/app-admin-templates.js"></script>
+	<script src="dist/app-admin-dist.js"></script>
+</head>
+<body>
+	<div id="headbanner"></div>
+	<div class="container ng-cloak" ng-cloak>
+		<div id="logoHeader" ui-sref="start()"></div>
+		<div ng-include="'../app/header/menu.html'"></div>
+
+		<div ng-show="loggedIn" ui-sref="donate" class="hidden-xs" style="position: absolute; top: 10px; right: 20px; cursor:pointer; color: #FFF;">
+			Finanser:
+			<div style="width: 102px; height: 20px; border: 1px solid; color: #a1a1;">
+				<div style="background-color: {{ donatedProgressColor }}; width: {{ donatedProgress }}px; height: 18px;">
+					<div style="width: 100px; height: 20px; line-height: 19px; text-align: center;">
+						<b>&nbsp;{{ myself.donatedAmount }}</b> SEK
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="contentContainer" ng-hide="hideCompletely" class="clearfix">
+			<div class="row" ng-show="loggedIn">
+				<div class="col-md-6 col-sm-7 col-xs-12">
+					<div id="statusBox">
+						<div ng-include="'../app/header/statusbox.html'"></div>
+					</div>
+				</div>
+				<div class="col-md-6 col-sm-5 col-xs-12">
+					<div id="searchBoxInputGroup">
+						<div class="input-group">
+							<div class="input-group-addon"><i style="width: 20px; font-size: 16px;" class="fa fa-search" ng-class="{'fa-search': !loadingSearch, 'fa-spinner fa-spin': loadingSearch}"></i></div>
+							<input type="text" class="form-control input-md" placeholder="Sök film, serie, free leech, swesub..." aria-describedby="basic-addon1" ng-model="searchText" ng-model-options="{ debounce: 200 }" ng-change="doSearch()" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" />
+						</div>
+						<label class="normal hidden-xs ellipsis">&nbsp; <input type="checkbox" ng-model="extendedSearch" ng-click="changeExtendedSearch()" /> Sök även på skådespelare, regissörer...</label>
+					</div>
+				</div>
+			</div>
+			<br />
+			<span ng-show="loggedIn">
+				<div class="alert alert-warning message-dialog" ng-hide="myself.newMessages == 0 || stateName == 'mailbox'">
+					<span><i class="fa fa-envelope-o"></i> <a ui-sref="mailbox()">Du har {{ myself.newMessages }} oläst<span ng-show="myself.newMessages > 1">a</span> meddelande</a></span>
+				</div>
+				<div class="alert alert-warning message-dialog" ng-hide="myself.unreadFlashNews == 0 || stateName == 'news'">
+					<span><i class="fa fa-newspaper-o"></i> <a ui-sref="news()">Du har {{ myself.unreadFlashNews }} oläst<span ng-show="myself.unreadFlashNews > 1">a</span> viktig<span ng-show="myself.unreadFlashNews > 1">a</span> nyhet<span ng-show="myself.unreadFlashNews > 1">er</span></a></span>
+				</div>
+			</span>
+			<div ui-view></div>
+			<br />
+		</div>
+	</div>
+	<br />
+	<script type="text/javascript">
+	if (typeof document.createElement('input').checkValidity !== 'function') {
+		document.body.innerHTML = '<h2 style="text-align: center;">Din webbläsare är tyvärr för gammal och saknar stöd för HTML5-funktioner som krävs av denna sajt.</h2>';
+	}
+	</script>
+	<noscript><h2 style="text-align: center;">Denna sajt fungerar inte alls med JavaScript avstängt.</h2></noscript>
+</body>
+</html>

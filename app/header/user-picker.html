@@ -1,0 +1,7 @@
+<div class="container-fluid">
+
+	<h4><i class="fa fa-user fa-fw"></i> Sök användare</h4>
+	<input type="text" ng-model="asyncSelected" placeholder="Användarnamn" uib-typeahead="user.username for user in getUsers($viewValue)" typeahead-loading="loadingUsers" class="form-control" typeahead-on-select="onSelected($item)" auto-focus />
+	<br />
+
+</div>

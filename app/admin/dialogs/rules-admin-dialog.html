@@ -1,0 +1,29 @@
+<div class="text-left">
+	<div class="modal-header">
+		<h2 class="modal-title text-center">
+			<span ng-hide="rule.id">Skapa ny regel</span>
+			<span ng-show="rule.id">Redigera regel</span>
+		</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form">
+			<div class="form-group">
+				<label>Titel</label>
+				<input type="text" class="form-control" placeholder="Titel" ng-model="rule.title" />
+			</div>
+			<div class="form-group">
+				<label>Text</label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="rule.text" placeholder="Skriv text..." auto-focus></textarea>
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-primary" ng-click="create()">
+				<span ng-hide="rule.id">Skapa ny regel</span>
+				<span ng-show="rule.id">Spara ändringar</span>
+			</button>
+			<button class="btn btn-default" ng-click="cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

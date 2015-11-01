@@ -1,0 +1,43 @@
+<h1 class="block-center text-center">Bonus</h1>
+<div ng-show="myself.class == 0" class="alert alert-warning" role="alert">Du måste vara 'Skådis' för att kunna använda bonus-systemet</div>
+<div ng-show="myself.class > 0">
+<div ng-hide="bonusShop" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+<div class="col-lg-10 col-lg-push-1" ng-show="bonusShop">
+	<table class="table">
+		<tr>
+			<th style="width: 150px;" class="text-left">Rubrik</th>
+			<th class="text-left">Beskrivning</th>
+			<th style="width: 80px;" class="text-left">Pris</th>
+			<th style="width: 50px;">Köp</th>
+		</tr>
+		<tr ng-repeat="item in bonusShop">
+			<td>{{ item.name }}</td>
+			<td>{{ item.description }}</td>
+			<td><b>{{ item.price }}p</b></td>
+			<td><button ng-click="buyItem(item)" ng-class="{'disabled': myself.bonuspoang < item.price }" class="btn btn-default btn-xs"><i class="fa fa-usd"></i> Köp</button></td>
+		</tr>
+	</table>
+</div>
+<div class="clearfix"></div>
+<br />
+
+<h2 class="block-center text-center">Hur tjänar man poäng?</h2>
+<div class="table" style="width: 550px; margin: auto; padding: 10px;">
+	Du får <b>+1p</b> per uppladdade GB på <b>Arkiv-torrents</b> med ett tak på 50 GB.<br>
+	<br />
+	<b>Exempel:</b><br>
+	Om du laddar upp...<br>
+	... 10GB/vecka får du alltså <b>+10p</b>.<br />
+	... 25GB/vecka får du alltså <b>+25p</b>.<br />
+	... 50GB/vecka får du alltså <b>+50p</b>.<br  />
+	<br />
+	<b>Tjäna extra bonuspoäng:</b><br />
+	Torrentuppladdning i "Nytt" ger <b>+10</b> poäng per film-torrent och <b>5p</b> för tv och övrigt.<br/>
+	Uppladdning av Requests bestäms av den aktuella hittelönen.<br/>
+	Uppladdning av SweSub-fil till HD-releaser ger <b>2p</b>.
+
+	<br /><br />
+	Varje Fredag kl 00 delas poängen ut för gångna veckan.<br>
+</div>
+</div>

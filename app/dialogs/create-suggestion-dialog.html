@@ -1,0 +1,27 @@
+<div class="text-center">
+	<div class="modal-header">
+		<h2 class="modal-title">Skapa nytt förslag</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form" ng-submit="sendMessage()">
+			<div class="form-group" style="text-align: left;">
+				<label for="subject">Rubrik</label>
+				<input type="text" id="subject" class="form-control" placeholder="Rubrik" ng-model="suggestion.subject" />
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="postText">Förslag</label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="suggestion.body" placeholder="Skriv ditt förslag..." auto-focus required></textarea>
+			</div>
+		</form>
+		<br />
+		<uib-alert style="text-align: center;" type="{{alert.type}}" close="closeAlert()" ng-show="alert != null">
+		 	{{alert.msg}}
+		</uib-alert>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-primary" ng-click="create()">Skapa förslag</button>
+			<button class="btn btn-default" ng-click="cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,52 @@
+<div class="text-center">
+	<h1>Forumsök</h1>
+
+	<div class="form-inline">
+		<div class="input-group" style=" width: 300px;">
+			<div class="input-group-addon"><i class="fa fa-search"></i></div>
+			<input type="text" class="form-control" placeholder="Sök i forumet" ng-model="vm.searchText" ng-model-options="{ debounce: 300 }" ng-change="vm.doSearch()" style="width: 300px; margin: auto;" />
+		</div>
+
+		<div class="btn-group">
+			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'topics'" ng-change="vm.switchTable()">Trådar</label>
+			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'posts'" ng-change="vm.switchTable()">Inlägg</label>
+		</div>
+	</div>
+
+	<br />
+
+	<div ng-show="vm.posts.length == 0 && vm.topics.length == 0 && vm.searchText.length > 1" class="alert alert-warning" role="alert">Inga sökträffar!</div>
+
+	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+	<div class="table-responsive col-md-10 col-centered nopadding" ng-show="vm.topics.length > 0">
+		<table class="table table-striped table-hover table-nowrap forumtable table-text-center">
+			<tr>
+				<th class="text-left">Ämne</th>
+				<th style="width: 80px;" class="hidden-sm hidden-xs">Inlägg</th>
+				<th style="width: 200px;" class="hidden-xs">Forum</th>
+			</tr>
+			<tr ng-repeat="topic in vm.topics">
+				<td class="text-left">
+					<img class="forum-icon locked-new" ng-if="topic.locked == 'yes'" />
+					<img class="forum-icon unlocked-new" ng-if="topic.locked == 'no'"  />
+
+					<span ng-show="topic.sticky == 'yes'">Klistrad: </span><a href="" ui-sref="forum.topic({id: topic.id, forumid: topic.forumid})"><b ng-bind-html="topic.subject | highlight:vm.searchText"></b></a>
+					<a ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, page: ceil(topic.postcount, postsPerPage), 'lastpost': 1})" class="noBorder"><i class="fa fa-arrow-right"></i></a>
+					<br/>
+					{{ topic.sub }}
+				</td>
+				<td class="hidden-sm hidden-xs">{{ topic.postcount }}</td>
+				<td class="hidden-sm hidden-xs"><a href="#" ng-click="setForum(forum)" ui-sref="forum.topics({id: topic.forumid})"><b>{{ topic.name }}</b></a></td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="col-md-10 col-centered nopadding" ng-show="vm.posts">
+		<posts posts="vm.posts" current-user="myself" ng-hide="vm.posts.length == 0" search-text="vm.searchText"></posts>
+	</div>
+
+	<div class="clearfix"></div>
+
+	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

@@ -1,0 +1,16 @@
+{
+  "name": "angular-tracker",
+  "version": "1.0.0",
+  "dependencies": {
+    "angular": "~1.4.7",
+    "angular-chart.js": "~0.8.5",
+    "angular-ui-router": "~0.2.15",
+    "angular-bootstrap": "~0.14.3",
+    "angular-cookies": "~1.4.7",
+    "angular-sanitize": "~1.4.7",
+    "angular-resource": "~1.4.7",
+    "bootstrap": "~3.3.5",
+    "font-awesome": "~4.4.0"
+  },
+  "private": true
+}

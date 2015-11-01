@@ -1,0 +1,13 @@
+<div class="panel panel-green">
+	<div class="panel-heading">Nyheter</div>
+	<br />
+	<div class="text-center" style="margin-bottom: 10px;" ng-if="myself.class >= 8">
+		<button ng-click="createNews()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nyhet</button>
+	</div>
+	<div ng-hide="news" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<news news="news" myself="myself"></news>
+
+	<br style="clear: both;" />
+	<br />
+</div>

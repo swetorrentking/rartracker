@@ -1,0 +1,25 @@
+<div class="text-center">
+	<h1>Logg</h1>
+
+	<div class="input-group" style="margin: auto; width: 300px;">
+		<div class="input-group-addon"><i class="fa fa-search"></i></div>
+		<input type="text" class="form-control" placeholder="Sök i loggen" ng-model="searchText" ng-model-options="{ debounce: 200 }" ng-change="doSearch()" style="width: 300px; margin: auto;" />
+	</div>
+	<br />
+
+	<div ng-hide="logs" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<table class="table" ng-show="logs">
+		<tr>
+			<th>Datum</th>
+			<th class="text-left">Händelse</th>
+		</tr>
+		<tr ng-repeat="log in logs">
+			<td style="width: 150px;">{{ log.added }}</td>
+			<td class="text-left" ng-bind-html="log.txt | bbCode"></td>
+		</tr>
+	</table>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+</div>

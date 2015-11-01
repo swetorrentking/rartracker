@@ -1,0 +1,33 @@
+<div class="text-center">
+	<h1>Nya användare</h1>
+
+	<div ng-hide="signups" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+	<div class="col-lg-10 col-lg-push-1">
+		<table class="table text-left" ng-show="signups">
+			<tr>
+				<th class="text-left">Datum</th>
+				<th class="text-left">Namn</th>
+				<th class="text-left" style="width: 500px;">IP/Host</th>
+				<th class="text-left" style="width: 150px;">Säkerhetskoll</th>
+			</tr>
+			<tr ng-repeat="signup in signups">
+				<td>{{ signup.added }}</td>
+				<td><user user="signup.user"></user></td>
+				<td><a href="" ui-sref="admin-search({ip: signup.ip})">{{ signup.ip }}</a> (<b>{{ signup.hostname }}</b>)</td>
+				<td>
+					<span ng-if="signup.log_mail == 0 && signup.log_ip == 0">Inga träffar på ip/mail</span>
+					<button ng-if="signup.log_ip > 0 && signup.level == 0" ui-sref="admin-search({ip: signup.ip})" class="btn btn-xs btn-warning">{{ signup.log_ip }} träff(ar) på IP</button>
+					<button ng-if="signup.log_ip > 0 && signup.level >= 1" ui-sref="admin-search({ip: signup.ip})" class="btn btn-xs btn-danger">{{ signup.log_ip }} träff(ar) på IP</button>
+					<button ng-if="signup.log_mail > 0" class="btn btn-xs btn-warning">{{ signup.log_mail }} träff(ar) på mail</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="clearfix"></div>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

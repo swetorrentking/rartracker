@@ -1,0 +1,271 @@
+<div ng-show="notFoundMessage" class="alert alert-warning" role="alert">{{ notFoundMessage }}</div>
+<div ng-show="uploaded" class="alert alert-success" role="alert" style="margin-bottom: 0px;"><strong>Uppladdning lyckades!</strong><br />Du måste nu ladda ner .torrent-filen från sidan för att kunna börja seeda.</div>
+
+<br />
+
+<div class="row row-centered" ng-hide="notFoundMessage">
+
+	<div ng-hide="torrent || notFoundMessage" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<movie-info movie-data="::movieData" myself="::myself" ng-show="movieData.title != null && torrent.tv_programid == 0"></movie-info>
+
+	<table class="table-responsive noborder col-md-6 col-lg-5 col-centered" ng-show="torrent.tv_programid > 0">
+		<tr>
+			<td valign="top" style="width: 100%; text-align: left; background: none repeat scroll 0% 0% transparent;" class="imdbinfotext">
+				<h2>{{ ::torrent.tv_program }}</h2>
+				<b>{{ ::torrent.tv_episode }}</b>
+				<br />
+				Sändes: <b>{{ torrent.tv_klockslag*1000 | date:'HH:mm' }}</b>
+				<br />
+				<br />
+				{{ ::torrent.tv_info }}
+			</td>
+			<td style="border: 0px; padding: 5px;">
+				<img ng-src="/img/tvchannels/{{ ::tvChannel.pic }}" />
+			</td>
+		</tr>
+	</table>
+
+	<div ng-show="movieData.title != null || torrent.tv_programid > 1">
+		<br />
+	</div>
+
+	<div class="table-responsive noborder col-md-9 col-centered" ng-class="{'col-lg-12': showPeers || showSnatchLog}" ng-show="torrent">
+		<table class="table table-nowrap" cellpadding="15">
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle" style="width: 130px;">Denna torrent</td>
+				<td class="text-left alignMiddle">
+					<table class="table table-striped table-hover table-nowrap noshadow">
+						<tr>
+							<td style="width: 57px;">
+								<img class="categoryImage category{{ ::torrent.category }}" />
+							</td>
+							<td class="text-left vert-align">
+								<torrent-cell torrent="torrent" viewing-torrent="{{::torrent.id}}"></torrent-cell>
+							</td>
+							<td style="width: 168px; vertical-align: middle;">
+				    			<a class="noBorder" target="_self" href="/download.php?id={{::torrent.id}}&passkey={{myself.passkey}}" style="float: right;">
+				    				<button class="btn btn-default btn-xs"><i class="fa fa-link"></i></button>
+				    			</a>
+				    			<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{::torrent.id}}" style="float: right;">
+				    				<button class="btn btn-default btn-xs"><i class="fa fa-download"></i> Ladda ner torrent</button>
+								</a>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr ng-show="request">
+				<td class="text-right tdBold hidden-xs">Fylld request</td>
+				<td class="text-left">
+					"{{ request.request }}<span ng-show="request.season > 0"> (Säsong {{request.season}})</span>" requestades utav <user user="request.user"></user> med <b>{{ request.votes }}</b> röst(er) och <b>{{ request.reward }}p</b> hittelön.
+				</td>
+			</tr>
+			<tr ng-show="relatedTorrents.length > 0">
+				<td class="text-right tdBold hidden-xs">Fler releaser</td>
+				<td class="text-left">
+					<div style="max-height: 400px; overflow-y: auto; overflow-x: hidden;">
+						<torrents-table torrents="relatedTorrents" header="false" column-download></torrents-table>
+					</div>
+				</td>
+			</tr>
+			<tr ng-show="torrent.descr">
+				<td class="text-right tdBold hidden-xs">Information</td>
+				<td class="text-left"><pre style="max-height: 300px; text-overflow: scroll;" ng-bind-html="::torrent.descr | bbCode"></pre></td>
+			</tr>
+			<tr ng-show="packContent.length > 0">
+				<td class="text-right tdBold hidden-xs">Packinnehåll</td>
+				<td class="text-left">
+					<div ng-repeat="folder in ::packContent" style="font-weight: bold;">
+						{{ ::folder.filename }}
+					</div>
+					<div ng-if="myself.class >= 8">
+						<button class="btn btn-default btn-xs" ng-click="multiDelete()" ng-class="{'disabled': deletingPackFiles}"><i class="fa fa-user-secret"></i> Radera dessa från sidan</button>
+					</div>
+				</td>
+			</tr>
+			<tr ng-show="torrent.category > 3 && torrent.category < 8">
+				<td class="text-right tdBold hidden-xs">Svensk undertext</td>
+				<td class="text-left">
+					<table ng-show="subtitles.length > 0" class="table table-striped table-hover table-nowrap" style="margin-bottom: 6px !important;">
+						<tr ng-repeat="subtitle in subtitles">
+							<td style="width: 35px;"><img src="/img/icons/subfile.png" alt="subtitle" style="width: 29px;" /></td>
+							<td class="alignMiddle">
+								<div class="ellipsis">
+									<a target="_self" href="/subdownload.php?id={{ ::subtitle.id }}">{{ ::subtitle.filename }}</a>
+								</div>
+							</td>
+							<td style="width: 150px;" ng-show="subtitle.user" class="alignMiddle"><user user="subtitle.user" showclass="false"></user></td>
+							<td ng-show="myself.class >= 8 || myself.id == subtitle.user.id" style="width:80px;" class="alignMiddle"><button ng-click="deleteSubtitle(subtitle)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera</button></td>
+							<td style="width:125px;" class="alignMiddle"><button ng-click="reportSubtitle(subtitle)" class="btn btn-xs btn-default"><i class="fa fa-exclamation-triangle"></i> Rapportera</button></td>
+						</tr>
+					</table>
+					<div class="text-center">
+						<button ng-click="showSubtitleUpload =! showSubtitleUpload" class="btn btn-xs btn-default"><i class="fa fa-upload"></i> Ladda upp svensk undertext (+<b>2p</b>)</button>
+					</div>
+					<div class="text-center" ng-class="{'hidden': !showSubtitleUpload}">
+						<div class="input-group center-block">
+							<input type="file" class="form-control ff" file-model="settings.file" />
+						</div>
+					</div>
+				</td>
+			</tr>
+			<tr ng-if="torrent.imdbid">
+				<td class="text-right tdBold hidden-xs alignMiddle">Bevakning</td>
+				<td>
+					<button ng-class="{'disabled': watching}" class="btn btn-default btn-xs" ng-click="addWatch()"><i class="fa fa-eye"></i> Bevakning</button> <i ng-bind-html="getBevakaInformation() | bbCode"></i>
+				</td>
+			</tr>
+			<tr ng-if="torrent.imdbid">
+				<td class="text-right tdBold hidden-xs alignMiddle">Bevaka undertext</td>
+				<td>
+					<button ng-class="{'disabled': watchingSubtitle}" class="btn btn-default btn-xs" ng-click="addSubtitleWatch()"><i class="fa fa-envelope-o fa-fw"></i> PM-bevaka svensk text</button>
+				</td>
+			</tr>
+			<tr ng-show="torrent.seeders <= 3 && (torrent.added | dateDiff) < -86400000">
+				<td class="text-right tdBold hidden-xs alignMiddle">Önska seed</td>
+				<td>
+					<button class="btn btn-default btn-xs" ng-click="requestReseed()"><i class="fa fa-retweet"></i> Önska seed (<b>5p</b>)</button>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Uppladdad</td>
+				<td class="text-left alignMiddle">{{ ::torrent.added }} <span ng-hide="torrent.preDate == '1970-01-01 01:00:00'">({{ ::torrent.added | dateDifference:torrent.preDate }} efter pre)</span></td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Storlek</td>
+				<td class="text-left">{{ ::torrent.size | prettysize }}</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Nerladdad</td>
+				<td class="text-left">{{ ::torrent.times_completed }} gång(er)</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Uppladdare</td>
+				<td class="text-left">
+					<user user="torrent.user"></user>
+					<a ng-show="myself.class >= 8 || myself.id == torrent.user.id" ui-sref="editTorrent({id: torrent.id, name: torrent.name})">
+						<button class="btn btn-default btn-xs"><i class="fa fa-cog"></i> Redigera torrent</button>
+					</a>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Bokmärk</td>
+				<td class="text-left">
+					<button ng-click="bookmark(torrent)" class="btn btn-default btn-xs" ng-class="{'disabled':torrent.bookmarked}"><i class="fa fa-bookmark"></i> Bokmärk</button>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs alignMiddle">Rapportera</td>
+				<td class="text-left"><button ng-click="reportTorrent()" class="btn btn-xs btn-default"><i class="fa fa-exclamation-triangle"></i> Rapportera</button></td>
+			</tr>
+			<tr ng-if="myself.class >= 8">
+				<td class="text-right tdBold hidden-xs">
+					<button class="btn btn-default btn-xs" ng-click="toggleSnatchLog()">
+						<i class="fa fa-bars"></i> Visa snatchlista
+					</button>
+				</td>
+				<td class="text-left">
+					<div ng-show="showSnatchLog && !snatchLog" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
+					<table class="table table-striped table-hover table-nowrap" ng-show="showSnatchLog && snatchLog">
+						<thead>
+							<tr>
+								<th style="text-align: left;">&nbsp;Användare</th>
+								<th style="width: 160px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='ip'; reverseSort = !reverseSort">IP:Port</a></th>
+								<th><a class="whiteLink" href="" ng-click="snatchLogOrderBy='uploaded'; reverseSort = !reverseSort">Uppladdat</a></th>
+								<th><a class="whiteLink" href="" ng-click="snatchLogOrderBy='downloaded'; reverseSort = !reverseSort">Nerladdat</a></th>
+								<th style="width: 100px;">Start/Stop/Klar</th>
+								<th>Klient</th>
+								<th><a class="whiteLink" href="" ng-click="snatchLogOrderBy='finishedat'; reverseSort = !reverseSort">Snatchad</a></th>
+								<th><a class="whiteLink" href="" ng-click="snatchLogOrderBy='seedtime'; reverseSort = !reverseSort">Seedtid</a></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="snatch in snatchLog | orderBy:snatchLogOrderBy:reverseSort">
+								<td class="text-left"><user user="::snatch.user" showtitle="false"></user></td>
+								<td>{{ snatch.ip }}:{{ snatch.port }}</td>
+								<td class="text-center">{{ snatch.uploaded | prettysize }}</td>
+								<td class="text-center">{{ snatch.downloaded | prettysize }}</td>
+								<td class="text-center">{{ snatch.timesStarted }}/{{ snatch.timesStopped }}/{{ snatch.timesCompleted }}</td>
+								<td class="text-center">{{ snatch.agent | prettyAgent }}</td>
+								<td class="text-center">{{ snatch.finishedat | dateDifference }} sedan</td>
+								<td class="text-center">{{ snatch.seedtime*1000 | dateDifference:0 }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold hidden-xs">
+					<button class="btn btn-default btn-xs" ng-click="toggleFiles()">
+						<i class="fa fa-bars"></i> Visa fillista
+					</button>
+				</td>
+				<td class="text-left">
+					{{ ::torrent.numfiles }} fil(er)
+					<div ng-show="showFiles && !files" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
+					<table class="table table-striped table-hover table-nowrap" ng-show="showFiles && files">
+						<thead>
+							<tr>
+								<th style="text-align: left;">&nbsp;Filnamn</th>
+								<th style="width: 100px;">Storlek</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr ng-repeat="file in ::files">
+								<td style="text-align: left;">{{ ::file.filename }}</td>
+								<td style="width: 100px;">{{ ::file.size | prettysize }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-left tdBold hidden-xs">
+					<button class="btn btn-default btn-xs" ng-click="togglePeers()">
+						<i class="fa fa-bars"></i> Visa överföringar
+					</button>
+				</td>
+				<td class="text-left">
+					<a id="seeders" name="seeders"></a>
+					{{ ::torrent.seeders }} seedare, {{ ::torrent.leechers }} leechare = {{ ::torrent.seeders + torrent.leechers }} totalt
+					<div ng-show="showPeers && !seeders" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
+					<torrent-peers peers="::seeders" ng-show="seeders && showPeers" my-user-id="{{myself.id}}"></torrent-peers>
+					<a id="leechers" name="leechers"></a>
+					<torrent-peers peers="::leechers" torrent-size="torrent.size" ng-show="leechers && showPeers" my-user-id="{{myself.id}}"></torrent-peers>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<a id="comments" name="comments" style="display: inline-block;"></a>
+	<div ng-show="comments">
+		<h2>Kommentarer</h2>
+
+		<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="comments.length == 0"></uib-pagination>
+
+		<div class="col-md-10 col-md-push-1" ng-show="comments">
+			<posts posts="comments" delete-post="deleteComment(post)" report="reportComment(post)" edit-obj="editObj" current-user="myself" on-quote="QuotePost(post)" goto-anchor="gotoPostAnchor(postId)" edit-post="editPost(post)" abort-edit="abortEdit()" save-edit="saveEdit(post)" ng-hide="comments.length == 0"></posts>
+			<div id="newComment">
+				<div class="text-center">
+					<h3>Skriv kommentar</h3>
+					<div class="form-group col-md-8 col-md-push-2">
+						<textarea class="form-control" rows="6" id="postText" ng-model="postText" placeholder="Skriv kommentar..."></textarea>
+					</div>
+					<div class="clearfix"></div>
+					<button ng-show="postStatus == 0" class="btn btn-primary" ng-click="savePost()">Skriv inlägg</button>
+					<button ng-show="postStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
+				</div>
+				<br />
+				<uib-alert type="{{alert.type}}" close="closeAlert()" ng-show="alert != null">
+					{{alert.msg}}
+				</uib-alert>
+			</div>
+		</div>
+
+		<div class="clearfix"></div>
+
+		<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="comments.length == 0"></uib-pagination>
+	</div>
+
+</div>

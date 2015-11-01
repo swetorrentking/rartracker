@@ -1,0 +1,10 @@
+<div class="text-center">
+	<h1>Bokmärkta torrents</h1>
+
+	<div ng-hide="bookmarks" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+	<div class="table-responsive">
+		<torrents-table torrents="bookmarks" on-delete="delete(torrent)" column-download column-comments column-date column-size column-times-completed column-seeders column-leechers column-delete></torrents-table>
+	</div>
+	<br />
+	<div ng-show="bookmarks.length == 0" class="alert alert-warning" role="alert">Du har inga bokmärkta torrents</div>
+</div>

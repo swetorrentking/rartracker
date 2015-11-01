@@ -1,0 +1,19 @@
+<div class="text-center">
+
+	<h1>
+
+	<span ng-if="currentState == 'forum.forums'">Forum</span>
+	<a ng-if="currentState != 'forum.forums'" ui-sref="forum.forums">Forum</a>
+
+	<span ng-if="forum.name && currentState == 'forum.topics'">&raquo; {{ forum.name }}</span>
+	<span ng-if="forum.name && currentState != 'forum.topics'">&raquo; <a ui-sref="forum.topics({id: forum.id})">{{ forum.name }}</a></span>
+	
+	<span ng-show="topic.subject"> &raquo; {{ topic.subject }}</span>
+
+	</h1>
+
+	<h2 ng-show="topic.sub">{{ topic.sub }}</h2>
+
+	<div ui-view></div>
+
+</div>

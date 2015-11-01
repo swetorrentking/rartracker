@@ -1,0 +1,13 @@
+<div ng-hide="rules" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+<div class="panel panel-default col-sm-10 col-sm-push-1" style="padding: 0px;" ng-repeat="rule in rules">
+	<div class="panel-heading text-left">{{ rule.title }}
+		<div ng-show="myself.class >= 8" class="pull-right">
+		<button ng-click="Edit(rule)" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></button>
+		<button ng-click="Delete(rule)" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i></button>
+		</div>
+	</div>
+	<div class="panel-body  text-left" ng-bind-html="rule.text | bbCode"></div>
+</div>
+<div class="clearfix"></div>
+<button ng-click="Create()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nytt regelblock</button>

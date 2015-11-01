@@ -1,0 +1,75 @@
+<script type="text/ng-template" id="movieSearchTemplate.html">
+	<a>
+		<span ng-bind-html="match.model.title | typeaheadHighlight:query"></span>
+		({{ match.model.year}})
+	</a>
+</script>
+
+<div class="text-center">
+	Sök upp film/TV-serie efter namn eller IMDB-länk från <a href="http://www.imdb.com/" target="_blank">www.imdb.com</a> 
+	<input type="text" class="form-control" ng-model="asyncSelected" uib-typeahead="movie.title for movie in getMovieData($viewValue)" typeahead-on-select="onSelected($item)" typeahead-template-url="movieSearchTemplate.html" style="width: 300px; margin: auto;" />
+</div>
+
+<h2>Bevakar filmer</h2>
+
+<div ng-hide="watching" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+<div class="col-md-10 col-centered" ng-show="watching">
+	<table class="table table-striped table-hover table-nowrap table-text-center">
+		<tr class="colhead">
+			<th class="text-left">Namn</th>
+			<th style="width: 350px;">Format</th>
+			<th style="width: 120px;">Kräv svensk text</th>
+			<th style="width: 100px;">Sluta bevaka</th>
+		</tr>
+		<tr ng-repeat="w in watching | filter: {typ : 0}">
+			<td class="text-left">
+				<a target="_blank" href="http://www.imdb.com/title/{{ w.imdbid }}/" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ w.title }}</a> ({{ w.year }})
+				<div class="hoverPoster" ng-show="showPoster && w.imdbid2" style="background-image: url('/img/imdb/{{ ::w.imdbid2 }}.jpg');"></div>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.hd720" uib-btn-checkbox ng-change="updateWatch(w)">720p</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.hd1080" uib-btn-checkbox ng-change="updateWatch(w)">1080p</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.dvdrpal" uib-btn-checkbox ng-change="updateWatch(w)">DVDR PAL</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.dvdrcustom" uib-btn-checkbox ng-change="updateWatch(w)">DVDR CUSTOM</button>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" ng-model="w.swesub" uib-btn-checkbox ng-change="updateWatch(w)">Kräv svensk text</button>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" ng-click="deleteWatch(w)"><i class="fa fa-trash-o"></i></button>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<h2>Bevakar TV-serier</h2>
+
+<div ng-hide="watching" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+<div class="col-md-10 col-centered" ng-show="watching">
+	<table class="table table-striped table-hover table-nowrap table-text-center">
+		<tr class="colhead">
+			<th class="text-left">Namn</th>
+			<th style="width: 350px;">Format</th>
+			<th style="width: 120px;">Kräv svensk text</th>
+			<th style="width: 100px;">Sluta bevaka</th>
+		</tr>
+		<tr ng-repeat="w in watching | filter: {typ : 1}">
+			<td class="text-left">
+				<a target="_blank" href="http://www.imdb.com/title/{{ w.imdbid }}/" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ w.title }}</a> ({{ w.year }})
+				<div class="hoverPoster" ng-show="showPoster && w.imdbid2" style="background-image: url('/img/imdb/{{ ::w.imdbid2 }}.jpg');"></div>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.hd720" uib-btn-checkbox ng-change="updateWatch(w)">720p</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.hd1080" uib-btn-checkbox ng-change="updateWatch(w)">1080p</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.dvdrpal" uib-btn-checkbox ng-change="updateWatch(w)">DVDR TV</button>
+				<button class="btn btn-default btn-xs" ng-model="w.formats.dvdrcustom" uib-btn-checkbox ng-change="updateWatch(w)">DVDR CUSTOM</button>
+			</td>
+			<td>
+				<button class="btn btn-default btn-xs" ng-model="w.swesub" uib-btn-checkbox ng-change="updateWatch(w)">Kräv svensk text</button>
+			</td>
+			<td><button class="btn btn-default btn-xs" ng-click="deleteWatch(w)"><i class="fa fa-trash-o"></i></button></td>
+		</tr>
+	</table>
+</div>

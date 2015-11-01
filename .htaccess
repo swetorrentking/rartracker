@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteRule ^api/v1/(.*)$ /api/api-v1.php?url=$1 [QSA,NC,L]
+
+	RewriteCond %{REQUEST_FILENAME} -s [OR]
+    RewriteCond %{REQUEST_FILENAME} -l [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^.*$ - [NC,L]
+	RewriteCond %{REQUEST_URI} !.*/img
+	RewriteCond %{REQUEST_URI} !.*/phpMyAdmin
+	RewriteCond %{REQUEST_URI} !\.(html)$
+
+    RewriteRule ^(.*) /index.html [NC,L]
+</IfModule>

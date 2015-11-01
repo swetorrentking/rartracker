@@ -1,0 +1,38 @@
+<table class="table table-striped table-hover table-nowrap" ng-show="requests">
+	<tr>
+		<th style="width: 57px;">Typ</th>
+		<th class="text-left">Namn</th>
+		<th ng-if="colEdit" class="hidden-sm hidden-xs" style="width: 80px;">Redigera</th>
+		<th ng-if="colVote" style="width: 50px;"><a class="whiteLink" href="" ng-click="onSort({sort:'votes'})">Rösta</a></th>
+		<th class="hidden-sm hidden-xs" style="width: 90px;">Rapportera</th>
+		<th class="hidden-xs" style="width: 150px;"><a class="whiteLink" href="" ng-click="onSort({sort:'added'})">Tillagd</a></th>
+		<th ng-if="colUser" class="hidden-sm hidden-xs text-left" style="width: 200px;">Ansökare</th>
+		<th ng-if="colReward" class="hidden-xs" style="width: 100px;"><a class="whiteLink" href="" ng-click="onSort({sort:'reward'})">Hittelön</a></th>
+		<th class="hidden-xs" style="width: 100px;">Ladda upp</th>
+	</tr>
+	<tr ng-repeat="request in requests">
+		<td style="width: 57px;">
+			<img class="categoryImage category{{ request.type }}" />
+		</td>
+		<td class="text-left vert-align">
+			<a href="" ui-sref="requests.request({id:request.id})" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ request.request }}<span ng-show="request.season > 0"> (Säsong {{request.season}})</span></a>
+			<br />
+			<i>{{ request.comment }}</i>
+			<div class="hoverPoster" ng-if="showPoster && request.imdbid2" style="background-image: url('/img/imdb/{{ ::request.imdbid2 }}.jpg');"></div>
+		</td>
+		<td ng-if="colEdit" class="vert-align">
+			<button class="btn btn-default btn-xs" ui-sref="requests.edit({id:request.id})"><i class="fa fa-pencil"></i></button>
+			<button class="btn btn-default btn-xs" ng-click="delete({request:request})"><i class="fa fa-trash-o"></i></button>
+		</td>
+		<td ng-if="colVote" class="vert-align"><button class="btn btn-default btn-xs" ng-click="vote({request:request})">{{ request.votes }}</button></td>
+		<td class="vert-align hidden-sm hidden-xs"><button class="btn btn-default btn-xs" ng-click="report(request)"><i class="fa fa-exclamation-triangle"></i></button></td>
+		<td class="vert-align hidden-xs">{{ request.added }}</td>
+		<td ng-if="colUser" class="vert-align hidden-sm hidden-xs text-left"><user user="request.user"></user></td>
+		<td ng-if="colReward" class="hidden-xs">
+			<b>{{ request.reward }}p</b>
+			<br />
+			<button class="btn btn-default btn-xs" ng-click="giveReward({request:request})">Öka hittelön</button>
+		</td>
+		<td class="vert-align hidden-xs"><button class="btn btn-default btn-xs" ui-sref="upload({requestId:request.id, requestName:request.request})">Ladda upp</button></td>
+	</tr>
+</table>

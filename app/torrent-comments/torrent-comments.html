@@ -1,0 +1,14 @@
+<div class="text-center">
+	<h1>Kommentarer till mina torrents</h1>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="comments.length == 0"></uib-pagination>
+
+	<div ng-hide="comments" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+	<div ng-show="comments.length == 0" class="alert alert-warning" role="alert">Du har inga kommentarer på dina torrents</div>
+
+	<div class="col-md-10 col-centered nopadding" ng-show="comments">
+		<posts posts="comments" upload-comments-view="true" current-user="myself" ng-hide="comments.length == 0"></posts>
+	</div>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="comments.length == 0"></uib-pagination>
+</div>

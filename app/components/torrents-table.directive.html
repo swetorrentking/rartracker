@@ -1,0 +1,72 @@
+<table class="table table-striped table-hover table-nowrap table-text-center" ng-show="torrents">
+	<thead ng-if="header">
+		<tr>
+			<th style="width: 57px;" ng-if="columnIndex">#</th>
+			<th style="width: 57px;">Typ</th>
+			<th class="text-left"><a class="whiteLink" href="" ng-click="onSort({sort:'n'})">Namn</a> &nbsp;<a class="whiteLink" href="" ng-click="onSort({sort:'i'})">IMDb</a></th>
+			<th style="width: 45px;">&nbsp;</th>
+			<th style="width: 50px;" ng-if="columnDownload" class="hidden-xs"><i class="fa fa-download"></i></th>
+			<th style="width: 50px;" ng-if="columnBookmark" class="hidden-xs"><i class="fa fa-bookmark"></i></th>
+			<th style="width: 50px;" ng-if="columnComments" class="hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'c'})"><i class="fa fa-comment"></i></a></th>
+			<th style="width: 90px;" ng-if="columnDate" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'d'})">Datum</a></th>
+			<th style="width: 80px;" ng-if="columnSize" class="hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'s'})">Storlek</a></th>
+			<th style="width: 80px;" ng-if="columnTimesCompleted" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'f'})">Nerladdad</a></th>
+			<th style="width: 80px;" ng-if="columnData" class="hidden-md hidden-sm hidden-xs">Data
+			<th style="width: 50px;" ng-if="columnSeeders" class="hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'up'})"><i class="fa fa-arrow-up"></i></a></th>
+			<th style="width: 50px;" ng-if="columnLeechers" class="hidden-xs"><a class="whiteLink" href="" ng-click="onSort({sort:'dl'})"><i class="fa fa-arrow-down"></i></a></th>
+			<th style="width: 80px;" ng-if="columnDelete" class="hidden-xs"><i class="fa fa-trash-o"></i></th>
+			<th style="width: 80px;" ng-if="checkMode"><a class="whiteLink" href="" ng-click="checkAll()">Välj</a></th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="torrent in torrents" ng-init="old = (torrent.added | dateToUnix) > lastBrowseDate ? false : true">
+			<td ng-if="columnIndex" style="width: 20px; vertical-align: middle;"> {{ $index + 1 }}</td>
+			<td style="width: 57px;">
+				<a href="" ng-click="onFilterCategory({category: torrent.category})"><img class="categoryImage category{{ ::torrent.category }}" /></a>
+			</td>
+			<td class="text-left vert-align" ng-if="!old">
+				<torrent-cell torrent="::torrent" search-text="{{::searchText}}"></torrent-cell>
+			</td>
+			<td class="text-left vert-align" colspan="2" ng-if="old">
+				<torrent-cell torrent="::torrent" search-text="{{::searchText}}"></torrent-cell>
+			</td>
+			<td class="newCol" ng-if="!old">
+				<span class="badge" style="font-size: 10px;">NY</span>
+			</td>
+			<td class="vert-align hidden-xs" style="width: 50px;" ng-if="columnDownload">
+				<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{::torrent.id}}">
+					<button class="btn btn-default btn-xs"><i class="fa fa-download"></i></button>
+				</a>
+			</td>
+			<td class="vert-align hidden-xs" ng-if="columnBookmark" style="width: 50px;">
+				<button ng-click="bookmark(torrent)" class="btn btn-default btn-xs" ng-class="{'disabled':torrent.bookmarked}"><i class="fa fa-bookmark"></i></button>
+			</td>
+			<td class="vert-align hidden-sm hidden-xs" ng-if="columnComments" style="width: 50px;">
+				<a ng-if="torrent.comments > 0" ui-sref="torrent({id: torrent.id, name: torrent.name, scrollTo: 'comments'})" ng-bind="::torrent.comments"></a>
+				<span ng-if="torrent.comments <= 0">0</span>
+			</td>
+			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="columnDate" ng-bind-html="::torrent.added | dateStringSplit" style="width: 90px;"></td>
+			<td class="vert-align hidden-sm hidden-xs" ng-if="columnSize" style="width: 80px;">
+				{{ ::torrent.size | prettysize }}
+				<br />
+				<div class="text-small">{{ ::torrent.numfiles }} filer</div>
+			</td>
+			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="columnTimesCompleted" style="width: 80px;">{{ ::torrent.times_completed }} gånger</td>
+			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="columnData" style="width: 80px;">{{:: torrent.data | prettysize }}</td>
+			<td class="vert-align hidden-xs" ng-if="columnSeeders" style="width: 50px;">
+				<a ng-if="torrent.seeders > 0" ui-sref="torrent({id: torrent.id, name: torrent.name, scrollTo:'seeders'})" ng-bind="::torrent.seeders"></a>
+				<span ng-if="torrent.seeders <= 0">0</span>
+			</td>
+			<td class="vert-align hidden-xs" ng-if="columnLeechers" style="width: 50px;">
+				<a ng-if="torrent.leechers > 0" ui-sref="torrent({id: torrent.id, name: torrent.name, scrollTo:'leechers'})" ng-bind="::torrent.leechers"></a>
+				<span ng-if="torrent.leechers <= 0">0</span>
+			</td>
+			<td class="vert-align hidden-xs" ng-if="columnDelete" style="width: 50px;">
+				<button ng-click="onDelete({torrent:torrent})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+			</td>
+			<td class="vert-align" ng-if="checkMode">
+				<button class="btn btn-default btn-xs" uib-btn-checkbox btn-checkbox-true="'yes'" btn-checkbox-false="'no'" ng-model="torrent.selected"><i class="fa fa-check"></i></button>
+			</td>
+		</tr>
+	</tbody>
+</table>

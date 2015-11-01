@@ -1,0 +1,93 @@
+<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+<div ng-hide="posts" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+<div class="col-md-10 col-centered nopadding" ng-show="posts">
+	<posts posts="posts" edit-obj="editObj" report="report(post)" current-user="myself" on-quote="QuotePost(post)" goto-anchor="gotoAnchor(postId)" delete-post="DeletePost(post)" edit-post="EditPost(post)" abort-edit="AbortEdit()" save-edit="SaveEdit(post)"></posts>
+	<div ng-show="topic.locked == 'no'" id="newPost" class="col-sm-10 col-sm-push-1" ng-show="numberOfPages == currentPage">
+		<div class="text-center">
+			<h3>Skriv inlägg</h3>
+			<div class="form-group">
+				<textarea class="form-control" rows="8" id="postText" ng-model="post.body" placeholder="Skriv inlägg..."></textarea>
+			</div>
+			<button ng-show="postStatus == 0" class="btn btn-primary" ng-click="SavePost()">Skriv inlägg</button>
+			<button ng-show="postStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
+			<!--
+			<br />
+			<br />
+			<button class="btn btn-default btn-xs" ng-click="ShowSmilies()">Smilies</button>
+			<button class="btn btn-default btn-xs" ng-click="ShowSmilies()">BB-taggar</button>
+			-->
+		</div>
+		<br />
+		<uib-alert type="{{alert.type}}" close="closeAlert()" ng-show="alert != null">
+			{{alert.msg}}
+		</uib-alert>
+	</div>
+	<div class="clearfix"></div>
+	<div ng-show="post.body.length > 0">
+		<h3 class="text-center">Live förhandsvisning av inlägg:</h3>
+		<posts posts="[post]" current-user="myself"></posts>
+	</div>
+
+	<br />
+	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" ng-class="alert-warning" role="alert" type="danger" close="closeAlert()" ng-show="numberOfPages == currentPage && topic.locked == 'yes'">
+		Tråden är låst.
+	</div>
+
+	<!-- Topic admin panel -->
+	<div ng-if="myself.class >= 8" class="col-md-6 col-md-push-3">
+		<form>
+			<table class="table table-striped" cellpadding="15">
+				<tr>
+					<td style="width: 100px;" class="text-right tdBold alignMiddle">Klistrad</td>
+					<td class="text-left">
+						<div class="btn-group">
+							<label class="btn btn-default btn-sm" ng-model="topic.sticky" uib-btn-radio="'yes'">Ja</label>
+							<label class="btn btn-default btn-sm" ng-model="topic.sticky" uib-btn-radio="'no'">Nej</label>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="text-right tdBold alignMiddle">Låst</td>
+					<td class="text-left">
+						<div class="btn-group">
+							<label class="btn btn-default btn-sm" ng-model="topic.locked" uib-btn-radio="'yes'">Ja</label>
+							<label class="btn btn-default btn-sm" ng-model="topic.locked" uib-btn-radio="'no'">Nej</label>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="text-right tdBold alignMiddle">Rubrik</td>
+					<td class="text-left">
+						<input type="text" class="form-control" ng-model="topic.subject" />
+					</td>
+				</tr>
+				<tr>
+					<td class="text-right tdBold alignMiddle">Underrubrik</td>
+					<td class="text-left">
+						<input type="text" class="form-control" ng-model="topic.sub" />
+					</td>
+				</tr>
+				<tr>
+					<td class="text-right tdBold alignMiddle">Flytta tråd</td>
+					<td class="text-left">
+						<select class="form-control" ng-model="topic.forumid" ng-options="i.id as i.name group by i.forumhead for i in forums">
+					</select>
+					</td>
+				</tr>
+				<tr>
+					<td class="text-right tdBold alignMiddle">Radera tråd</td>
+					<td class="text-left">
+						<button class="btn btn-default btn-xs" ng-click="$parent.deleteTopic()"><i class="fa fa-trash-o"></i> Radera</button>
+					</td>
+				</tr>
+			</table>
+		</form>
+		<br />
+		<button class="btn btn-primary center-block btn-sm" ng-click="$parent.$parent.updateTopic()">Spara inställningar</button>
+	</div>
+
+</div>
+
+<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-click="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>

@@ -1,0 +1,22 @@
+<div class="text-center">
+	<div class="modal-header">
+		<h2 class="modal-title">Öka hittelön</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form" ng-submit="sendMessage()">
+			<div class="form-group" style="text-align: left;">
+				<label for="subject">Bonuspoäng:</label>
+				<input type="text" id="subject" class="form-control" placeholder="Bonuspoäng" ng-model="reward" />
+			</div>
+		</form>
+		<uib-alert style="text-align: center;" type="{{alert.type}}" close="closeAlert()" ng-show="alert != null">
+		 	{{alert.msg}}
+		</uib-alert>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-primary" ng-click="create()">Lägg in hittelön</button>
+			<button class="btn btn-default" ng-click="cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

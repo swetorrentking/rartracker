@@ -1,0 +1,46 @@
+<div class="text-center">
+
+	<h2>Veckans seedare</h2>
+
+	<i>Topplistorna nollställs varje vecka när bonuspoängen delas ut.<br />
+Pokaler delas ut som ikon till de 25 bästa Arkiv- och Nytt-seedarna varje vecka.</i>
+
+<div class="clearfix"></div>
+
+	<div ng-show="error" class="alert alert-warning" role="alert">Du måste vara minst 'Filmstjärna' för att se denna topplista</div>
+	<div ng-hide="newSeeders || error" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+
+	<div class="col-md-5 col-md-push-1" ng-show="newSeeders">
+		<h3>Nyttseed</h3>
+		<table class="table table-striped table-hover">
+			<tr>
+				<th style="width: 50px;">#</th>
+				<th>Användare</th>
+				<th>Uppladdat</th>
+			</tr>
+			<tr ng-repeat="user in ::newSeeders">
+				<td># {{ $index + 1 }}</td>
+				<td class="text-left"><user user="::user" showclass="false"></user></td>
+				<td>{{ user.nytt_seed | prettysize }}</td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="col-md-5 col-md-push-1" ng-show="archiveSeeders">
+		<h3>Arkivseed</h3>
+		<table class="table table-striped table-hover">
+			<tr>
+				<th style="width: 50px;">#</th>
+				<th>Användare</th>
+				<th>Uppladdat</th>
+			</tr>
+			<tr ng-repeat="user in ::archiveSeeders">
+				<td># {{ $index + 1 }}</td>
+				<td class="text-left"><user user="::user" showclass="false"></user></td>
+				<td>{{ user.arkiv_seed | prettysize }}</td>
+			</tr>
+		</table>
+	</div>
+	<div class="clearfix"></div>
+</div>

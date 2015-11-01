@@ -1,0 +1,38 @@
+<h2>Skapa ny tråd</h2>
+
+<div class="col-md-8 col-md-push-2">
+	<form role="form">
+		<div class="panel" style="padding: 10px;">
+			<div class="form-group" style="text-align: left;">
+				<label for="subject">Rubrik</label>
+				<input type="text" id="subject" class="form-control" placeholder="Rubrik" ng-model="post.subject" required />
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="sub">Underrubrik</label>
+				<input type="text" id="sub" class="form-control" placeholder="Underrubrik (valfritt)" ng-model="post.sub" />
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="postText">Inlägg</label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="post.body" placeholder="Skriv inlägg..." required></textarea>
+			</div>
+		</div>
+
+		<div class="text-center" style="clear: both;">
+			<button ng-show="postStatus == 0" class="btn btn-primary" ng-click="CreateTopic()">Skapa ny tråd</button>
+			<button ng-show="postStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
+			<br />
+			<br />
+			<button class="btn btn-default btn-xs" ng-click="ShowSmilies()">Smilies</button>
+			<button class="btn btn-default btn-xs" ng-click="ShowBBTags()">BB-taggar</button>
+			<br />
+			<br />
+			<uib-alert type="{{alert.type}}" close="closeAlert()" ng-show="alert != null">
+				{{alert.msg}}
+			</uib-alert>
+		</div>
+	</form>
+</div>
+<div class="col-md-10 col-centered">
+	<h3 class="text-center">Live förhandsvisning av inlägg:</h3>
+	<posts posts="[post]" current-user="myself"></posts>
+</div>

@@ -1,0 +1,13 @@
+<div class="text-center">
+	<div class="modal-header">
+		<h2 class="modal-title">{{ settings.title }}</h2>
+	</div>
+	<div class="modal-body">
+		<div ng-bind-html="settings.body | bbCode"></div>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-default" ng-click="cancel()">Stäng</button>
+		</div>
+	</div>
+</div>

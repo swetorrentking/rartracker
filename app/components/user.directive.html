@@ -1,0 +1,33 @@
+<b>
+	<a ng-if="link" ng-class="{'admin-color': user.class == 8}" ui-sref="user({id: user.id, username: user.username})">{{ user.username }}</a>
+	<span ng-hide="link">{{ user.username }}</span>
+</b>
+
+<span ng-if="icons && iconsize == 'small'">
+	<img ng-if="user.donor == 'yes'" class="icon" ng-src="/img/icons/star-small.png" width="16" height="16" title="Donerat" alt="Donerat" />
+	<img ng-if="user.coin == 1" class="icon" ng-src="/img/icons/coin-small.png" width="16" height="16" title="Guldpeng" alt="Guldpeng" />
+	<img ng-if="user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-small.png" width="16" height="16" title="Avstängd" alt="Avstängd" />
+	<img ng-if="user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-small.png" width="16" height="13" title="Varnad" alt="Varnad" />
+	<img ng-if="user.username && user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-small.png" width="18" height="16" title="100% leechbonus" alt="100% leechbonus" />
+	<img ng-if="user.crown == 1" class="icon" ng-src="/img/icons/crown-small.png" width="16" height="16" title="Krona" alt="Krona" />
+	<img ng-if="user.pokal == 1" class="icon" ng-src="/img/icons/trophy-small.png" width="16" height="16" title="Pokal" alt="Pokal" />
+</span>
+
+<span ng-if="icons && iconsize == 'big'">
+	<img ng-if="user.donor == 'yes'" class="icon" ng-src="/img/icons/star-big.png" width="23" height="23" title="Donerat" alt="Donerat" />
+	<img ng-if="user.coin == 1" class="icon" ng-src="/img/icons/coin-big.png" width="23" height="23" title="Guldpeng" alt="Guldpeng" />
+	<img ng-if="user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-big.png" width="20" height="20" title="Avstängd" alt="Avstängd" />
+	<img ng-if="user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-big.png" width="23" height="19" title="Varnad" alt="Varnad" />
+	<img ng-if="user.username && user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-big.png" width="23" height="23" title="100% leechbonus" alt="100% leechbonus" />
+	<img ng-if="user.crown == 1" class="icon" ng-src="/img/icons/crown-big.png" width="23" height="23" title="Krona" alt="Krona" />
+	<img ng-if="user.pokal == 1" class="icon" ng-src="/img/icons/trophy-big.png" width="23" height="23" title="Pokal" alt="Pokal" />
+</span>
+
+<span ng-show="showclass && user.class != null">
+	<span ng-show="user.title"> ({{ user.title }})</span>
+	<span ng-hide="user.title"> ({{ user.class | userClass }})</span>
+</span>
+
+<span ng-show="user.anonymous"> <i>(Anonym)</i></span>
+
+<i ng-show="!user.username">Anonym</i>

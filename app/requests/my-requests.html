@@ -1,0 +1,34 @@
+<div class="col-md-4 col-centered">
+	<table class="table table-striped" cellpadding="15">
+		<tr>
+			<td style="width: 200px;" class="text-right tdBold alignMiddle">Antal aktiva requests:</td>
+			<td class="text-center">{{ myRequests.length }}</td>
+		</tr>
+		<tr>
+			<td class="text-right tdBold alignMiddle">Maximalt antal aktiva requests:</td>
+			<td class="text-center">{{ myself.reqslots }}</td>
+		</tr>
+	</table>
+</div>
+
+<h2>Mina aktiva requests</h2>
+
+<div ng-hide="myRequests" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+<div ng-show="myRequests.length == 0" class="alert alert-warning" role="alert">Du har inga aktiva requests</div>
+
+<div ng-show="myRequests.length > 0" class="table-responsive col-sm-10 col-sm-push-1">
+	<requests-table requests="myRequests" delete="delete(request)" give-reward="giveReward(request)" report="report(request)" col-reward col-edit></requests-table>
+</div>
+<div class="clearfix"></div>
+<br />
+
+<h2>Requests jag röstat på</h2>
+
+<div ng-hide="myVotedRequests" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+<div ng-show="myVotedRequests.length == 0" class="alert alert-warning" role="alert">Du har inte röstat på några aktiva requests</div>
+
+<div ng-show="myVotedRequests.length > 0" class="table-responsive col-sm-10 col-sm-push-1">
+	<requests-table requests="myVotedRequests" give-reward="giveReward(request)" report="report(request)" col-rewardt></requests-table>
+</div>
+<div class="clearfix"></div>
+<br />

@@ -1,0 +1,15 @@
+{
+  "browser": true,
+  "esnext": true,
+  "globals": {
+    "angular": false
+  },
+  "quotmark": true,
+  "undef": true,
+  "unused": true,
+  "sub": true,
+  "node": true,
+  "indent": 1,
+  "strict": true,
+  "newcap": false
+}

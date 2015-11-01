@@ -1,0 +1,31 @@
+<div class="text-center">
+
+	<h2>Torrents</h2>
+
+	<div ng-hide="torrentsActive" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<div ng-show="torrentsActive">
+
+		<h3>Mest aktiva</h3>
+		<div class="table-responsive col-md-9 col-centered nopadding">
+			<torrents-table torrents="torrentsActive" column-index column-data column-times-completed column-seeders column-leechers></torrents-table>
+		</div>
+
+		<h3>Mest nerladdade</h3>
+		<div class="table-responsive col-md-9 col-centered nopadding">
+			<torrents-table torrents="torrentsDownloaded" column-index column-data column-times-completed column-seeders column-leechers></torrents-table>
+		</div>
+
+		<h3>Mest data överförd</h3>
+		<div class="table-responsive col-md-9 col-centered nopadding">
+			<torrents-table torrents="torrentsData" column-index column-data column-times-completed column-seeders column-leechers></torrents-table>
+		</div>
+
+		<h3>Bäst seedade</h3>
+		<div class="table-responsive col-md-9 col-centered nopadding">
+			<torrents-table torrents="torrentsSeeded" column-index column-data column-times-completed column-seeders column-leechers></torrents-table>
+		</div>
+
+	</div>
+
+</div>

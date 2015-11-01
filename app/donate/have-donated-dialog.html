@@ -1,0 +1,45 @@
+
+	<div class="modal-header text-center">
+		<h2 class="modal-title">Jag har donerat!</h2>
+	</div>
+	<div class="modal-body">
+		<table class="table">
+			<tr>
+				<td class="tdBold text-left">Donerad summa</td>
+				<td><input type="text" class="form-control" ng-model="settings.sum" placeholder="Summa" /> SEK</td>
+			</tr>
+			<tr>
+				<td class="tdBold text-left">Typ</td>
+				<td>
+					<div class="btn-group">
+						<label class="btn btn-default" ng-model="settings.type" uib-btn-radio="2">Bitcoin</label>
+						<label class="btn btn-default" ng-model="settings.type" uib-btn-radio="1">Paysafe</label>
+						<label class="btn btn-default" ng-model="settings.type" uib-btn-radio="3">Paypal</label>
+					</div>
+				</td>
+			</tr>
+			<tr ng-show="settings.type == 1">
+				<td class="tdBold text-left">Paysafe PIN</td>
+				<td><input type="text" class="form-control" ng-model="settings.pin" placeholder="16 siffror PIN" /></td>
+			</tr>
+			<tr>
+				<td class="tdBold text-left">Guldstjärna</td>
+				<td>
+					<div class="btn-group">
+						<label class="btn btn-default" ng-model="settings.goldstar" uib-btn-radio="1">Ja</label>
+						<label class="btn btn-default" ng-model="settings.goldstar" uib-btn-radio="0">Nej</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="tdBold text-left">Meddelande (valfritt)</td>
+				<td><textarea ng-model="settings.comment" class="form-control"></textarea></td>
+			</tr>
+		</table>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-success" ng-class="{'disabled': submitDisabled}" ng-click="confirm()">Skicka in</button>
+			<button class="btn btn-default" ng-click="cancel()">Avbryt</button>
+		</div>
+	</div>

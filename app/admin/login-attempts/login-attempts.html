@@ -1,0 +1,35 @@
+<div class="text-center">
+	<h1>Misslyckade inloggningsförsök</h1>
+
+	<div ng-hide="loginAttempts" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+	<div class="col-lg-10 col-lg-push-1">
+		<table class="table text-left" ng-show="loginAttempts">
+			<tr>
+				<th class="text-left">Datum</th>
+				<th class="text-left">IP</th>
+				<th class="text-left">Inloggningsnamn</th>
+				<th class="text-left">Lösenord</th>
+				<th>Radera</th>
+			</tr>
+			<tr ng-repeat="login in loginAttempts">
+				<td>{{ login.added }}</td>
+				<td><a href="" ui-sref="admin-search({ip: login.ip})">{{ login.ip }}</a></td>
+				<td>
+					<user ng-if="login.user.id" user="login.user"></user>
+					<span ng-if="!login.user.id">{{ login.name }} ?</span>
+				</td>
+				<td>{{ login.password }}</td>
+				<td class="text-center">
+					<button ng-click="delete(login)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i></button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<div class="clearfix"></div>
+
+	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

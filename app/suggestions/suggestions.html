@@ -1,0 +1,54 @@
+<div class="text-center">
+	<h1>Förslag</h1>
+
+	<button class="btn btn-default btn-xs" ng-click="createSuggestion()"><i class="fa fa-lightbulb-o"></i> Skapa nytt förslag</button>
+
+	<br /><br />
+
+	<nav class="navbar navbar-default" ng-show="loggedIn">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>
+		<div class="collapse navbar-collapse" ng-class="!navCollapsed && 'in'">
+			<ul class="nav navbar-nav navbar-nav-one">
+				<li class="menu" ng-class="{active: currentPage=='hot'}"><a href="" ng-click="switchView('hot')">Heta idéer</a></li>
+				<li class="menu" ng-class="{active: currentPage=='top'}"><a href="" ng-click="switchView('top')">Topplista</a></li>
+				<li class="menu" ng-class="{active: currentPage=='new'}"><a href="" ng-click="switchView('new')">Nya</a></li>
+				<li class="menu" ng-class="{active: currentPage=='denied'}"><a href="" ng-click="switchView('denied')">Nekade</a></li>
+				<li class="menu" ng-class="{active: currentPage=='done'}"><a href="" ng-click="switchView('done')">Godkända</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<div ng-hide="suggestions" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
+
+	<div class="col-md-8 col-md-push-2">
+		<table class="table" ng-show="suggestions">
+			<tr ng-repeat="suggest in suggestions">
+				<td style="width: 125px;">
+					<div style="font-size: 25px; font-weight: bold;">{{ suggest.votes }}</div>
+					<div>röster</div>
+					<div style="font-size: 26px;">
+						<i class="fa fa-arrow-up" style="color: #00C853; cursor: pointer;" ng-click="voteUp(suggest)"></i>
+						<i class="fa fa-arrow-down" style="color: #F44336; cursor: pointer;" ng-click="voteDown(suggest)"></i></div>
+				</td>
+				<td class="text-left" valign="top">
+					<h2 style="margin-top: 0px;">{{ suggest.title }} 
+						<suggestion-label status="suggest.status" style="font-size: 15px; vertical-align: middle;"></suggestion-label> 
+						<select ng-show="myself.class >= 8" class="form-control pull-right" style="width: 140px;" ng-change="updateStatus(suggest)" ng-model="suggest.status" ng-options="convertToInt(key) as value for (key, value) in voteOptions"></select>
+					</h2>
+					<p>{{ suggest.body }}</p>
+					<div>{{ suggest.comments}} kommentarer - {{ suggest.added }} - <a href="" ui-sref="forum.topic({id: suggest.topicid, forumid: forumId, page: 1})">Läs mer i forumet »</a></div>
+				</td>
+			</tr>
+		</table>
+	<br />
+	</div>
+
+
+</div>
