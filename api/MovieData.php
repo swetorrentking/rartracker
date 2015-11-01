@@ -35,7 +35,7 @@ class MovieData {
 		if ($res) {
 			return $res;
 		} else {
-			$res = $this->fetchImdbData("http://www.imdb.com/title/".$id."/");
+			$res = $this->fetchImdbData("http://akas.imdb.com/title/".$id."/");
 			
 			if (strlen($res["photo"]) > 10) {
 				@file_put_contents($this->imdbPicturesDir . $res["imdbid"] . '.jpg', @file_get_contents($res["photo"]));
@@ -79,7 +79,16 @@ class MovieData {
 	}
 
 	private function fetchImdbData($url) {
-		$data = @file_get_contents($url);
+
+		// Decides what language the IMDB titles should be fetched in.
+		$header[] = "Accept-Language: en-us,en;q=0.5";
+
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $data = curl_exec($ch);
+        curl_close($ch);     
 
 		if (!$data) {
 			throw new Exception('Kunde inte hämta IMDB info ifrån servern.');
@@ -128,7 +137,7 @@ class MovieData {
 		/* Title + Year  */
 		if (@preg_match('!<title>(IMDb\s*-\s*)?(.*) \((.*)(\d{4}|\?{4}).*\)(.*)(\s*-\s*IMDb)?</title>!', $data,$match)) {
 
-		$info["title"] = urldecode($match[2]);
+		$info["title"] = htmlspecialchars_decode($match[2]);
 		  
 		if ($match[3]=="????")
 			$info["year"] = "";
@@ -233,7 +242,7 @@ class MovieData {
 			throw new Exception('Finns ingen filmdata med detta id.', 404);
 		}
 
-		$url = 'http://www.imdb.com/title/'.$res["imdbid"].'/';
+		$url = 'http://akas.imdb.com/title/'.$res["imdbid"].'/';
 		$data = $this->fetchImdbData($url);
 
 //		if ($res["photo"] == 1) {
@@ -247,7 +256,7 @@ class MovieData {
 			}
 		//}
 
-		$sth = $this->db->prepare("UPDATE imdbinfo SET rating = ?, tagline = ?, genres = ?, photo = ?, director = ?, writer = ?, cast = ?, runtime = ?, seasoncount = ?, lastUpdated = NOW() WHERE id = ?");
+		$sth = $this->db->prepare("UPDATE imdbinfo SET rating = ?, tagline = ?, genres = ?, photo = ?, director = ?, writer = ?, cast = ?, runtime = ?, seasoncount = ?, title = ?, lastUpdated = NOW() WHERE id = ?");
 		$sth->bindParam(1,	$data["rating"],		PDO::PARAM_INT);
 		$sth->bindParam(2,	$data["tagline"],		PDO::PARAM_STR);
 		$sth->bindParam(3,	$data["genres"],		PDO::PARAM_STR);
@@ -257,7 +266,8 @@ class MovieData {
 		$sth->bindParam(7,	$data["cast"],			PDO::PARAM_STR);
 		$sth->bindParam(8,	$data["runtime"],		PDO::PARAM_INT);
 		$sth->bindParam(9,	$data["seasoncount"],	PDO::PARAM_INT);
-		$sth->bindParam(10,	$id,					PDO::PARAM_INT);
+		$sth->bindParam(10,	$data["title"],			PDO::PARAM_STR);
+		$sth->bindParam(11,	$id,					PDO::PARAM_INT);
 		$sth->execute();
 
 	}
@@ -282,7 +292,7 @@ class MovieData {
 			throw new Exception("Must be run by server.", 401);
 		}
 
-		$data = file_get_contents("http://www.imdb.com/boxoffice/rentals");
+		$data = file_get_contents("http://akas.imdb.com/boxoffice/rentals");
 		preg_match_all("/\/title\/(.*?)\//", $data, $matches);
 		$array = $matches[1];
 
