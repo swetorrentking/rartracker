@@ -12,7 +12,7 @@ the swedish torrent king
 * Highly skinnable and mobile friendly design with Bootstrap CSS
 
 # Installation
-## Install nodejs and npm
+## 1. Install nodejs and npm
 
 **Ubuntu/Debian:**
 ```sh
@@ -20,22 +20,23 @@ $ sudo apt-get install --yes nodejs
 ```
 **Windows:**
 * https://nodejs.org/en/download/
-### Download dependencies
+## 2. Download dependencies
 Use npm and then bower to install all build script packages and all 3rd party dependencies
 ```sh
 $ npm install
 $ bower install
 ```
-## Import database (database.sql)
-## Configurations
+## 3. Import database (database.sql)
 
-### 1. Config
+# Configurations
+
+### 1. Basic config
 * Database config in api/secrets.php
 * Some site settings in api/Helper.php
-### 3. Generate new unique password/cookie salt hashes (optional for security)
+### 2. Generate new unique password/cookie salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
-### 4. Create admin accounts
+### 3. Create admin accounts
 Use built in account named "**System**" password: "**password**" to create invites and register new admin-accounts
 The "System" account **must remain** as a parked account and have Staff rights because it's used as deleter of torrents, sender of PM and creation of forum topics etc. Change System password.
 
