@@ -46,6 +46,7 @@ Some site settings in api/Helper.php
 ### 2. Generate new unique salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
+
 ### 3. Create admin accounts
 Use built in account named "**System**" password: "**password**" to create invites and register new admin-accounts
 The "System" account **must remain** as a parked account and have Staff rights because it's used as deleter of torrents, sender of PM and creation of forum topics etc. Change System password.
