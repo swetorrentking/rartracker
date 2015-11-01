@@ -20,6 +20,7 @@ $ sudo apt-get install --yes nodejs
 ```
 **Windows:**
 * https://nodejs.org/en/download/
+
 ## 2. Download dependencies
 Use npm and then bower to install all build script packages and all 3rd party dependencies
 ```sh
