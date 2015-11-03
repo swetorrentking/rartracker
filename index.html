@@ -49,25 +49,33 @@
 <a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
 
 <h2>
-<a id="1-install-nodejs-and-npm" class="anchor" href="#1-install-nodejs-and-npm" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Install nodejs and npm</h2>
+<a id="1-install-nodejs-and-npm" class="anchor" href="#1-install-nodejs-and-npm" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Install Node.js/npm and Git</h2>
 
-<p><strong>Ubuntu/Debian:</strong></p>
-
-<div class="highlight highlight-source-shell"><pre>$ sudo apt-get install --yes nodejs</pre></div>
 
 <p><strong>Windows:</strong></p>
 
 <ul>
 <li><a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></li>
+<li><a href="https://git-scm.com/download/win">https://nodejs.org/en/download/</a> (Choose: Use/run Git from the Command Prompt (cmd.exe))</li>
 </ul>
 
+<p><strong>Ubuntu/Debian:</strong></p>
+
+<div class="highlight highlight-source-shell"><pre>$ sudo apt-get install -y nodejs
+$ sudo apt-get install -y git-core</pre></div>
+
+
 <h2>
-<a id="2-download-dependencies" class="anchor" href="#2-download-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Download dependencies</h2>
+<a id="2-download-dependencies" class="anchor" href="#2-download-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Install dependencies</h2>
 
-<p>Use npm and then bower to install all build script packages and all 3rd party dependencies</p>
+<p>From the project folder install all build script packages and all 3rd party dependencies</p>
 
-<div class="highlight highlight-source-shell"><pre>$ npm install
-$ bower install</pre></div>
+<div class="highlight highlight-source-shell"><pre>$ npm install -g bower
+$ npm install -g grunt-cli
+$ npm install
+$ bower install
+$ grunt dist
+</pre></div>
 
 <h2>
 <a id="3-import-database-databasesql" class="anchor" href="#3-import-database-databasesql" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Import database (database.sql)</h2>
