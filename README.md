@@ -12,20 +12,26 @@ the swedish torrent king
 * Highly skinnable and mobile friendly design with Bootstrap CSS
 
 # Installation
-## 1. Install nodejs and npm
+## 1. Install Node.js/npm and Git
+
+**Windows:**
+* https://nodejs.org/en/download/
+* https://git-scm.com/download/win (Choose: Use/run Git from the Command Prompt (cmd.exe))
 
 **Ubuntu/Debian:**
 ```sh
-$ sudo apt-get install --yes nodejs
+$ sudo apt-get install -y nodejs
+$ sudo apt-get install -y git-core
 ```
-**Windows:**
-* https://nodejs.org/en/download/
 
-## 2. Download dependencies
-Use npm and then bower to install all build script packages and all 3rd party dependencies
+## 2. Install dependencies
+From the project folder install all build script packages and all 3rd party dependencies
 ```sh
+$ npm install -g bower
+$ npm install -g grunt-cli
 $ npm install
 $ bower install
+$ grunt dist
 ```
 ## 3. Import database (database.sql)
 
