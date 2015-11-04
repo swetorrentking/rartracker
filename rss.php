@@ -2,8 +2,8 @@
 
 include('api/secrets.php');
 
-mysql_connect($host, $username, $password);
-mysql_select_db($dbname);
+$db = new PDO($database.':host='.$host.';dbname='.$dbname.';charset=utf8', $username, $password);
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 function mksize($bytes) {
 	if ($bytes < 1000 * 1024)
@@ -22,8 +22,10 @@ if (!preg_match("/^[a-z0-9]{32}$/", $passkey)) {
 	echo "Invalid passkey";
 	exit;
 }
-
-$user = mysql_fetch_row(mysql_query("SELECT id FROM users WHERE passkey = '$passkey'"));
+$sth = $db->prepare("SELECT id FROM users WHERE passkey = ?");
+$sth->bindParam(1, $passkey, PDO::PARAM_STR);
+$sth->execute();
+$user = $sth->fetch();
 
 if (!$user) {
 	echo "User not found.";
@@ -83,27 +85,27 @@ if (count($where) > 0) {
 	$finalWhere = "WHERE " . implode(" AND ", $where);
 }
 
-$SITENAME = "Rartracker";
+$SITENAME = "Rarat";
 $DESCR = "RSS Feeds";
-$BASEURL = "https://127.0.0.1";
+$BASEURL = "https://rarat.org";
 
 header("Content-Type: application/xml");
 print("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<rss version=\"0.91\">\n<channel>\n" .
 "<title>" . $SITENAME . "</title>\n<link>" . $BASEURL . "</link>\n<description>" . $DESCR . "</description>\n" .
-"<language>en-usde</language>\n<copyright> Copyright " . $SITENAME . "</copyright>\n<webMaster>noreply@rartracker.org</webMaster>\n" .
+"<language>en-usde</language>\n<copyright> Copyright " . $SITENAME . "</copyright>\n<webMaster>noreply@rarat.org</webMaster>\n" .
 "<image><title>" . $SITENAME . "</title>\n<url>" . $BASEURL . "/favicon.ico</url>\n<link>" . $BASEURL . "</link>\n" .
 "<width>16</width>\n<height>16</height>\n<description>" . $DESCR . "</description>\n</image>\n");
 
 if ($bookmark) {
-	$res = mysql_query("SELECT torrents.id, name, descr, filename, size, category, seeders, leechers, added FROM bookmarks LEFT JOIN torrents ON bookmarks.torrentid = torrents.id WHERE bookmarks.userid = ".$user[0]." ORDER BY bookmarks.id DESC LIMIT 15");
+	$res = $db->query("SELECT torrents.id, name, descr, filename, size, category, seeders, leechers, added FROM bookmarks LEFT JOIN torrents ON bookmarks.torrentid = torrents.id WHERE bookmarks.userid = ".$user[0]." ORDER BY bookmarks.id DESC LIMIT 15");
 } else {
-	$res = mysql_query("SELECT id,name,descr,filename,size,category,seeders,leechers,added FROM torrents $finalWhere ORDER BY added DESC LIMIT 15");
+	$res = $db->query("SELECT id,name,descr,filename,size,category,seeders,leechers,added FROM torrents $finalWhere ORDER BY added DESC LIMIT 15");
 }
 
-while ($row = mysql_fetch_row($res)){
+while ($row = $res->fetch()){
 	list($id, $name, $descr, $filename, $size, $cat, $seeders, $leechers, $added, $catname) = $row;
 
-	$link = "https://127.0.0.1/download.php?id=$id&amp;passkey=$passkey";
+	$link = "https://rarat.org/download.php?id=$id&amp;passkey=$passkey";
 
 	echo("<item><title>" . htmlspecialchars($name) . "</title>\n<link>" . $link . "</link>\n<description>Kategori: " . $category[$cat] . " \n Storlek: " . mksize($size) . "\n " . htmlspecialchars($descr) . "\n</description>\n<pubDate>".$added."</pubDate></item> \n");
 }

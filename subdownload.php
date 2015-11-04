@@ -9,14 +9,18 @@ $subid = 0 + $_GET["id"];
 
 if ($subid == 0 && $_GET["torrentid"]) {
 	$tid = 0 + $_GET["torrentid"];
-	$res = $db->query('SELECT * FROM subs WHERE torrentid = ' . $tid . ' LIMIT 1');
+	$sth = $db->prepare("SELECT * FROM subs WHERE torrentid = ? LIMIT 1");
+	$sth->bindParam(1, $tid, PDO::PARAM_INT);
+	$sth->execute();
 } else {
-	$res = $db->query('SELECT * FROM subs WHERE id = '. $subid);
+	$sth = $db->prepare("SELECT * FROM subs WHERE id = ?");
+	$sth->bindParam(1, $subid, PDO::PARAM_INT);
+	$sth->execute();
 }
 
-$row = $res->fetch(PDO::FETCH_ASSOC);
+$row = $sth->fetch(PDO::FETCH_ASSOC);
 
-if ($res->rowCount() != 1 || !file_exists("subs/" . $row["filnamn"])) {
+if ($sth->rowCount() != 1 || !file_exists("subs/" . $row["filnamn"])) {
 	header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
 	header("Status: 404 Not Found");
 	die("Det finns ingen separat undertextfil till denna releasen.");

@@ -16,10 +16,20 @@ $bannade = array(
 	'BitTorrent/3.4.2'
 );
 
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?: "";
+
 foreach ($bannade as $k) {
-	if (strpos($_SERVER['HTTP_USER_AGENT'], $k) > -1) {
+	if (strpos($userAgent, $k) > -1) {
 		err("Klienten du använder är inte tillåten.");
 	}
+}
+
+require('api/secrets.php'); //or die(err('Database error (could not connect)'));
+try {
+	$db = new PDO($database.':host='.$host.';dbname='.$dbname.';charset=utf8', $username, $password);
+	$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch (PDOException $e) {
+	err('Database error (' .$e->getMessage() .')');
 }
 
 $setting['time_me']                 = false; // calculate execution times (requires log_debug)
@@ -57,7 +67,6 @@ if (strlen($keys[2]) !== $setting['passkey_length'] || !ctype_alnum($keys[2])) {
 	err('Invalid passkey. Re-download torrent!'); //(Length: ' . strlen($keys[2]) . '.'.')');
 }
 $passkey = $keys[2];
-
 
 if (strlen($_GET['info_hash']) < 4) {
 	preg_match("/info_hash=(.*?)($|&)/", $_SERVER['REQUEST_URI'], $match);
@@ -130,12 +139,14 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 	}
 	// all values should now have checked out ok
-	mysqlconn();
 
-	$res = mysql_query('SELECT id, downloaded, uploaded, to_go, seeder, ip, UNIX_TIMESTAMP(last_action), torrent, frileech, connectable, userid, nytt, user, leechbonus, torrentsize, UNIX_TIMESTAMP(added) FROM peers WHERE info_hash = "' . $info_hash_hex . '" AND port = "' . $_GET['port'] . '" AND ip = "' . $ip . '"') or err('Could not query peer!');
+	$sth = $db->prepare("SELECT id, downloaded, uploaded, to_go, seeder, ip, UNIX_TIMESTAMP(last_action), torrent, frileech, connectable, userid, nytt, user, leechbonus, torrentsize, UNIX_TIMESTAMP(added) FROM peers WHERE info_hash = ? AND port = ? AND ip = ?");
+	$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
+	$sth->bindParam(2, $_GET['port'],	PDO::PARAM_INT);
+	$sth->bindParam(3, $ip,				PDO::PARAM_STR);
+	$sth->execute();
 
-	if (mysql_num_rows($res) == 0) { // peer not found - insert into database, but only if not event=stopped
-		
+	if ($sth->rowCount() == 0) { // peer not found - insert into database, but only if not event=stopped
 
 		if ($setting['log_debug']) {
 			debuglog('announce: peer not found!');
@@ -145,37 +156,42 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 		
 		/* HÄMTA USER INFO - START */
-		$res = mysql_query('SELECT id, username, class, UNIX_TIMESTAMP(leechstart) as leechstart, mbitupp, mbitner, leechbonus FROM users WHERE passkey = "' . $passkey . '" AND enabled = "yes"') or err('Could not query user info!');
-		if (mysql_num_rows($res) !== 1) { // a valid passkey was not found or the account was disabled
+		$sth = $db->prepare("SELECT id, username, class, UNIX_TIMESTAMP(leechstart) as leechstart, mbitupp, mbitner, leechbonus FROM users WHERE passkey = ? AND enabled = 'yes'");
+		$sth->bindParam(1, $passkey,	PDO::PARAM_STR);
+		$sth->execute();
+
+		if ($sth->rowCount() !== 1) { // a valid passkey was not found or the account was disabled
 			err('Permission denied.');
 		}
-		list($u_id, $u_name, $u_class, $u_leech, $u_mbitupp, $u_mbitner, $u_leechbonus) = mysql_fetch_row($res) or err('Could not get user info!');
+
+		list($u_id, $u_name, $u_class, $u_leech, $u_mbitupp, $u_mbitner, $u_leechbonus) = $sth->fetch();
+
 		/* HÄMTA USER INFO - SLUT */
-		
-		
+
 		
 		/* HÄMTA TORRENT INFO - START*/
-		$res = mysql_query('SELECT id, leechers, seeders, frileech, reqid, size, added FROM torrents WHERE info_hash = "' . $info_hash_hex . '"') or err('Could not query torrent info!');
-		if (mysql_num_rows($res) != 1) { // could not find the requested torrent in the database
+
+		$sth = $db->prepare("SELECT id, leechers, seeders, frileech, reqid, size, added FROM torrents WHERE info_hash = ?");
+		$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
+		$sth->execute();
+
+		if ($sth->rowCount() != 1) { // could not find the requested torrent in the database
 			err('Torrent does not exist on this tracker.');
 		}
-		list($t_id, $t_leechers, $t_seeders, $t_frileech, $t_reqid, $t_size, $t_added) = mysql_fetch_row($res) or err('Could not get torrent info!');
+		list($t_id, $t_leechers, $t_seeders, $t_frileech, $t_reqid, $t_size, $t_added) = $sth->fetch();
 		/* HÄMTA TORRENT INFO - SLUT */
 		
-		
-		
 		// retunera 0/1 om port öppen
-		$ansl = connectable($ip, $_GET['port']);
+		$ansl = connectable($ip, (int)$_GET['port']);
 		
 		// Om användaren har fri leech blir Peer bli leech.
 		$nu = time();
+		$frileech = 0;
 		if ($t_frileech == 1 || $u_leech > $nu) {
 			$frileech = 1;
 		}
-		
-		
-		/* Get, (INSERT?) and update Snatch */
 
+		/* Get, (INSERT?) and update Snatch */
 
 		$timesStarted = 0;
 		$timesCompleted = 0;
@@ -190,64 +206,82 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			$timesUpdated = 1;
 		}
 
+		$sth = $db->prepare("SELECT id FROM snatch WHERE userid = ? AND torrentid = ?");
+		$sth->bindParam(1, $u_id,	PDO::PARAM_INT);
+		$sth->bindParam(2, $t_id,	PDO::PARAM_INT);
+		$sth->execute();
 
-		$res = mysql_query('SELECT id FROM snatch WHERE userid = '. $u_id. ' AND torrentid = ' . $t_id);
+		if ($sth->rowCount() == 1) {
 
-		if (mysql_num_rows($res) == 1) {
-
-			mysql_query('UPDATE snatch SET
-				timesStarted = timesStarted + '.$timesStarted.',
-				timesCompleted = timesCompleted + '.$timesCompleted.',
-				timesUpdated = timesUpdated + '.$timesUpdated.',
-				lastaction = NOW()
-				WHERE userid = '.$u_id.' AND torrentid = '.$t_id);
+			$sth = $db->prepare("UPDATE snatch SET timesStarted = timesStarted + ?, timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, lastaction = NOW() WHERE userid = ? AND torrentid = ?");
+			$sth->bindParam(1, $timesStarted,	PDO::PARAM_INT);
+			$sth->bindParam(2, $timesCompleted,	PDO::PARAM_INT);
+			$sth->bindParam(3, $timesUpdated,	PDO::PARAM_INT);
+			$sth->bindParam(4, $u_id,			PDO::PARAM_INT);
+			$sth->bindParam(5, $t_id,			PDO::PARAM_INT);
+			$sth->execute();
 
 		} else {
-			mysql_query('INSERT INTO snatch(
-				userid,
-				torrentid,
-				ip,
-				port,
-				agent,
-				connectable,
-				klar,
-				lastaction,
-				timesStarted,
-				timesCompleted,
-				timesUpdated) VALUES(
-				' . $u_id . ',
-				' . $t_id . ',
-				"' . $ip . '",
-				' . $_GET['port'] . ',
-				 "' . mysql_real_escape_string($_SERVER['HTTP_USER_AGENT']) . '",
-				 ' . $ansl . ',
-				 NOW(),
-				 NOW(),
-				 '.$timesStarted.',
-				 '.$timesCompleted.',
-				 '.$timesUpdated.')') or debuglog(mysql_error());
 
+			$sth = $db->prepare("INSERT INTO snatch(userid, torrentid, ip, port, agent, connectable, klar, lastaction, timesStarted, timesCompleted, timesUpdated) VALUES(?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?)");
+			$sth->bindParam(1, $u_id,						PDO::PARAM_INT);
+			$sth->bindParam(2, $t_id,						PDO::PARAM_INT);
+			$sth->bindParam(3, $ip,							PDO::PARAM_STR);
+			$sth->bindParam(4, $_GET['port'],				PDO::PARAM_INT);
+			$sth->bindParam(5, $userAgent,					PDO::PARAM_STR);
+			$sth->bindParam(6, $ansl,						PDO::PARAM_INT);
+			$sth->bindParam(7, $timesStarted,				PDO::PARAM_INT);
+			$sth->bindParam(8, $timesCompleted,				PDO::PARAM_INT);
+			$sth->bindParam(9, $timesUpdated,				PDO::PARAM_INT);
+			$sth->execute();
 		}
-		
-		// everything seems ok, insert new peer into the database
-		$query = 'INSERT INTO peers ' . '(torrent, userid, peer_id, ip, compact, port, uploaded, uploadoffset, downloaded, downloadoffset, to_go, seeder, started, last_action, agent, connectable, info_hash, frileech, user, mbitupp, mbitner, nytt, leechbonus, torrentsize, added) VALUES ' . '("' . $t_id . '", "' . $u_id . '", "' . mysql_real_escape_string($peer_id) . '", "' . $ip . '", "' . mysql_real_escape_string(pack('Nn', ip2long($ip), $_GET['port'])) . '", "' . $_GET['port'] . '", "' . $_GET['uploaded'] . '", "' . $_GET['uploaded'] . '", "' . $_GET['downloaded'] . '", "' . $_GET['downloaded'] . '", "' . $_GET['left'] . '", "' . $seeder . '", FROM_UNIXTIME("' . time() . '"), FROM_UNIXTIME("' . time() . '"), "' . mysql_real_escape_string($_SERVER['HTTP_USER_AGENT']) . '", ' . $ansl . ', "' . mysql_real_escape_string($info_hash_hex) . '", "' . $frileech . '", "' . $u_class . '", "' . $u_mbitupp . '", "' . $u_mbitner . '", "' . $t_reqid . '", ' . $u_leechbonus . ', ' . $t_size . ', "'.$t_added.'")';
-		
-		mysql_query($query) or err('Could not insert peer into database! (' . mysql_error() . ')');
+
+		$compact = pack('Nn', ip2long($ip), $_GET['port']);
+
+		$sth = $db->prepare("INSERT INTO peers (torrent, userid, peer_id, ip, compact, port, uploaded, uploadoffset, downloaded, downloadoffset, to_go, seeder, started, last_action, agent, connectable, info_hash, frileech, user, mbitupp, mbitner, nytt, leechbonus, torrentsize, added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$sth->bindParam(1, $t_id,							PDO::PARAM_INT);
+		$sth->bindParam(2, $u_id,							PDO::PARAM_INT);
+		$sth->bindParam(3, $peer_id,						PDO::PARAM_STR);
+		$sth->bindParam(4, $ip,								PDO::PARAM_STR);
+		$sth->bindParam(5, $compact,						PDO::PARAM_STR);
+		$sth->bindParam(6, $_GET['port'],					PDO::PARAM_INT);
+		$sth->bindParam(7, $_GET['uploaded'],				PDO::PARAM_INT);
+		$sth->bindParam(8, $_GET['uploaded'],				PDO::PARAM_INT);
+		$sth->bindParam(9, $_GET['downloaded'],				PDO::PARAM_INT);
+		$sth->bindParam(10, $_GET['downloaded'],			PDO::PARAM_INT);
+		$sth->bindParam(11, $_GET['left'],					PDO::PARAM_INT);
+		$sth->bindParam(12, $seeder,						PDO::PARAM_STR);
+		$sth->bindParam(13, $userAgent,						PDO::PARAM_STR);
+		$sth->bindParam(14, $ansl,							PDO::PARAM_INT);
+		$sth->bindParam(15, $info_hash_hex,					PDO::PARAM_STR);
+		$sth->bindParam(16, $frileech,						PDO::PARAM_INT);
+		$sth->bindParam(17, $u_class,						PDO::PARAM_INT);
+		$sth->bindParam(18, $u_mbitupp,						PDO::PARAM_INT);
+		$sth->bindParam(19, $u_mbitner,						PDO::PARAM_INT);
+		$sth->bindParam(20, $t_reqid,						PDO::PARAM_INT);
+		$sth->bindParam(21, $u_leechbonus,					PDO::PARAM_INT);
+		$sth->bindParam(22, $t_size,						PDO::PARAM_INT);
+		$sth->bindParam(23, $t_added,						PDO::PARAM_STR);
+		$sth->execute();
+
 		
 		if ($seeder == 'yes') {
-			mysql_query('UPDATE LOW_PRIORITY torrents SET last_action = NOW(), seeders=seeders+1 WHERE id = "' . $t_id . '"') or debuglog(mysql_error());
+			$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET last_action = NOW(), seeders = seeders + 1 WHERE id = ?");
+			$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+			$sth->execute();
 		} else {
-			mysql_query('UPDATE LOW_PRIORITY torrents SET last_action = NOW(), leechers=leechers+1 WHERE id = "' . $t_id . '"') or debuglog(mysql_error());
+			$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET last_action = NOW(), leechers = leechers + 1 WHERE id = ?");
+			$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+			$sth->execute();
 		}
 
 		give_peers();
 		
 		
-	} elseif (mysql_num_rows($res) == 1) {
-		
-		
+	} elseif ($sth->rowCount() == 1) {
+
 		// peer found - update stats, check if peer is stopping, else send peer list
-		list($peerid, $downloaded, $uploaded, $left, $seeder_db, $ip_db, $last_access, $t_id, $t_fri, $ansl, $u_id, $t_reqid, $u_class, $u_leechbonus, $t_size, $t_added) = mysql_fetch_row($res) or err('Could not get peer info!');
+		list($peerid, $downloaded, $uploaded, $left, $seeder_db, $ip_db, $last_access, $t_id, $t_fri, $ansl, $u_id, $t_reqid, $u_class, $u_leechbonus, $t_size, $t_added) = $sth->fetch();
 		
 
 		// calculate download and upload speed based on difference in amounts since last time reported in
@@ -266,14 +300,14 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 						$cheatLevel = 1;
 				}
 				
-				if (($_SERVER['HTTP_USER_AGENT'] == 'uTorrent/161B(483)' || $_SERVER['HTTP_USER_AGENT'] == 'ABC/ABC-3.1.0') && $upspeed > 105200)
+				if (($userAgent == 'uTorrent/161B(483)' || $userAgent == 'ABC/ABC-3.1.0') && $upspeed > 105200)
 					$cheatLevel = 1;
 				
 				if ($upspeed > (1024000 * $setting['rate_limitation_err_up'])) { // check for excessive speeds
 					//$setting['upload_multiplier'] = 0;
-					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $_SERVER['HTTP_USER_AGENT'], $ip, 0, $_GET['port'], $upspeed, $ansl);
+					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $userAgent, $ip, 0, $_GET['port'], $upspeed, $ansl);
 				} elseif ($upspeed > (1024000 * $setting['rate_limitation_warn_up']) || $cheatLevel) {
-					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $_SERVER['HTTP_USER_AGENT'], $ip, $cheatLevel, $_GET['port'], $upspeed, $ansl);
+					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $userAgent, $ip, $cheatLevel, $_GET['port'], $upspeed, $ansl);
 				}
 				
 				/* If there are no leechers (or this is the only leecher), and this client claims to be uploading, it may be a cheater - log!
@@ -337,16 +371,24 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			
 			/* FRI LEECH PÅSLAGET */
 			//$add_down = 0;
-			
-			mysql_query('UPDATE LOW_PRIORITY users SET uploaded = uploaded + "' . $add_up_real . '", nytt_seed = nytt_seed + "' . $nytt_upp . '", arkiv_seed = arkiv_seed + "' . $arkivupp . '", downloaded = downloaded + "' . $add_down . '", downloaded_real = downloaded_real + "' . $add_down2 . '", torrentip = "' . $dip . '" WHERE id="' . $u_id . '"') or debuglog(mysql_error()); #err('Could not update your transfer stats!');
-			
-			
+
+			$sth = $db->prepare("UPDATE LOW_PRIORITY users SET uploaded = uploaded + ?, nytt_seed = nytt_seed + ?, arkiv_seed = arkiv_seed + ?, downloaded = downloaded + ?, downloaded_real = downloaded_real + ?, torrentip =? WHERE id = ?");
+			$sth->bindParam(1, $add_up_real,	PDO::PARAM_INT);
+			$sth->bindParam(2, $nytt_upp,		PDO::PARAM_INT);
+			$sth->bindParam(3, $arkivupp,		PDO::PARAM_INT);
+			$sth->bindParam(4, $add_down,		PDO::PARAM_INT);
+			$sth->bindParam(5, $add_down2,		PDO::PARAM_INT);
+			$sth->bindParam(6, $dip,			PDO::PARAM_STR);
+			$sth->bindParam(7, $u_id,			PDO::PARAM_INT);
+			$sth->execute();
+
 			// if download just completed - add to the number on the torrent table - but only if a seeder
 			if ($event == 'completed' && $_GET['left'] == 0) {
-				mysql_query('UPDATE LOW_PRIORITY torrents SET seeders = seeders + 1, leechers = leechers - 1, times_completed = times_completed + "1" WHERE id = "' . $t_id . '"') or debuglog(mysql_error());
+				$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET seeders = seeders + 1, leechers = leechers - 1, times_completed = times_completed + 1 WHERE id = ?");
+				$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+				$sth->execute();
 			}
-			
-	
+
 		}
 
 
@@ -364,46 +406,66 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			$timesUpdated = 1;
 		}
 
-		mysql_query('UPDATE LOW_PRIORITY snatch SET
-				timesCompleted = timesCompleted + '.$timesCompleted.',
-				timesUpdated = timesUpdated + '.$timesUpdated.',
-				timesStopped = timesStopped + '.$timesStopped.',
-				lastaction = NOW(),
-				uploaded = uploaded + '.(0+$add_up).',
-				downloaded = downloaded + '.(0+$add_down2).',
-				seedtime = seedtime + '.(time() - $last_access) .'
-				WHERE userid = '.$u_id.' AND torrentid = '.$t_id);
-			
+		$seedtime = time() - $last_access;
+
+		$sth = $db->prepare("UPDATE LOW_PRIORITY snatch SET timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, timesStopped = timesStopped + ?, lastaction = NOW(), uploaded = uploaded + ?, downloaded = downloaded + ?, seedtime = seedtime + ? WHERE userid = ? AND torrentid = ?");
+		$sth->bindParam(1, $timesCompleted,	PDO::PARAM_INT);
+		$sth->bindParam(2, $timesUpdated,	PDO::PARAM_INT);
+		$sth->bindParam(3, $timesStopped,	PDO::PARAM_INT);
+		$sth->bindParam(4, $add_up,			PDO::PARAM_INT);
+		$sth->bindParam(5, $add_down2,		PDO::PARAM_INT);
+		$sth->bindParam(6, $seedtime,		PDO::PARAM_INT);
+		$sth->bindParam(7, $u_id,			PDO::PARAM_INT);
+		$sth->bindParam(8, $t_id,			PDO::PARAM_INT);
+		$sth->execute();
+
 		/* END snatch update */
 		
 		
 		// peer has closed - remove the peer and exit, no updates to do or peers to send to client
 		if ($event == 'stopped') {
-			$res = mysql_query('DELETE FROM peers WHERE id="' . $peerid . '"') or err('Peer deletion query failed!');
+			$sth = $db->prepare("DELETE FROM peers WHERE id = ?");
+			$sth->bindParam(1, $peerid,	PDO::PARAM_INT);
+			$sth->execute();
 			
-			
-			if ($seeder_db == 'yes')
-				mysql_query('UPDATE LOW_PRIORITY torrents SET seeders = seeders - "1" WHERE id = "' . $t_id . '"');
-			else
-				mysql_query('UPDATE LOW_PRIORITY torrents SET leechers = leechers - "1" WHERE id = "' . $t_id . '"');
-			
+			if ($seeder_db == 'yes') {
+				$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET seeders = seeders - 1 WHERE id = ?");
+				$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+				$sth->execute();
+			} else {
+				$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET leechers = leechers - 1 WHERE id = ?");
+				$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+				$sth->execute();
+			}
 			
 			die();
 		}
-		
-		// update stats for the peer
-		mysql_query('UPDATE LOW_PRIORITY peers SET uploaded = "' . $_GET['uploaded'] . '", downloaded = "' . $_GET['downloaded'] . '", to_go = "' . $_GET['left'] . '", seeder = "' . $seeder . '", last_action = FROM_UNIXTIME("' . time() . '")' . ($event == 'completed' && $seeder == 'yes' && $seeder_db == 'no' ? ', finishedat = "' . time() . '"' : '') . ($ip != $ip_db ? ', ip = "' . $ip . '"' : '') . ' WHERE id = "' . $peerid . '"') or debuglog(mysql_error()); #err('Could not update peer stats!');
-		
-		
-		
+
+		// $finishedat = 
+
+		$finishedAt = "";
+		if ($event == 'completed' && $seeder == 'yes' && $seeder_db == 'no') {
+			$finishedAt = ", finishedat = UNIX_TIMESTAMP(NOW())";
+		}
+
+		$sth = $db->prepare("UPDATE LOW_PRIORITY peers SET uploaded = ?, downloaded = ?, to_go = ?, seeder = ?, last_action = NOW(), ip = ? " . $finishedAt . " WHERE id = ?");
+		$sth->bindParam(1, $_GET['uploaded'],			PDO::PARAM_INT);
+		$sth->bindParam(2, $_GET['downloaded'],			PDO::PARAM_INT);
+		$sth->bindParam(3, $_GET['left'],				PDO::PARAM_INT);
+		$sth->bindParam(4, $seeder,						PDO::PARAM_STR);
+		$sth->bindParam(5, $ip,							PDO::PARAM_STR);
+		$sth->bindParam(6, $peerid,						PDO::PARAM_INT);
+		$sth->execute();
+
 		if ($seeder == 'yes' && rand(0, 4) == 0) {
-			mysql_query('UPDATE LOW_PRIORITY torrents SET last_action = NOW() WHERE id = "' . $t_id . '"');
+			$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET last_action = NOW() WHERE id = ?");
+			$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+			$sth->execute();
 		}
 		
 		// give the client some peers to play with
 		give_peers();
-		
-		
+
 		
 	} else {
 		// we hit multiple? but that's UNPOSSIBLE! ;)
@@ -413,46 +475,36 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		err('Got multiple targets in peer table!');
 	}
 	
-	// give clients something to be happy while debugging :)
-	//echo 'd8:intervali'.$setting['announce_interval'].'e5:peers0:e';
-	
 	if ($setting['time_me'] && $setting['log_debug']) {
 		debuglog('announce: ' . function_timer($start, gettimeofday(), 1) . ' us)');
 	}
 	
-	
 	die();
 
 } else if (strpos($keys['3'], 'scrape') !== false) { // do-scrape code
-	
-	//$info_hash = hasheval($_GET['info_hash'],'20' , 'info_hash');
-	$info_hash = $_GET['info_hash'];
-	if (strlen($info_hash) != 20) {
-		$info_hash = stripcslashes($_GET['info_hash']);
-	}
 	
 	// compression - saves few bytes?
 	if ($setting['gzip']) {
 		ini_set('zlib.output_compression_level', 1);
 		ob_start('ob_gzhandler');
 	}
-	
-	if (strlen($info_hash) != 20 && $setting['allow_global_scrape'] == false) { // if a valid info_hash was not specified, send empty - save bandwidth
+
+	if (strlen($info_hash_hex) != 40 && $setting['allow_global_scrape'] == false) { // if a valid info_hash was not specified, send empty - save bandwidth
 		if ($setting['time_me'] && $setting['log_debug']) {
 			debuglog('scrape - empty: ' . function_timer($start, gettimeofday(), 1) . ' us)');
 		}
 		die('d5:filesdee');
 	}
-	
-	mysqlconn();
-	
-	//$res = mysql_query('SELECT info_hash, times_completed, seeders, leechers FROM torrents WHERE ' . hash_where('info_hash', $info_hash));
-	$res  = mysql_query('SELECT unhex(info_hash) AS info_hash, times_completed, seeders, leechers FROM torrents WHERE info_hash = "' . $info_hash . '"');
+
+	$sth = $db->prepare("SELECT unhex(info_hash) AS info_hash, times_completed, seeders, leechers FROM torrents WHERE info_hash = ?");
+	$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
+	$sth->execute();
+
 	$resp = 'd5:filesd';
-	while ($torrent = @mysql_fetch_assoc($res)) { // yes, no bencoding functions here
+	while ($torrent = $sth->fetch(PDO::FETCH_ASSOC)) { // yes, no bencoding functions here
 		$resp .= '20:' . $torrent['info_hash'] . 'd' . '8:completei' . (int) $torrent['seeders'] . 'e' . '10:incompletei' . (int) $torrent['leechers'] . 'e' . '10:downloadedi' . (int) $torrent['times_completed'] . 'e' . 'e';
 	}
-	
+
 	$resp .= 'ee';
 	echo ($resp);
 	if ($setting['time_me'] && $setting['log_debug']) {
@@ -465,30 +517,20 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 }
 
 function give_peers()
-{
-	global $t_id, $t_leechers, $t_seeders, $setting, $info_hash;
+{	
+	global $db, $setting, $t_id;
+	$sth = $db->prepare("SELECT compact, ip, port, peer_id FROM peers WHERE torrent = ? ORDER BY RAND() LIMIT 150");
+	$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+	$sth->execute();
 
-	$peers = $t_seeders + $t_leechers;
-	$limit = 'ORDER BY RAND() LIMIT 250';
-
-	if ($_GET['compact'] == 1) {
-		$what = 'compact';
-	} elseif ($_GET['no_peer_id'] == 1) {
-		$what = 'ip, port';
-	} else {
-		$what = 'ip, port, peer_id';
-	}
-	$q = 'SELECT ' . $what . ' FROM peers WHERE torrent = "' . $t_id . '" ' . $limit;
-	$res = mysql_query($q) or err('Could not fetch peers from the database! (' . $q . ')');
-	
 	$resp = 'd8:intervali' . $setting['announce_interval'] . 'e12:min intervali' . intval(900) . 'e5:peers';
-	if ($_GET['compact'] == 1) { // compact mode - we like (gzip not gaining anything - don't use)
-		while ($peer = mysql_fetch_assoc($res)) {
+	if ($_GET['compact'] == 1) { // compact mode - we like (gzip not gaining anything - don't use)e
+		while ($peer = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$clients .= $peer['compact'];
 		}
 		echo $resp . strlen($clients) . ':' . $clients . 'ee';
 		if ($setting['log_debug']) {
-			debuglog('announce: gave ' . mysql_num_rows($res) . ' using compact protocol');
+			debuglog('announce: gave ' . $sth->rowCount() . ' using compact protocol');
 		}
 	} elseif ($_GET['no_peer_id'] == 1) { // no_peer_id protocol - better then nothing
 		if ($setting['gzip']) {
@@ -496,12 +538,12 @@ function give_peers()
 			ob_start('ob_gzhandler');
 		}
 		$resp .= 'l';
-		while ($peer = mysql_fetch_assoc($res)) {
+		while ($peer = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$resp .= 'd2:ip' . strlen($peer['ip']) . ':' . $peer['ip'] . '4:porti' . $peer['port'] . 'ee';
 		}
 		echo $resp . 'ee';
 		if ($setting['log_debug']) {
-			debuglog('announce: gave ' . mysql_num_rows($res) . ' using no_peer_id protocol');
+			debuglog('announce: gave ' . $sth->rowCount() . ' using no_peer_id protocol');
 		}
 	} else { // horrible! gzip to the rescue!
 		if ($setting['gzip']) {
@@ -509,14 +551,14 @@ function give_peers()
 			ob_start('ob_gzhandler');
 		}
 		$resp .= 'l';
-		while ($peer = mysql_fetch_assoc($res)) {
+		while ($peer = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$resp .= 'd2:ip' . strlen($peer['ip']) . ':' . $peer['ip'] . '7:peer id20:' . $peer['peer_id'] . '4:porti' . $peer['port'] . 'ee';
 		}
 		
 		// retunera peers
 		echo $resp . 'ee';
 		if ($setting['log_debug']) {
-			debuglog('announce: gave ' . mysql_num_rows($res) . ' using original protocol');
+			debuglog('announce: gave ' . $sth->rowCount() . ' using original protocol');
 		}
 		
 	}
@@ -560,31 +602,6 @@ function err($txt, $err = '')
 		debuglog($txt . '; ' . mysql_error() . $err);
 	}
 	die();
-}
-
-function mysqlconn()
-{
-	require('api/secrets.php'); //or die(err('Database error (could not connect)'));
-	if (!@mysql_connect($host, $username, $password)) { // could not connect to the database
-		switch (mysql_errno()) {
-			case 1040:
-			case 2002:
-				die('d8:intervali' . rand(120, 600) . 'e5:peers0:e');
-			//err('Database error (temporarily overloaded)');
-			default:
-				err('Database error (' . mysql_error() . ')');
-		}
-	}
-	mysql_select_db($dbname) or err('Database error (could not open database)');
-	
-	mysql_query('SET NAMES utf8');
-	setlocale(LC_CTYPE, 'C');
-}
-
-function hash_where($name, $hash)
-{
-	$shhash = preg_replace('/ *$/s', '', $hash);
-	return '(' . $name . ' = "' . mysql_real_escape_string($hash) . '" OR ' . $name . ' = "' . mysql_real_escape_string($shhash) . '")';
 }
 
 function getip()
@@ -687,22 +704,36 @@ function logError($type, $message, $file, $line, $context)
 }
 
 
-function log_cheater($u_id, $t_id, $download, $upload, $timediff, $agent, $ip, $adsl, $port, $upspeed, $ansl)
+function log_cheater($u_id, $t_id, $download, $upload, $duration, $agent, $ip, $adsl, $port, $upspeed, $ansl)
 {
-	
-	
-	$time = time();
-	
+	global $db;
 	// Kolla efter dubbla klienter    
 	$agdiff = 0;
-	if (mysql_num_rows(mysql_query('SELECT COUNT(id) FROM peers WHERE userid = "' . $u_id . '" and ip = "' . $ip . '" GROUP BY port')) > 1) {
+
+	$sth = $db->prepare("SELECT COUNT(id) FROM peers WHERE userid = ? AND ip = ? GROUP BY port");
+	$sth->bindParam(1, $u_id,	PDO::PARAM_INT);
+	$sth->bindParam(2, $ip,		PDO::PARAM_STR);
+	$sth->execute();
+	$res = $sth->fetch();
+
+	if ($res[0] > 1) {
 		$agdiff = 1;
 	}
-	
-	$tid = date("Y-m-d H:i:s");
-	
-	mysql_query('INSERT INTO cheatlog (userid, torrentid, datum, downloaded, uploaded, time, agent, ip, port, agentdiff, adsl, connectable, rate) VALUES ("' . $u_id . '","' . $t_id . '" ,NOW(),"' . $download . '","' . $upload . '","' . $timediff . '","' . mysql_real_escape_string($agent) . '","' . $ip . '","' . $port . '", "' . $agdiff . '", "' . $adsl . '", "' . $ansl . '", "' . $upspeed . '")') or debuglog(mysql_error());
-	
+
+	$sth = $db->prepare("INSERT INTO cheatlog (userid, torrentid, datum, downloaded, uploaded, time, agent, ip, port, agentdiff, adsl, connectable, rate) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+	$sth->bindParam(1, $u_id,		PDO::PARAM_INT);
+	$sth->bindParam(2, $t_id,		PDO::PARAM_INT);
+	$sth->bindParam(3, $download,	PDO::PARAM_INT);
+	$sth->bindParam(4, $upload,		PDO::PARAM_INT);
+	$sth->bindParam(5, $duration,	PDO::PARAM_INT);
+	$sth->bindParam(6, $agent,		PDO::PARAM_STR);
+	$sth->bindParam(7, $ip,			PDO::PARAM_STR);
+	$sth->bindParam(8, $port,		PDO::PARAM_INT);
+	$sth->bindParam(9, $agdiff,		PDO::PARAM_INT);
+	$sth->bindParam(10, $adsl,		PDO::PARAM_INT);
+	$sth->bindParam(11, $ansl,		PDO::PARAM_STR);
+	$sth->bindParam(12, $upspeed,	PDO::PARAM_INT);
+	$sth->execute();
 }
 
 function roundbytes($bytes)
