@@ -10,6 +10,10 @@ class TvData {
 
 	public function run() {
 
+		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
+			throw new Exception("Must be run by server.", 401);
+		}
+
 		/* Spara ner dagens tablåer */
 
 		$res = $this->db->query('SELECT * FROM tv_kanaler WHERE visible = 1');
