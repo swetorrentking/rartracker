@@ -45,14 +45,14 @@ if (!$user) {
 }
 
 $dict = bdec_file($filePath, filesize($filePath));
-$dict['value']['announce']['value'] = "http".($user["https"] == 1 ? "s" : "")."://rarat.org:133".($user["https"] == 1 ? "8" : "7")."/tracker.php/{$passkey}/announce";
+$dict['value']['announce']['value'] = "http".($user["https"] == 1 ? "s" : "")."://127.0.0.1:133".($user["https"] == 1 ? "8" : "7")."/tracker.php/{$passkey}/announce";
 $dict['value']['announce']['string'] = strlen($dict['value']['announce']['value']).":".$dict['value']['announce']['value'];
 $dict['value']['announce']['strlen'] = strlen($dict['value']['announce']['string']);
 
 $dict["value"]["comment"]["type"] = "string";
-$dict["value"]["comment"]["value"] = "rarat.org";
-$dict["value"]["comment"]["strlen"] = strlen(strlen("rarat.org") . ":rarat.org");
-$dict["value"]["comment"]["string"] = strlen("rarat.org") . ":rarat.org";
+$dict["value"]["comment"]["value"] = "rartracker";
+$dict["value"]["comment"]["strlen"] = strlen(strlen("127.0.0.1") . ":127.0.0.1");
+$dict["value"]["comment"]["string"] = strlen("127.0.0.1") . ":127.0.0.1";
 
 unset($dict['value']['announce-list']);
 header('Content-Disposition: attachment;filename="'.$torrent['filename'].'"');
