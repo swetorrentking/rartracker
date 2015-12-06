@@ -22,7 +22,7 @@ class TvData {
 
 		while($r = $res->fetch(PDO::FETCH_ASSOC)) {
 
-			$data = json_decode(gzdecode(file_get_contents('http://xmltv.tvtab.la/json/' . $r["xmlid"]. '_'. $dagensdatum .'.js.gz')), true);
+			$data = json_decode(file_get_contents('http://json.xmltv.se/' . $r["xmlid"]. '_'. $dagensdatum .'.js.gz'), true);
 			$data = $data["jsontv"];
 			
 			foreach ( $data["programme"] as $dat ) {
