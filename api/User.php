@@ -789,7 +789,7 @@ EOD;
 
 		$user = $this->get($id);
 
-		foreach (explode(", ", "iplog, bonuslog, bookmarks, snatch, reqvotes, blocks, bevaka, fusk, invites, readposts, peers") as $x) {
+		foreach (explode(", ", "iplog, bonuslog, bookmarks, snatch, reqvotes, blocks, bevaka, cheatlog, invites, readposts, peers") as $x) {
 			$this->db->query("DELETE FROM ".$x." WHERE userid = " . $id);
 		}
 
