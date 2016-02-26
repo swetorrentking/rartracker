@@ -1,165 +1,179 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.services', ['ngCookies'])
-		.service('AuthService', function ($rootScope, StatusResource, $cookies, $state, $timeout, $location, $q) {
-			var lastStateChange = Date.now();
-			var activeTimer = null;
-			var user;
-			var deferred = $q.defer();
-			var lastInterval;
-			var serverTime = 0;
-			var serverTimeUpdated = 0;
+	angular
+		.module('app.shared')
+		.service('authService', AuthService);
 
-			var setUser = function (u) {
-				user = u;
-				deferred.resolve(u);
-			};
+	function AuthService($rootScope, userClasses, StatusResource, $cookies, $state, $timeout, $location, $q) {
 
-			var getPromise = function () {
-				if (!deferred.promise.$$state.status) {
-					return deferred.promise;
-				} else {
-					var d = $q.defer();
-					d.resolve(user);
-					return d.promise;
-				}
-			};
+		this.lastStateChange = Date.now();
+		this.activeTimer = null;
+		this.user = null;
+		this.deferred = $q.defer();
+		this.lastInterval = 0;
+		this.serverTime = 0;
+		this.serverTimeUpdated = 0;
+		this.settings = [];
 
-			var logout = function () {
-				user = null;
-				$cookies.remove('uid');
-				$cookies.remove('pass');
-				$cookies.remove('notuseip');
-				$cookies.remove('admin');
-				if ($location.$$path.substring(1,7) !== 'signup' && $location.$$path.substring(1,8) !== 'recover') {
-					$state.go('login');
-				}
-			};
+		this.isAdmin = function () {
+			if (this.user.class == userClasses.STAFF.id) {
+				return true;
+			}
+			return false;
+		};
 
-			var setServerTime = function (st) {
-				if (!serverTime) {
-					serverTime = st * 1000;
+		this.setUser = function (user) {
+			this.user = user;
+			this.deferred.resolve(user);
+			$rootScope.$broadcast('userUpdated', user);
+		};
 
-					var date = new Date();
-					var unixTime = date.getTime();
-					serverTimeUpdated = unixTime;
-				}
-			};
+		this.setSettings = function (settings) {
+			this.settings = settings;
+			this.setServerTime(settings.serverTime);
+		};
 
-			var getServerTime = function () {
+		this.getSettings = function () {
+			return this.settings;
+		};
+
+		this.getPromise = function () {
+			if (!this.deferred.promise.$$state.status) {
+				return this.deferred.promise;
+			} else {
+				var d = $q.defer();
+				d.resolve(this.user);
+				return d.promise;
+			}
+		};
+
+		this.logout = function () {
+			this.user = null;
+			$cookies.remove('uid');
+			$cookies.remove('pass');
+			$rootScope.$broadcast('userUpdated', null);
+			$state.go('login');
+		};
+
+		this.setServerTime = function (st) {
+			if (!this.serverTime) {
+				this.serverTime = st * 1000;
+
 				var date = new Date();
 				var unixTime = date.getTime();
-				var diff = unixTime - serverTimeUpdated;
+				this.serverTimeUpdated = unixTime;
+			}
+		};
 
-				return serverTime + diff;
-			};
+		this.getServerTime = function () {
+			var date = new Date();
+			var unixTime = date.getTime();
+			var diff = unixTime - this.serverTimeUpdated;
 
-			var runStatusCheck = function () {
-				lastStateChange = Date.now();
-				statusCheck();
-			};
+			return this.serverTime + diff;
+		};
 
-			var serverResponse = function (data) {
-				setUser(data.user);
-				setServerTime(data.settings.serverTime);
-				scheduleNextStatusCheck();
-			};
+		this.runStatusCheck = function () {
+			this.lastStateChange = Date.now();
+			this.statusCheck();
+		};
 
-			var statusCheck = function () {
-				if ($cookies.get('uid') && $cookies.get('pass')) {
-					var timeSinceLastCheck = Date.now() - lastStateChange;
-					StatusResource.get({timeSinceLastCheck: timeSinceLastCheck}, function(data) {
-						serverResponse(data);
-					}, function (response) {
-						if (response.status === 401) {
-							logout();
-						} else {
-							scheduleNextStatusCheck();
-						}
-					});
-				} else {
-					logout();
-				}
-			};
+		this.serverResponse = function (data) {
+			this.setUser(data.user);
+			this.setSettings(data.settings);
+			this.scheduleNextStatusCheck();
+		};
 
-			var scheduleNextStatusCheck = function (reset) {
-				if (reset && lastInterval <= 5000) {
-					return;
-				}
-				$timeout.cancel(activeTimer);
-				var timeSinceLastTime = Date.now() - lastStateChange;
-				var interval = timeSinceLastTime * 2;
+		this.statusCheck = function () {
+			if ($cookies.get('uid') && $cookies.get('pass')) {
+				this.timeSinceLastCheck = Date.now() - this.lastStateChange;
+				StatusResource.get({timeSinceLastCheck: this.timeSinceLastCheck}, (data) => {
+					this.serverResponse(data);
+				}, (response) => {
+					if (response.status === 401) {
+						this.logout();
+					} else {
+						this.scheduleNextStatusCheck();
+					}
+				});
+			} else if ($location.$$path.substring(1,7) !== 'login' && $location.$$path.substring(1,7) !== 'signup' && $location.$$path.substring(1,8) !== 'recover') {
+				this.logout();
+			}
+		};
 
-				// at least 30 sec interval
-				if (interval < 30000) {
-					interval = 30000;
-				}
+		this.scheduleNextStatusCheck = function (reset) {
+			if (reset && this.lastInterval <= 5000) {
+				return;
+			}
+			$timeout.cancel(this.activeTimer);
+			var timeSinceLastTime = Date.now() - this.lastStateChange;
+			var interval = timeSinceLastTime * 2;
 
-				// at most 30 min interval
-				if (interval > 1800000) {
-					interval = 1800000;
-				}
+			// at least 30 sec interval
+			if (interval < 30000) {
+				interval = 30000;
+			}
 
-				if (reset) {
-					interval = 5000;
-				}
+			// at most 30 min interval
+			if (interval > 1800000) {
+				interval = 1800000;
+			}
 
-				if (timeSinceLastTime < 1000 * 60 * 60 * 4) {
-					activeTimer = $timeout(statusCheck.bind(this), interval);
-				}
+			if (reset) {
+				interval = 5000;
+			}
 
-				lastInterval = interval;
-			};
+			if (timeSinceLastTime < 1000 * 60 * 60 * 4) {
+				this.activeTimer = $timeout(this.statusCheck.bind(this), interval);
+			}
 
-			$rootScope.$on('$stateChangeStart', function () {
-				lastStateChange = Date.now();
-				if (user !== undefined) {
-					scheduleNextStatusCheck(true);
-				}
-			}.bind(this));
+			this.lastInterval = interval;
+		};
 
-			var getCategoryFilter = function () {
-				if (!user || !user['notifs']) {
-					return [];
-				}
-				return user['notifs'];
-			};
-
-			var readUnreadMessage = function () {
-				user['newMessages'] -= 1;
-			};
-
-			var readUnreadNews = function () {
-				user['unreadFlashNews'] = 0;
-			};
-
-			var readUnreadTorrentComments = function () {
-				user['unreadTorrentComments'] = 0;
-			};
-
-			var readUnreadAdminMessage = function () {
-				user['newAdminMessages'] -= 1;
-			};
-
-			var readNewReports = function () {
-				user['newReports'] -= 1;
-			};
-
-			return {
-				getPromise: getPromise,
-				getUser: function () { return user; },
-				statusCheck: runStatusCheck,
-				getCategoryFilter: getCategoryFilter,
-				serverResponse: serverResponse,
-				logout: logout,
-				setUser: setUser,
-				readUnreadMessage: readUnreadMessage,
-				readUnreadNews: readUnreadNews,
-				readUnreadAdminMessage: readUnreadAdminMessage,
-				readNewReports: readNewReports,
-				readUnreadTorrentComments: readUnreadTorrentComments,
-				getServerTime: getServerTime
-			};
+		$rootScope.$on('$stateChangeSuccess', (event, toState) => {
+			this.lastStateChange = Date.now();
+			if (this.user !== undefined) {
+				this.scheduleNextStatusCheck(true);
+			}
+			if (this.deferred.promise.$$state.status && this.user === null && toState.name !== 'login' && toState.name !== 'recover' && toState.name !== 'signup') {
+				event.preventDefault();
+				$state.go('login');
+			}
 		});
+
+		this.getCategoryFilter = function () {
+			if (!this.user || !this.user['notifs']) {
+				return [];
+			}
+			return this.user['notifs'];
+		};
+
+		this.readUnreadMessage = function (number) {
+			this.user['newMessages'] -= number || 1;
+		};
+
+		this.readUnreadNews = function () {
+			this.user['unreadFlashNews'] = 0;
+		};
+
+		this.readUnreadTorrentComments = function () {
+			this.user['unreadTorrentComments'] = 0;
+		};
+
+		this.readUnreadAdminMessage = function () {
+			this.user['newAdminMessages'] -= 1;
+		};
+
+		this.readNewReports = function () {
+			this.user['newReports'] -= 1;
+		};
+
+		this.getUser = function () {
+			return this.user;
+		};
+
+		this.runStatusCheck();
+	}
+
 })();

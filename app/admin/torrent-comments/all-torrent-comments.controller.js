@@ -1,27 +1,32 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('AllTorrentCommentsController', function ($scope, CommentsResource) {
-			$scope.itemsPerPage = 10;
-			
-			var loadComments = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				CommentsResource.query({
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (comments, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.numberOfPages = Math.ceil($scope.totalItems/$scope.itemsPerPage);
-					$scope.comments = comments;
-				});
-			};
+	angular
+		.module('app.admin')
+		.controller('AllTorrentCommentsController', AllTorrentCommentsController);
 
-			$scope.pageChanged = function () {
-				loadComments();
-			};
+	function AllTorrentCommentsController($state, $stateParams, CommentsResource) {
+		this.itemsPerPage = 10;
+		this.currentPage = $stateParams.page;
 
-			loadComments();
-		});
+		this.loadComments = function () {
+			$state.go('.', {page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			CommentsResource.query({
+				limit: this.itemsPerPage,
+				index: index,
+			}, (comments, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.comments = comments;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
+
+		this.loadComments();
+	}
+
 })();

@@ -1,0 +1,13 @@
+<div class="text-center">
+	<h1>Alla torrentkommentarer</h1>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.comments.length == 0"></uib-pagination>
+
+	<loading-indicator hide="vm.comments"></loading-indicator>
+
+	<div class="col-md-10 col-centered nopadding" ng-show="vm.comments">
+		<posts posts="vm.comments"></posts>
+	</div>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.comments.length == 0"></uib-pagination>
+</div>

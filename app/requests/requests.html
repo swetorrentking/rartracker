@@ -1,9 +1,0 @@
-<div ng-hide="requests" class="fa-spinner fa-spin fa-4x fa-fw spinner"></div>
-
-<div class="table-responsive">
-	<requests-table on-sort="sortRequests(sort)" requests="requests" give-reward="giveReward(request)" vote="vote(request)" report="report(request)" col-vote col-reward col-user></requests-table>
-</div>
-
-<div class="text-center" ng-show="requests">
-	<uib-pagination max-size="10" items-per-page="itemsPerPage" total-items="totalItems" ng-model="currentPage" ng-change="pageChanged()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
-</div>

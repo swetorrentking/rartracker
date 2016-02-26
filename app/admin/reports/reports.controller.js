@@ -1,121 +1,135 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ReportsController', function ($scope, SendMessageDialog, user, ErrorDialog, DeleteDialog, AuthService, AdminResource, SubtitlesResource, RequestsResource, TorrentsResource, ForumResource) {
-			$scope.itemsPerPage = 10;
+	angular
+		.module('app.admin')
+		.controller('ReportsController', ReportsController);
 
-			var loadReports = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.Reports.query({
-					'limit': $scope.itemsPerPage,
-					'index': index
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.reports = data;
-				});
-			};
+	function ReportsController($state, $stateParams, SendMessageDialog, user, ErrorDialog, DeleteDialog, authService, AdminResource, SubtitlesResource, RequestsResource, TorrentsResource, ForumResource) {
 
-			$scope.handle = function (report) {
-				AdminResource.Reports.update({
-					id: report.id
-				}, function () {
-					AuthService.readNewReports();
-					report.handledBy = user;
-				}, function (error) {
-					ErrorDialog.display(error.data);
-				});
-			};
+		this.currentUser = user;
+		this.itemsPerPage = 10;
+		this.currentPage = $stateParams.page;
 
-			$scope.delete = function (report) {
-				AdminResource.Reports.delete({
-					id: report.id
-				}, function () {
-					report.removed = true;
-				}, function (error) {
-					ErrorDialog.display(error.data);
-				});
-			};
+		this.loadReports = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			AdminResource.Reports.query({
+				'limit': this.itemsPerPage,
+				'index': index
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.reports = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			$scope.deletePost = function (report){
-				ForumResource.Posts.delete({
-					forumid: report.post.forumid,
-					topicid: report.post.topicid,
-					id: report.post.id
-				}, function () {
-					$scope.delete(report);
-				}, function (error) {
-					ErrorDialog.display(error.data);
-				});
-			};
+		this.handle = function (report) {
+			AdminResource.Reports.update({
+				id: report.id
+			}, () => {
+				authService.readNewReports();
+				report.handledBy = user;
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
 
-			$scope.deleteComment = function (report){
-				TorrentsResource.Comments.delete({
-					id: report.comment.torrent,
-					commentId: report.comment.id,
-				}, function () {
-					$scope.delete(report);
-				}, function (error) {
-					ErrorDialog.display(error.data);
-				});
-			};
+		this.delete = function (report) {
+			AdminResource.Reports.delete({
+				id: report.id
+			}, () => {
+				report.removed = true;
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
 
-			$scope.deleteSubtitle = function (report){
-				var dialog = DeleteDialog('Radera undertext', 'Vill du radera undertexten?', true, report.reason);
+		this.deletePost = function (report){
+			ForumResource.Posts.delete({
+				forumid: report.post.forumid,
+				topicid: report.post.topicid,
+				id: report.post.id
+			}, () => {
+				this.delete(report);
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
 
-				dialog.then(function (reason) {
-					SubtitlesResource.delete({
-							id: report.subtitle.id,
-							reason: reason
-						}, function () {
-							$scope.delete(report);
-						}, function (error) {
-							ErrorDialog.display(error.data);
-						});
-				});
-			};
+		this.deleteComment = function (report){
+			TorrentsResource.Comments.delete({
+				id: report.comment.torrent,
+				commentId: report.comment.id,
+			}, () => {
+				this.delete(report);
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
 
-			$scope.deleteRequest = function (report) {
-				var dialog = DeleteDialog('Radera request', 'Vill du radera requesten \''+report.request.request+'\'?', true, report.reason);
-
-				dialog.then(function (reason) {
-					RequestsResource.Requests.delete({
-							id: report.request.id,
-							reason: reason
-						}, function () {
-							$scope.delete(report);
-						}, function (error) {
-							ErrorDialog.display(error.data);
-						});
-				});
-			};
-
-			$scope.deleteTorrent = function (report) {
-				TorrentsResource.Torrents.remove({
-						id: report.torrent.id,
-						reason: report.reason,
-						pmUploader: report.pmUploader,
-						pmPeers: report.pmPeers,
-						banRelease: report.banRelease,
-						attachTorrentId: report.attachTorrentId,
-						restoreRequest: report.restoreRequest,
-					}, function () {
-						$scope.delete(report);
-					}, function (error) {
-						ErrorDialog.display(error.data);
+		this.deleteSubtitle = function (report){
+			DeleteDialog('Radera undertext', 'Vill du radera undertexten?', true, report.reason)
+				.then((reason) => {
+					return SubtitlesResource.delete({
+						id: report.subtitle.id,
+						reason: reason
 					});
-			};
+				})
+				.then(() => {
+					this.delete(report);
+				})
+				.catch((error) => {
+					if (error) {
+						ErrorDialog.display(error.data);
+					}
+				});
+		};
 
-			$scope.sendMessage = function (user) {
-				new SendMessageDialog({user: user});
-			};
+		this.deleteRequest = function (report) {
+			DeleteDialog('Radera request', 'Vill du radera requesten \''+report.request.request+'\'?', true, report.reason)
+				.then((reason) => {
+					return RequestsResource.Requests.delete({
+						id: report.request.id,
+						reason: reason
+					});
+				})
+				.then(() => {
+					this.delete(report);
+				})
+				.catch((error) => {
+					if (error) {
+						ErrorDialog.display(error.data);
+					}
+				});
+		};
 
-			$scope.pageChanged = function () {
-				loadReports();
-			};
+		this.deleteTorrent = function (report) {
+			TorrentsResource.Torrents.remove({
+					id: report.torrent.id,
+					reason: report.reason,
+					pmUploader: report.pmUploader,
+					pmPeers: report.pmPeers,
+					banRelease: report.banRelease,
+					attachTorrentId: report.attachTorrentId,
+					restoreRequest: report.restoreRequest,
+				}, () => {
+					this.delete(report);
+				}, (error) => {
+					ErrorDialog.display(error.data);
+				});
+		};
 
-			loadReports();
+		this.sendMessage = function (user) {
+			new SendMessageDialog({user: user});
+		};
 
-		});
+		this.loadReports();
+
+	}
+
 })();

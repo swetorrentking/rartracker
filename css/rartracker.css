@@ -5,8 +5,8 @@ body {
 html {
     overflow-y: scroll;
 	/*
-	-ms-word-break: break-all; 
-	word-break: break-all; 
+	-ms-word-break: break-all;
+	word-break: break-all;
 	*/
 	word-break: break-word;
 }
@@ -30,7 +30,7 @@ html {
 
 #headbanner {
 	background-color: #009688;
-	height: 145px;
+	height: 130px;
 	width: 100%;
 	box-shadow: 0px 5px 5px rgba(0,0,0,0.2);
 	position: absolute;
@@ -38,8 +38,7 @@ html {
 
 .alert {
 	text-align: center;
-	margin-bottom: 10px;
-	margin-top: 10px;
+	margin-bottom: 20px;
 }
 
 .ellipsis {
@@ -252,11 +251,13 @@ a.whiteLink {
 #contentContainer {
 	padding-left: 15px;
   	padding-right: 15px;
+	padding-top: 20px;
+	padding-bottom: 20px;
 	background-color: #FFF;
-	min-height: 500px;
 	-webkit-box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.2);
 	box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.2);
 	margin-top: 10px;
+	position: relative;
 }
 
 .navbar-default.shadow {
@@ -283,6 +284,10 @@ nav.navbar-default {
 	box-shadow: 2px 2px 5px 2px rgba(0, 0, 0, 0.2);
 	border: 0px !important;
 	border-radius: 0px;
+}
+
+nav.navbar-top {
+	margin-bottom: 0px;
 }
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
@@ -381,17 +386,17 @@ img.categoryImage {
 	display: block;
 	height: 45px;
 	width: 45px;
-	background-image: url('/img/icons-sprite.png');
+	background-image: url('/img/icons-sprite.png?v=1');
 	background-repeat: no-repeat;
 }
 img.categoryImage.category1 {
-	background-position: 0 -390px;
+	background-position: 0 -435px;
 }
 img.categoryImage.category2 {
-    background-position: 0 -345px;
+    background-position: 0 -390px;
 }
 img.categoryImage.category3 {
-    background-position: 0 -435px;
+    background-position: 0 -480px;
 }
 img.categoryImage.category4 {
     background-position: 0 -210px;
@@ -406,19 +411,28 @@ img.categoryImage.category7 {
     background-position: 0 -165px;
 }
 img.categoryImage.category8 {
-    background-position: 0 -615px;
+    background-position: 0 -705px;
 }
 img.categoryImage.category9 {
     background-position: 0 -300px;
 }
 img.categoryImage.category10 {
-    background-position: 0 -480px;
-}
-img.categoryImage.category11 {
     background-position: 0 -525px;
 }
-img.categoryImage.category12 {
+img.categoryImage.category11 {
     background-position: 0 -570px;
+}
+img.categoryImage.category12 {
+    background-position: 0 -615px;
+}
+img.categoryImage.category13 {
+    background-position: 0 -345px;
+}
+img.categoryImage.category14 {
+    background-position: 0 -660px;
+}
+img.categoryImage.category15 {
+	background-position: 0 -750px;
 }
 
 img.forum-icon {
@@ -543,6 +557,10 @@ span.highlighted {
 	color: #F30000;
 }
 
+span.highlightBold {
+	font-weight: bold;
+}
+
 .progress {
 	margin-bottom: 0px;
 }
@@ -602,7 +620,7 @@ div.forumAvatarHolder {
 }
 
 /* Make file input look nicer in Firefox */
-@-moz-document url-prefix() { 
+@-moz-document url-prefix() {
 	input[type=file] {
 		padding: 0px !important;
 	}
@@ -661,4 +679,12 @@ div.mailbox-buttons {
 	padding-left: 20px;
 	padding-bottom: 20px;
 	float: right;
+}
+
+.opacity80 {
+	opacity: 0.8;
+}
+
+.container-cloak {
+	display: none;
 }

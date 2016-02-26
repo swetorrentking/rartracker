@@ -1,317 +1,254 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('TorrentController', function ($scope, $state, $http, $timeout, $stateParams, ReportDialog, WatchDialog, categories, user, UsersResource, DeleteDialog, ConfirmDialog, SubtitlesResource, WatchingSubtitlesResource, UploadService, ErrorDialog, BookmarksResource, TorrentsResource, ReseedRequestsResource, $anchorScroll, $location) {
-			$scope.itemsPerPage = 15;
-			$scope.postStatus = 0;
-			$scope.editObj = {
+	angular
+		.module('app.shared')
+		.controller('TorrentController', TorrentController);
+
+	function TorrentController($scope, $state, $timeout, $stateParams, user, DeleteDialog, ConfirmDialog, SubtitlesResource, WatchingSubtitlesResource, uploadService, ErrorDialog, TorrentsResource, ReseedRequestsResource, $anchorScroll, $location) {
+
+		this.torrentId = $stateParams.id;
+		this.currentUser = user;
+		this.itemsPerPage = 10;
+		this.postStatus = 0;
+		this.editObj = {
+			id: null,
+			text: ''
+		};
+
+		if ($stateParams.uploaded) {
+			this.uploaded = true;
+		}
+
+		TorrentsResource.TorrentsMulti.get({id: $stateParams.id}, (torrent) => {
+			this.torrent = torrent.torrent;
+			this.movieData = torrent.movieData;
+			this.relatedTorrents = torrent.relatedTorrents;
+			this.packContent = torrent.packContent;
+			this.tvChannel = torrent.tvChannel;
+			this.subtitles = torrent.subtitles;
+			this.request = torrent.request;
+			this.watchingSubtitle = torrent.watchSubtitles;
+			if ($stateParams.scrollTo == 'seeders') {
+				this.togglePeers('seeders');
+			} else if ($stateParams.scrollTo == 'leechers') {
+				this.togglePeers('leechers');
+			}
+		}, (error) => {
+			this.notFoundMessage = error.data;
+		});
+
+		this.loadComments = function (scrollToLastPost) {
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			TorrentsResource.Comments.query({
+				id: $stateParams.id,
+				limit: this.itemsPerPage,
+				index: index,
+			}, (comments, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.numberOfPages = Math.ceil(this.totalItems/this.itemsPerPage);
+				this.comments = comments;
+				if (scrollToLastPost) {
+					if (this.currentPage != this.numberOfPages) {
+						this.currentPage = this.numberOfPages;
+						this.loadComments(true);
+						return;
+					}
+					this.gotoPostAnchor(comments[comments.length - 1].id);
+				}
+				if (!this.hasLoadedComments && $stateParams.scrollTo == 'comments') {
+					this.gotoAnchor('comments');
+					this.hasLoadedComments = true;
+				}
+			});
+		};
+
+		this.toggleFiles = function () {
+			this.showFiles = !this.showFiles;
+			if (!this.files) {
+				TorrentsResource.Files.query({id: $stateParams.id}, (files) => {
+					this.files = files;
+				});
+			}
+		};
+
+		this.togglePeers = function (scrollTo) {
+			this.showPeers = !this.showPeers;
+			if (!this.seeders && !this.leechers) {
+				TorrentsResource.Peers.get({id: $stateParams.id}, (peers) => {
+					this.seeders = peers.seeders;
+					this.leechers = peers.leechers;
+					if (scrollTo) {
+						this.gotoAnchor(scrollTo);
+					}
+				});
+			}
+		};
+
+		this.toggleSnatchLog = function () {
+			this.showSnatchLog = !this.showSnatchLog;
+			if (!this.snatchLog) {
+				TorrentsResource.Snatchlog.query({id: $stateParams.id}, (snatchLog) => {
+					this.snatchLog = snatchLog;
+				});
+			}
+		};
+
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
+
+		this.closeAlert = function() {
+			this.alert = null;
+		};
+
+		this.savePost = function () {
+			this.closeAlert();
+			this.postStatus = 1;
+			TorrentsResource.Comments.save({
+				id: $stateParams.id,
+				data: this.postText
+			}, () => {
+				this.postText = '';
+				this.loadComments(true);
+				this.postStatus = 0;
+			}, (error) => {
+				this.postStatus = 0;
+				if (error.data) {
+					this.addAlert({ type: 'danger', msg: error.data });
+				} else {
+					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+				}
+			});
+		};
+
+		this.quotePost = function (post) {
+			this.postText = ''.concat(this.postText || '') + '[quote=' + post.user.username + ']' + post.body.replace(/\[quote[\S\s]+?\[\/quote\]/g, '') + '\n[/quote]\n';
+			$location.hash('newPost');
+			$anchorScroll();
+			$timeout(function() {
+				var element = document.getElementById('postText');
+				if (element) {
+					element.focus();
+				}
+			});
+		};
+
+		this.addSubtitleWatch = function () {
+			WatchingSubtitlesResource.save({torrentid: this.torrent.id}).$promise
+				.then(() => {
+					this.watchingSubtitle = true;
+				});
+		};
+
+		this.gotoPostAnchor = function (x) {
+			this.gotoAnchor('post' + x);
+		};
+
+		this.gotoAnchor = function (newHash) {
+			if ($location.hash() !== newHash) {
+				$location.hash(newHash).replace();
+			}
+			$anchorScroll();
+		};
+
+		this.editPost = function (post) {
+			this.editObj = {
+				id: post.id,
+				text: post.body
+			};
+		};
+
+		this.abortEdit = function () {
+			this.editObj = {
 				id: null,
 				text: ''
 			};
+		};
 
-			if ($stateParams.uploaded) {
-				$scope.uploaded = true;
-			}
-
-			TorrentsResource.TorrentsMulti.get({id: $stateParams.id}, function (torrent) {
-				$scope.torrent = torrent.torrent;
-				$scope.movieData = torrent.movieData;
-				$scope.relatedTorrents = torrent.relatedTorrents;
-				$scope.packContent = torrent.packContent;
-				$scope.tvChannel = torrent.tvChannel;
-				$scope.subtitles = torrent.subtitles;
-				$scope.watching = torrent.watching;
-				$scope.request = torrent.request;
-				$scope.watchingSubtitle = torrent.watchSubtitles;
-				if ($stateParams.scrollTo == 'seeders') {
-					$scope.togglePeers('seeders');
-				} else if ($stateParams.scrollTo == 'leechers') {
-					$scope.togglePeers('leechers');
-				}
-			}, function (error) {
-				$scope.notFoundMessage = error.data;
+		this.saveEdit = function (post) {
+			TorrentsResource.Comments.update({
+				id: $stateParams.id,
+				commentId: post.id,
+				postData: this.editObj.text
+			}, () => {
+				this.abortEdit();
+				this.loadComments();
 			});
+		};
 
-			var loadComments = function (scrollToLastPost, firstload) {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				TorrentsResource.Comments.query({
-					id: $stateParams.id,
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (comments, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.numberOfPages = Math.ceil($scope.totalItems/$scope.itemsPerPage);
-					$scope.comments = comments;
-					if (scrollToLastPost) {
-						if ($scope.currentPage != $scope.numberOfPages) {
-							$scope.currentPage = $scope.numberOfPages;
-							loadComments(true);
-							return;
-						}
-						$scope.gotoPostAnchor(comments[comments.length - 1].id);
-					}
-					if (firstload && $stateParams.scrollTo == 'comments') {
-						gotoAnchor('comments');
-					}
-				});
-			};
-
-			$scope.toggleFiles = function () {
-				$scope.showFiles = !$scope.showFiles;
-				if (!$scope.files) {
-					TorrentsResource.Files.query({id: $stateParams.id}, function (files) {
-						$scope.files = files;
-					});
-				}
-			};
-
-			$scope.togglePeers = function (scrollTo) {
-				$scope.showPeers = !$scope.showPeers;
-				if (!$scope.seeders && !$scope.leechers) {
-					TorrentsResource.Peers.get({id: $stateParams.id}, function (peers) {
-						$scope.seeders = peers.seeders;
-						$scope.leechers = peers.leechers;
-						if (scrollTo) {
-							gotoAnchor(scrollTo);
-						}
-					});
-				}
-			};
-
-			$scope.toggleSnatchLog = function () {
-				$scope.showSnatchLog = !$scope.showSnatchLog;
-				if (!$scope.snatchLog) {
-					TorrentsResource.Snatchlog.query({id: $stateParams.id}, function (snatchLog) {
-						$scope.snatchLog = snatchLog;
-					});
-				}
-			};
-
-			$scope.addAlert = function (obj) {
-				$scope.alert = obj;
-			};
-
-			$scope.closeAlert = function() {
-				$scope.alert = null;
-			};
-
-			$scope.pageChanged = function () {
-				loadComments();
-			};
-
-			$scope.savePost = function () {
-				$scope.closeAlert();
-				$scope.postStatus = 1;
-				TorrentsResource.Comments.save({
-					id: $stateParams.id,
-					data: $scope.postText
-				}, function () {
-					$scope.postText = '';
-					loadComments(true);
-					$scope.postStatus = 0;
-				}, function (error) {
-					$scope.postStatus = 0;
-					if (error.data) {
-						$scope.addAlert({ type: 'danger', msg: error.data });
-					} else {
-						$scope.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
-					}
-				});
-			};
-
-			$scope.QuotePost = function (post) {
-				$scope.postText = ''.concat($scope.postText || '') + '[quote=' + post.user.username + ']' + post.body.replace(/\[quote[\S\s]+?\[\/quote\]/g, '') + '\n[/quote]\n';
-				$location.hash('newPost');
-				$anchorScroll();
-				$timeout(function() {
-					var element = document.getElementById('postText');
-					if (element) {
-						element.focus();
-					}
-				});
-			};
-
-			$scope.addSubtitleWatch = function () {
-				WatchingSubtitlesResource.save({torrentid: $scope.torrent.id}).$promise
-					.then(function () {
-						$scope.watchingSubtitle = true;
-					});
-			};
-
-			$scope.gotoPostAnchor = function (x) {
-				gotoAnchor('post' + x);
-			};
-
-			var gotoAnchor = function (newHash) {
-				if ($location.hash() !== newHash) {
-					$location.hash(newHash).replace();
-				}
-				$anchorScroll();
-			};
-
-			$scope.editPost = function (post) {
-				$scope.editObj = {
-					id: post.id,
-					text: post.body
-				};
-			};
-
-			$scope.abortEdit = function () {
-				$scope.editObj = {
-					id: null,
-					text: ''
-				};
-			};
-
-			$scope.saveEdit = function (post) {
-				TorrentsResource.Comments.update({
-					id: $stateParams.id,
-					commentId: post.id,
-					postData: $scope.editObj.text
-				}, function () {
-					$scope.abortEdit();
-					loadComments();
-				});
-			};
-
-			$scope.bookmark = function (torrent) {
-				BookmarksResource.save({torrentid: torrent.id});
-				torrent.bookmarked = true;
-			};
-
-			$scope.deleteSubtitle = function (subtitle){
-				var dialog = DeleteDialog('Radera undertext', 'Vill du radera undertexten?', true);
-
-				dialog.then(function (reason) {
-					SubtitlesResource.delete({id: subtitle.id, reason: reason}, function () {
-						var index = $scope.subtitles.indexOf(subtitle);
-						$scope.subtitles.splice(index, 1);
+		this.deleteSubtitle = function (subtitle){
+			DeleteDialog('Radera undertext', 'Vill du radera undertexten?', true)
+				.then((reason) => {
+					SubtitlesResource.delete({id: subtitle.id, reason: reason}, () => {
+						var index = this.subtitles.indexOf(subtitle);
+						this.subtitles.splice(index, 1);
 					});
 				});
-			};
+		};
 
-			$scope.addWatch = function () {
-				$scope.movieData.category = $scope.torrent.category;
-				var watchDialog = WatchDialog($scope.movieData);
-				watchDialog.then(function () {
-					UsersResource.Watching.query({id: user.id, imdbid: $scope.torrent.imdbid}, function (watching) {
-						$scope.watching = watching[0];
-					});
-					$scope.asyncSelected = '';
-				});
-			};
-
-			$scope.deleteComment = function (comment){
-				var dialog = DeleteDialog('Radera kommentar', 'Vill du radera torrentkommentaren?', false);
-
-				dialog.then(function () {
+		this.deleteComment = function (comment){
+			DeleteDialog('Radera kommentar', 'Vill du radera torrentkommentaren?', false)
+				.then(() => {
 					TorrentsResource.Comments.delete({
-						id: $scope.torrent.id,
+						id: this.torrent.id,
 						commentId: comment.id,
-					}, function () {
-						var index = $scope.comments.indexOf(comment);
-						$scope.comments.splice(index, 1);
+					}, () => {
+						var index = this.comments.indexOf(comment);
+						this.comments.splice(index, 1);
 					});
 				});
-			};
+		};
 
-			var getCatName = function (id) {
-				for (var cat in categories) {
-					if (categories[cat].id == id) {
-						return categories[cat].text;
+		this.requestReseed = function () {
+			ConfirmDialog('Önska seed', 'Vill du önska seed på denna torrent för [b]5p[/b]?\nAlla som har laddat ner eller seedat torrenten det senaste halvåret kommer få ett PM.')
+				.then(() => {
+					return ReseedRequestsResource.save({torrentid: this.torrent.id}).$promise;
+				})
+				.catch((error) => {
+					if (error) {
+						ErrorDialog.display(error.data);
 					}
-				}
-				return '-';
-			};
-
-			$scope.getBevakaInformation = function () {
-				if (!$scope.watching) {
-					return;
-				}
-				var string = 'Du bevakar';
-				if ($scope.watching.typ === 1) {
-					string += ' nya avsnitt av denna serien';
-				} else {
-					string += ' denna film';
-				}
-				var format;
-				if (typeof $scope.watching.format === 'number') {
-					format = [$scope.watching.format];
-				} else {
-					format = $scope.watching.format.split(',');
-				}
-				
-				var formats = format.map(function(cat) { return getCatName(cat);}).join(', ');
-				string += ' i formaten [b]' + formats + '[/b]';
-
-				if ($scope.watching.swesub === true) {
-					string += ' med [b]Svensk text[/b]';
-				}
-				string += '.';
-				return string;
-			};
-
-			$scope.reportTorrent = function () {
-				new ReportDialog('torrent', $scope.torrent.id, $scope.torrent.name);
-			};
-
-			$scope.reportSubtitle = function (subtitle) {
-				new ReportDialog('subtitle', subtitle.id, subtitle.filename);
-			};
-
-			$scope.reportComment = function (comment) {
-				new ReportDialog('comment', comment.id, comment.body);
-			};
-
-			$scope.requestReseed = function () {
-				var dialog = ConfirmDialog('Önska seed', 'Vill du önska seed på denna torrent för [b]5p[/b]?\nAlla som har laddat ner eller seedat torrenten det senaste halvåret kommer få ett PM.');
-
-				dialog.then(function () {
-					ReseedRequestsResource.save({torrentid: $scope.torrent.id}).$promise
-						.catch(function (error) {
-							ErrorDialog.display(error.data);
-						});
 				});
+		};
+
+		this.subtitleFileChanged = function () {
+ 			if (this.subFile.size > 2097152) {
+ 				ErrorDialog.display('Filen är för stor. Max 2 MB tack.');
+ 				return;
+ 			}
+
+ 			var params = {
+				url: '/api/v1/subtitles',
+				data: {
+					torrentid:	this.torrent.id,
+					quality: 	this.subtitleQuality,
+					file:			this.subFile,
+				}
 			};
 
-			$scope.$watch('settings.file', function (file) {
-		 		if (file) {
-		 			if (file.size > 2097152) {
-		 				ErrorDialog.display('Filen är för stor. Max 2 MB tack.');
-		 				return;
-		 			}
+			uploadService.uploadFile(params)
+				.then(() => {
+					this.showSubtitleUpload = !this.showSubtitleUpload;
+					SubtitlesResource.query({torrentid: this.torrent.id}, (subtitles) => {
+						this.subtitles = subtitles;
+					});
+				}, (error) => {
+					ErrorDialog.display(error);
+				});
+	 	};
 
-		 			var params = {
-						url: '/api/v1/subtitles',
-						data: {
-							torrentid:	$scope.torrent.id,
-							file:		file,
-						}
-					};
+	 	this.multiDelete = function () {
+	 		this.deletingPackFiles = true;
+	 		TorrentsResource.PackFiles.delete({id: this.torrent.id}).$promise
+	 			.then(function () {
+	 				$state.reload();
+	 			});
+	 	};
 
-					UploadService.uploadFile(params)
-						.then(function () {
-							$scope.showSubtitleUpload = !$scope.showSubtitleUpload;
-							SubtitlesResource.query({torrentid: $scope.torrent.id}, function (subtitles) {
-								$scope.subtitles = subtitles;
-							});
-						}, function (error) {
-							ErrorDialog.display(error);
-						});
-			 	}
-		 	});
+		this.loadComments(false);
 
-		 	$scope.multiDelete = function () {
-		 		$scope.deletingPackFiles = true;
-		 		TorrentsResource.PackFiles.delete({id: $scope.torrent.id}).$promise
-		 			.then(function () {
-		 				$state.reload();
-		 			});
-		 	};
+	}
 
-			loadComments(false, true);
-
-		});
 })();

@@ -1,0 +1,8 @@
+<div ng-repeat="new in vm.news track by new.id" class="panel col-md-6 col-md-offset-3" ng-class="{'panel-default': !new.announce, 'panel-warning': new.announce}" style="padding: 0px;">
+	<div class="panel-heading">{{ ::new.added | splitSpace }} - {{ new.subject }} <span class="pull-right" ng-if="vm.currentUser.class >= 8"><button ng-click="vm.delete(new)" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Radera</button> <button ng-click="vm.edit(new)" class="btn btn-default btn-xs"><i class="fa fa-cog"></i> Redigera</button></span></div>
+	<div class="panel-body">
+		<span ng-bind-html="new.body | bbCode"></span>
+		<br /><br />
+		<span class="pull-right"><a href="" ui-sref="forum.topic({id: new.forumthread, forumid: new.forum})">Läs mer i forumet »</a></span>
+	</div>
+</div>

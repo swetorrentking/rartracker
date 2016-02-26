@@ -1,0 +1,9 @@
+<loading-indicator hide="vm.requests"></loading-indicator>
+
+<div class="table-responsive">
+	<requests-table on-sort="vm.sortRequests(sort)" requests="vm.requests" give-reward="vm.giveReward(request)" vote="vm.vote(request)" col-vote="true" col-reward="true" col-user="true"></requests-table>
+</div>
+
+<div class="text-center" ng-show="vm.requests">
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getRequests()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

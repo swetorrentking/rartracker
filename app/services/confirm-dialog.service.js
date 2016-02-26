@@ -1,29 +1,31 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.services')
-		.service('ConfirmDialog', function ($uibModal) {
+	angular
+		.module('app.shared')
+		.service('ConfirmDialog', ConfirmDialog);
 
-			return function (title, body, wantReason, reasonTitle) {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/confirm-dialog.html',
-					controller: 'ConfirmDialogController',
-					size: 'md',
-					resolve: {
-						settings: function () {
-							return {
-								title: title,
-								body: body,
-								wantReason: wantReason,
-								reasonText: reasonTitle,
-								reason: '',
-							};
-						}
+	function ConfirmDialog($uibModal) {
+		return function (title, body, wantReason, reasonTitle) {
+			var modal = $uibModal.open({
+				templateUrl: '../app/dialogs/confirm-dialog.template.html',
+				controller: 'ConfirmDialogController as vm',
+				size: 'md',
+				backdrop: 'static',
+				resolve: {
+					settings: function () {
+						return {
+							title: title,
+							body: body,
+							wantReason: wantReason,
+							reasonText: reasonTitle,
+							reason: '',
+						};
 					}
-				});
-				return modal.result;
-			};
+				}
+			});
+			return modal.result;
+		};
+	}
 
-		});
 })();

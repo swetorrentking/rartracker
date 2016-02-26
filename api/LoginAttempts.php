@@ -25,6 +25,10 @@ class LoginAttempts implements IResource {
 			$where[] = "inlogg.ip LIKE '".$postdata["ip"]."%'";
 		}
 
+		if ($postdata["username"]) {
+			$where[] = "inlogg.namn LIKE '".$postdata["username"]."%'";
+		}
+
 		if (count($where) > 0) {
 			$finalWhere = " WHERE " . implode(" AND ", $where);
 		}

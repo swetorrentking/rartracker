@@ -1,52 +1,44 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('TopicsController', function ($scope, ForumResource, $stateParams, user, $state) {
-			var dataLoaded = false;
-			$scope.$parent.topic = null;
+	angular
+		.module('app.forums')
+		.controller('TopicsController', TopicsController);
 
-			$scope.itemsPerPage = user['topicsperpage'] === 0 ? 15 : user['topicsperpage'];
-			$scope.postsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
+	function TopicsController($scope, ForumResource, $stateParams, user, $state) {
+		var dataLoaded = false;
+		$scope.$parent.vm.topic = null;
 
-			var fetchTopics = function () {
-				$scope.topics = null;
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				ForumResource.Topics.query({
-					forumid: $stateParams.id,
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (topics, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.topics = topics;
-					if (!dataLoaded) {
-						$scope.currentPage = $stateParams.page || 1;
-						dataLoaded = true;
-					}
-				});
-			};
+		this.currentPage = $stateParams.page;
+		this.forumId = $stateParams.id;
+		this.currentUser = user;
+		this.itemsPerPage = user['topicsperpage'] === 0 ? 15 : user['topicsperpage'];
+		this.postsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
 
-			$scope.setTopic = function (topic) {
-				$scope.$parent.topic = topic;
-			};
+		this.fetchTopics = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			this.topics = null;
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			ForumResource.Topics.query({
+				forumid: $stateParams.id,
+				limit: this.itemsPerPage,
+				index: index,
+			}, (topics, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.topics = topics;
+				if (!dataLoaded) {
+					this.currentPage = $stateParams.page || 1;
+					dataLoaded = true;
+				}
+			});
+		};
 
-			$scope.pageChanged = function () {
-				if (!dataLoaded) return;
-				$state.transitionTo('forum.topics', { page: $scope.currentPage, id: $stateParams.id }, { notify: false });
-				fetchTopics();
-			};
+		this.ceil = function (postCount, itemsPerPage) {
+			return Math.ceil(postCount/itemsPerPage);
+		};
 
-			$scope.$parent.activateTopicsView();
-
-			$scope.openTopic = function (topicId, forumId, page) {
-				$state.go('forum.posts', {id: topicId, forumid: forumId, page: page});
-			};
-
-			$scope.ceil = function (postCount, itemsPerPage) {
-				return Math.ceil(postCount/itemsPerPage);
-			};
-
-			fetchTopics();
-		});
+		this.fetchTopics();
+		$scope.$parent.vm.activateTopicsView();
+	}
 })();

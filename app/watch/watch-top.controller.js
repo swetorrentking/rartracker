@@ -1,43 +1,49 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('WatchTopController', function ($scope, UsersResource, WatchDialog, user) {
+	angular
+		.module('app.watcher')
+		.controller('WatchTopController', WatchTopController);
 
+	function WatchTopController(UsersResource, WatchDialog, user) {
+
+		this.getToplists = function () {
 			UsersResource.WatchTop.get({id: user.id}).$promise
-				.then(function (watchTop) {
-					$scope.movies = watchTop.movies;
-					$scope.tvseries = watchTop.tvseries;
+				.then((watchTop) => {
+					this.movies = watchTop.movies;
+					this.tvseries = watchTop.tvseries;
 				});
+		};
 
-			$scope.open = function (movie) {
-				if (!movie.myBevakId) {
-					var watchDialog = WatchDialog(movie);
-
-					watchDialog.then(function (watchObject) {
+		this.addWatch = function (movie) {
+			if (!movie.myBevakId) {
+				WatchDialog(movie)
+					.then((watchObject) => {
 						var index;
 						if (watchObject.typ === 0) {
-							index = $scope.movies.indexOf(movie);
-							$scope.movies[index].myBevakId = 1;
+							index = this.movies.indexOf(movie);
+							this.movies[index].myBevakId = 1;
 						} else {
-							index = $scope.tvseries.indexOf(movie);
-							$scope.tvseries[index].myBevakId = 1;
+							index = this.tvseries.indexOf(movie);
+							this.tvseries[index].myBevakId = 1;
 						}
 					});
-
+			} else {
+				UsersResource.Watching.remove({id: user.id, watchId: movie.myBevakId});
+				var index;
+				if (movie.typ === 0) {
+					index = this.movies.indexOf(movie);
+					this.movies[index].myBevakId = null;
 				} else {
-
-					UsersResource.Watching.remove({id: user.id, watchId: movie.myBevakId});
-					var index;
-					if (movie.typ === 0) {
-						index = $scope.movies.indexOf(movie);
-						$scope.movies[index].myBevakId = null;
-					} else {
-						index = $scope.tvseries.indexOf(movie);
-						$scope.tvseries[index].myBevakId = null;
-					}
+					index = this.tvseries.indexOf(movie);
+					this.tvseries[index].myBevakId = null;
 				}
+			}
 
-			};
-		});
+		};
+
+		this.getToplists();
+
+	}
+
 })();

@@ -3,6 +3,7 @@
 class MovieData {
 	private $db;
 	private $imdbPicturesDir = "../img/imdb/";
+	private $releaseTitleMatcher = "/^(.+?)(.S[0-9]{2}|.[0-9]{4}|.US.)/";
 
 	public function __construct($db) {
 		$this->db = $db;
@@ -36,7 +37,7 @@ class MovieData {
 			return $res;
 		} else {
 			$res = $this->fetchImdbData("http://akas.imdb.com/title/".$id."/");
-			
+
 			if (strlen($res["photo"]) > 10) {
 				@file_put_contents($this->imdbPicturesDir . $res["imdbid"] . '.jpg', @file_get_contents($res["photo"]));
 				$res["photo"] = 1;
@@ -81,14 +82,14 @@ class MovieData {
 	private function fetchImdbData($url) {
 
 		// Decides what language the IMDB titles should be fetched in.
-		$header[] = "Accept-Language: en-us,en;q=0.5";
+		$header[] = "Accept-Language: en-us,en";
 
 		$ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         $data = curl_exec($ch);
-        curl_close($ch);     
+        curl_close($ch);
 
 		if (!$data) {
 			throw new Exception('Kunde inte hämta IMDB info ifrån servern.');
@@ -114,7 +115,7 @@ class MovieData {
 		/* Antal säsonger */
 		preg_match("/episodes\?season=(\d+)/ms", $data, $matches);
 		$info["seasoncount"] = 0 + $matches[1];
-		
+
 		if ($info["seasoncount"] == 0) {
 			preg_match("/href=\"episodes#season-(\d+)\"/ms", $data, $matches);
 			$info["seasoncount"] = 0 + $matches[1];
@@ -138,7 +139,7 @@ class MovieData {
 		if (@preg_match('!<title>(IMDb\s*-\s*)?(.*) \((.*)(\d{4}|\?{4}).*\)(.*)(\s*-\s*IMDb)?</title>!', $data,$match)) {
 
 		$info["title"] = htmlspecialchars_decode($match[2]);
-		  
+
 		if ($match[3]=="????")
 			$info["year"] = "";
 		else
@@ -214,22 +215,18 @@ class MovieData {
 	}
 
 	public function findImdbInfoByReleaseName($release) {
-		preg_match("/^(.+?)(.S[0-9]{2}|.[0-9]{4})/", $release, $match);
+		preg_match($this->releaseTitleMatcher, $release, $match);
 		if ($match[1] == "") {
 			return null;
 		}
 
 		$sth = $this->db->query('SELECT * FROM imdbinfo WHERE releaseNameStart = ' . $this->db->quote($match[1]) . ' ORDER BY seasoncount DESC LIMIT 1');
-		$res = $sth->fetch();
-		if (!$res) {
-			return null;
-		}
-
+		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		return $res;
 	}
 
 	public function updateReleaseNameStart($name, $imdbid) {
-		preg_match("/^(.+?)(.S[0-9]{2}|.[0-9]{4})/", $name, $match);
+		preg_match($this->releaseTitleMatcher, $name, $match);
 		$this->db->query('UPDATE imdbinfo SET releaseNameStart = ' . $this->db->quote($match[1]) . ' WHERE id = '. (int)$imdbid);
 	}
 

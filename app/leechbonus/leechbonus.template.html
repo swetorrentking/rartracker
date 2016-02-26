@@ -1,0 +1,37 @@
+<h1 class="block-center text-center">LeechBonus</h1>
+
+<div class="col-md-6 col-md-push-3">
+	<uib-progressbar class="progress-striped active progress-big" value="vm.currentUser.leechbonus" type="warning">{{ vm.currentUser.leechbonus }}%</uib-progressbar>
+</div>
+
+<div class="clearfix"></div>
+
+<br />
+<div class="text-center">
+	Du har under de tre senaste dagarna seedat i snitt:  <b>{{ vm.currentUser.pastDaysSeed }} GB</b> på seed.
+	<br />
+	Du seedar för närvarande <b>{{ vm.currentUser.currentGbSeed }} GB</b>
+</div>
+<br />
+
+<div class="table" style="width: 500px; margin: auto; padding: 10px;">
+	<b>Vad är LeechBonus?</b><br />
+	LeechBonus bestämmer hur många procent av det du laddar ner som räknas på din ratio, beräknat utifrån hur mycket du haft på seed i din torrent-klient de senaste dagarna.
+
+	<br /><br/>
+	<b>Hur räknas procentsatsen ut?</b><br />
+	Det räknas ifrån <b>0 GB</b> till <b>1 000 GB</b> där 1 000 GB är maxvärdet som ger 100% i LeechBonus och därmed fri leech på hela sidan.
+	<br /><br />
+	<b>Exempel</b><br />
+	Om du under de senaste tre dagarna gjort tillgängligt ...<br />
+	... 50 GB har du <b>5%</b> i LeechBonus.<br />
+	... 250 GB har du <b>25%</b> i LeechBonus.<br />
+	... 500 GB har du <b>50%</b> i LeechBonus.<br />
+	... 1000 GB har du <b>100%</b> i LeechBonus.<br />
+
+	<br />
+
+	<b>Är systemet rättvist?</b>
+	<br />
+	LeechBonus är byggt för att belöna längre tids seedande av lite större mängd antal torrents aktivt i klienten. Detta är oberoende hastigheten på ditt internet.
+</div>

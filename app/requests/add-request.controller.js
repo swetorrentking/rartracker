@@ -1,80 +1,88 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('AddRequestController', function ($scope, $state, $uibModal, categories, TorrentsResource, MovieDataResource, RequestsResource) { 
+	angular
+		.module('app.requests')
+		.controller('AddRequestController', AddRequestController);
 
-			$scope.categories = categories;
-			$scope.noimdb = false;
-			var imdbLessCategories = [
-				categories.TV_SWE.id,
-				categories.AUDIOBOOKS.id,
-				categories.EBOOKS.id,
-				categories.EPAPERS.id,
-				categories.MUSIC.id,
-			];
+	function AddRequestController($state, categories, TorrentsResource, MovieDataResource, RequestsResource, user) {
 
-			$scope.requestParams = {
-				category: 1,
-				imdbUrl: '',
-				imdbId: 0,
-				season: 0,
-				seasons: [],
-				comment: '',
-			};
+		this.currentUser = user;
+		this.categories = categories;
+		this.noimdb = false;
+		this.imdbLessCategories = [
+			categories.TV_SWE.id,
+			categories.AUDIOBOOKS.id,
+			categories.EBOOKS.id,
+			categories.EPAPERS.id,
+			categories.MUSIC.id,
+		];
 
-			var fetchRelatedTorrents = function (id) {
-				TorrentsResource.Related.query({id: id}, function (torrents) {
-					$scope.relatedTorrents = torrents;
+		this.requestParams = {
+			category: 1,
+			imdbUrl: '',
+			imdbId: 0,
+			season: 0,
+			seasons: [],
+			comment: '',
+		};
+
+		this.fetchRelatedTorrents = function (id) {
+			TorrentsResource.Related.query({id: id}, (torrents) => {
+				this.relatedTorrents = torrents;
+			});
+		};
+
+		this.addRequest = function () {
+			this.closeAlert();
+			RequestsResource.Requests.save({}, this.requestParams).$promise
+				.then((response) => {
+					$state.go('requests.request', {id: response.id, slug: response.slug});
+				})
+				.catch((error) => {
+					this.addAlert({ type: 'danger', msg: error.data });
 				});
-			};
+		};
 
-			$scope.addRequest = function () {
-				$scope.closeAlert();
-				RequestsResource.Requests.save({}, $scope.requestParams).$promise
-					.then(function (response) {
-						$state.go('requests.request', {id: response.id, name: response.name});
-					})
-					.catch(function (error) {
-						$scope.addAlert({ type: 'danger', msg: error.data });
+		this.changedCategory = function () {
+			if (this.imdbLessCategories.indexOf(this.requestParams.category) > -1) {
+				 this.noimdb = true;
+			} else {
+				this.noimdb = false;
+			}
+		};
+
+		this.fetchImdbInfo = function () {
+			this.closeAlert();
+			if (this.requestParams.imdbUrl.length > 1) {
+				var match = this.requestParams.imdbUrl.match(/\/(tt[0-9]+)(\/|$)/);
+				if (match && match.length > 1){
+					var imdbId = match[1];
+					MovieDataResource.Imdb.get({id: imdbId}, (imdb) => {
+						this.requestParams.imdbInfo = imdb['title'] + ' (' + imdb['year'] +')';
+						this.requestParams.imdbId = imdb['id'];
+						for (var i = 0; i < imdb['seasoncount']; i++) {
+							this.requestParams.seasons.push(i+1);
+						}
+						if (imdb['seasoncount'] > 0) {
+							this.requestParams.season = this.requestParams.seasons[0];
+						}
+						this.fetchRelatedTorrents(imdb['id']);
+					}, (error) => {
+							this.requestParams.imdbInfo = 'Error: ' + error;
 					});
-			};
-
-			$scope.changedCategory = function () {
-				if (imdbLessCategories.indexOf($scope.requestParams.category) > -1) {
-					$scope.noimdb = true;
-				} else {
-					$scope.noimdb = false;
 				}
-			};
+			}
+		};
 
-			$scope.fetchImdbInfo = function () {
-				$scope.closeAlert();
-		 		if ($scope.requestParams.imdbUrl.length > 1) {
-		 			var match = $scope.requestParams.imdbUrl.match(/\/(tt[0-9]+)(\/|$)/);
-		 			if (match && match.length > 1)  {
-		 				var imdbId = match[1];
-			 			MovieDataResource.Imdb.get({id: imdbId}, function (imdb) {
-							$scope.requestParams.imdbInfo = imdb['title'] + ' (' + imdb['year'] +')';
-							$scope.requestParams.imdbId = imdb['id'];
-							for (var i = 0; i < imdb['seasoncount']; i++) {
-								$scope.requestParams.seasons.push(i+1);
-							}
-							fetchRelatedTorrents(imdb['id']);
-						}, function (error) {
-							$scope.requestParams.imdbInfo = 'Error: ' + error;
-						});
-			 		}
-		 		}
-		 	};
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
 
-		 	$scope.addAlert = function (obj) {
-				$scope.alert = obj;
-			};
+		this.closeAlert = function () {
+			this.alert = null;
+		};
 
-			$scope.closeAlert = function () {
-				$scope.alert = null;
-			};
+	}
 
-		});
 })();

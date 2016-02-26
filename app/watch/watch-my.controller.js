@@ -1,43 +1,45 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('MyWatchController', function ($scope, user, UsersResource, MovieDataResource, WatchDialog) {
-			$scope.asyncSelected = null;
+	angular
+		.module('app.watcher')
+		.controller('MyWatchController', MyWatchController);
 
-			var loadWatchings = function () {
-				UsersResource.Watching.query({id: user.id}).$promise
-					.then(function (watching) {
-						$scope.watching = watching;
-					});
-			};
+	function MyWatchController(UsersResource, MovieDataResource, WatchDialog, user) {
 
-			$scope.updateWatch = function (w) {
-				UsersResource.Watching.update({id: user.id, watchId: w.id,}, w);
-			};
+		this.asyncSelected = null;
 
-			$scope.deleteWatch = function (w) {
-				UsersResource.Watching.remove({id: user.id, watchId: w.id}, w);
-				var index = $scope.watching.indexOf(w);
-				$scope.watching.splice(index, 1);
-			};
-
-			$scope.getMovieData = function (val) {
-				return MovieDataResource.Search.query({search: val}).$promise
-					.then(function (movies) {
-						return movies;
-					});
-			};
-
-			$scope.onSelected = function (movie) {
-				var watchDialog = WatchDialog(movie);
-
-				watchDialog.then(function () {
-					loadWatchings();
-					$scope.asyncSelected = '';
+		this.loadWatchings = function () {
+			UsersResource.Watching.query({id: user.id}).$promise
+				.then((watching) => {
+					this.watching = watching;
 				});
-			};
+		};
 
-			loadWatchings();
-		});
+		this.updateWatch = function (w) {
+			UsersResource.Watching.update({id: user.id, watchId: w.id,}, w);
+		};
+
+		this.deleteWatch = function (w) {
+			UsersResource.Watching.remove({id: user.id, watchId: w.id}, w);
+			var index = this.watching.indexOf(w);
+			this.watching.splice(index, 1);
+		};
+
+		this.getMovieData = function (val) {
+			return MovieDataResource.Search.query({search: val}).$promise
+				.then(movies => movies);
+		};
+
+		this.onSelected = function (movie) {
+			 WatchDialog(movie)
+				.then(() => {
+					this.loadWatchings();
+					this.asyncSelected = '';
+				});
+		};
+
+		this.loadWatchings();
+	}
+
 })();

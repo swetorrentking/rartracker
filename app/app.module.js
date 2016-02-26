@@ -1,20 +1,35 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker', [
-		'tracker.templates',
-		'tracker.configs',
-		'tracker.services',
-		'tracker.resources',
-		'tracker.filters',
-		'tracker.directives',
-		'tracker.controllers',
-		'ui.router',
-		'ui.bootstrap',
-		'chart.js']);
+	angular
+		.module('app', [
+			/* Shared modules */
+			'app.core',
+			'app.templates',
+			'app.shared',
+			/* Feature areas */
+			'app.admin',
+			'app.mailbox',
+			'app.requests',
+			'app.forums',
+			'app.watcher',
+			'app.swetv',
+			'app.suggestions',
+		]);
 
-	/* To put it first in load order */
-	angular.module('tracker.controllers', []);
-	angular.module('tracker.directives', []);
-	angular.module('tracker.templates', []);
+	angular
+		.module('app.core', [
+			/* Angular modules */
+			'ngSanitize',
+			'ngResource',
+			'ngCookies',
+			/* 3rd-party modules */
+			'ui.router',
+			'ui.bootstrap',
+			'chart.js'
+		]);
+
+	angular
+		.module('app.shared', []);
+
 })();

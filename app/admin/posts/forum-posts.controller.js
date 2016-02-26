@@ -1,28 +1,34 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ForumPostsController', function ($scope, $stateParams, ForumResource) {
-			$scope.itemsPerPage = 10;
-			
-			var loadPosts = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				ForumResource.AllPosts.query({
-					id: $stateParams.id,
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (posts, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.numberOfPages = Math.ceil($scope.totalItems/$scope.itemsPerPage);
-					$scope.posts = posts;
-				});
-			};
+	angular
+		.module('app.admin')
+		.controller('ForumPostsController', ForumPostsController);
 
-			$scope.pageChanged = function () {
-				loadPosts();
-			};
+	function ForumPostsController($state, $stateParams, ForumResource) {
+		this.itemsPerPage = 10;
+		this.currentPage = $stateParams.page;
 
-			loadPosts();
-		});
+		this.loadPosts = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			ForumResource.AllPosts.query({
+				id: $stateParams.id,
+				limit: this.itemsPerPage,
+				index: index,
+			}, (posts, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.numberOfPages = Math.ceil(this.totalItems/this.itemsPerPage);
+				this.posts = posts;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
+
+		this.loadPosts();
+	}
+
 })();

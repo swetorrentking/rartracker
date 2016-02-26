@@ -56,7 +56,7 @@ class Cleanup {
 				"classId" => 2,
 				"minimumGigabyteUpload" => 300,
 				"minimumMemberDays" => 105,
-				"perks" => "* Se alla topplistor\nSe avancerad statistik"),
+				"perks" => "* Se alla topplistor\nSe avancerad statistik\nIP-loggning avstängd. Alla befintliga IP-loggar är rensade"),
 			array(
 				"minratio" => 1.05,
 				"className" => "Skådis",
@@ -144,7 +144,7 @@ class Cleanup {
 
 			* En privat torrentsida bygger på ett givande och tagande. Låt alla torrents du laddat ner ligga kvar i din klient och på datorn så länge du kan.
 			* Be en vän använda sina bonuspoäng för att bättra på din ratio
-			* Du kan donera en slant till Rarat vilket samtidigt ökar din ratio. [url=/donate]Donera[/url]
+			* Du kan donera en slant till {Config::NAME} vilket samtidigt ökar din ratio. [url=/donate]Donera[/url]
 
 			Lycka till!
 EOD;
@@ -185,7 +185,7 @@ EOD;
 		/* Delete inactive torrents */
 		$dt = time() - $this->delete_inactive_torrents_after_days * 86400;
 		$res = $this->db->query("SELECT id, name, reqid FROM torrents WHERE last_action < FROM_UNIXTIME({$dt}) AND seeders = 0 AND leechers = 0 AND reqid > 0");
-	
+
 		/* Prevent deletion of "all" torrents if site has been offline or similiar */
 		if ($res->rowCount() < 100) {
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
@@ -195,7 +195,7 @@ EOD;
 			$this->adminlog->create("{{username}} försökte radera över {$res->rowCount()} torrents pga inaktivitet, men detta tillåts inte.");
 		}
 
-		/* Delete new unseeded torrents !! Disabled because of false positives
+		/* Delete new unseeded torrents
 		/*
 		$dt = time() - $this->delete_unseeded_torrents_after_minutes * 60;
 		$dtmax = time() - 86400;
@@ -236,7 +236,7 @@ EOD;
 		$this->db->query("DELETE FROM sitelog WHERE added < FROM_UNIXTIME({$dt})");
 
 		/* Give gold coin icon to users invited users with high leech bonus */
-		$res = $this->db->query("SELECT invited_by, username FROM users WHERE leechbonus >= 25 AND invited_by > 1");		
+		$res = $this->db->query("SELECT invited_by, username FROM users WHERE leechbonus >= 25 AND invited_by > 1");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$who = $this->db->query("SELECT id, coin FROM users WHERE id = " . $arr["invited_by"]);
 			while ($arr2 = $who->fetch(PDO::FETCH_ASSOC)) {
@@ -280,7 +280,7 @@ EOD;
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 				$this->mailbox->sendSystemMessage($arr["id"], "Uppgraderad till " . $class["className"], $message);
 				$this->db->query("UPDATE users SET class = ".$class["classId"].", modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-				if ($class["classId"] >= 6) {
+				if ($class["classId"] >= 2) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $arr["id"]);
 				}
 			}

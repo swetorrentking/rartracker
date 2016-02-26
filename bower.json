@@ -2,15 +2,15 @@
   "name": "angular-tracker",
   "version": "1.0.0",
   "dependencies": {
-    "angular": "~1.4.7",
+    "angular": "~1.5.0",
+    "angular-cookies": "~1.5.0",
+    "angular-sanitize": "~1.5.0",
+    "angular-resource": "~1.5.0",
     "angular-chart.js": "~0.8.5",
-    "angular-ui-router": "~0.2.15",
-    "angular-bootstrap": "~0.14.3",
-    "angular-cookies": "~1.4.7",
-    "angular-sanitize": "~1.4.7",
-    "angular-resource": "~1.4.7",
-    "bootstrap": "~3.3.5",
-    "font-awesome": "~4.4.0"
+    "angular-ui-router": "~0.2.18",
+    "angular-bootstrap": "~1.2.0",
+    "font-awesome": "~4.4.0",
+    "bootstrap": "^3.3.6"
   },
   "private": true
 }

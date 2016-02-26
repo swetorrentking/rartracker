@@ -1,27 +1,32 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('SqlErrorsController', function ($scope, SqlErrorsResource) {
-			$scope.itemsPerPage = 25;
+	angular
+		.module('app.admin')
+		.controller('SqlErrorsController', SqlErrorsController);
 
-			var getLogs = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				SqlErrorsResource.query({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.logs = data;
-				});
-			};
+	function SqlErrorsController($state, $stateParams, AdminResource) {
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
 
-			$scope.pageChanged = function () {
-				getLogs();
-			};
+		this.getLogs = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.SqlErrors.query({
+				'limit': this.itemsPerPage,
+				'index': index,
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.logs = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			getLogs();
+		this.getLogs();
+	}
 
-		});
 })();

@@ -1,35 +1,40 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('LoginAttemptsController', function ($scope, AdminResource) {
+	angular
+		.module('app.admin')
+		.controller('LoginAttemptsController', LoginAttemptsController);
 
-			$scope.itemsPerPage = 25;
+	function LoginAttemptsController($state, $stateParams, AdminResource) {
 
-			var getLoginAttempts = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.LoginAttempts.query({
-					'limit': $scope.itemsPerPage,
-					'index': index
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.loginAttempts = data;
-				});
-			};
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
 
-			$scope.delete = function (attempt) {
-				AdminResource.LoginAttempts.delete({ id: attempt.id }, function () {
-					var index = $scope.loginAttempts.indexOf(attempt);
-					$scope.loginAttempts.splice(index, 1);
-				});
-			};
+		this.getLoginAttempts = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.LoginAttempts.query({
+				'limit': this.itemsPerPage,
+				'index': index
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.loginAttempts = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			$scope.pageChanged = function () {
-				getLoginAttempts();
-			};
+		this.delete = function (attempt) {
+			AdminResource.LoginAttempts.delete({ id: attempt.id }, () => {
+				var index = this.loginAttempts.indexOf(attempt);
+				this.loginAttempts.splice(index, 1);
+			});
+		};
 
-			getLoginAttempts();
+		this.getLoginAttempts();
+	}
 
-		});
 })();

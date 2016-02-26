@@ -1,200 +1,167 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('TopicController', function ($scope, $timeout, user, ForumResource, $stateParams, ReportDialog, DeleteDialog, $state, $uibModal, AuthService, $anchorScroll, $location, userClasses) {
-			$scope.postStatus = 0;
-			$scope.currentUser = user;
-			$scope.showAvatars = user['avatars'] === 'yes';
-			$scope.itemsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
-			$scope.currentPage = $stateParams.page || 1;
+	angular
+		.module('app.forums')
+		.controller('TopicController', TopicController);
 
-			var isoDate = new Date(AuthService.getServerTime()).toISOString();
-			var currentDatetime = isoDate.replace(/T/g, ' ').replace(/Z/g, '');
+	function TopicController($scope, $timeout, user, ForumResource, $stateParams, ErrorDialog, DeleteDialog, $state, $uibModal, authService, $anchorScroll, $location) {
 
-			$scope.post = {
-				id: '?',
-				added: currentDatetime,
-				editedat: '0000-00-00 00:00:00',
-				user: user
+		var firstload = true;
+		this.postStatus = 0;
+		this.currentUser = user;
+		this.showAvatars = user['avatars'] === 'yes';
+		this.itemsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
+		this.currentPage = $stateParams.page;
+
+		var isoDate = new Date(authService.getServerTime()).toISOString();
+		var currentDatetime = isoDate.replace(/T/g, ' ').replace(/Z/g, '');
+
+		this.post = {
+			id: '?',
+			added: currentDatetime,
+			editedat: '0000-00-00 00:00:00',
+			user: user
+		};
+
+		this.editObj = {
+			id: null,
+			text: ''
+		};
+
+		this.fetchPosts = function (scrollToLastPost, replace) {
+			$state.go('.', { page: this.currentPage }, { notify: false, location: replace ? 'replace' : true });
+			this.posts = null;
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			ForumResource.Posts.query({
+				forumid: $stateParams.forumid,
+				topicid: $stateParams.id,
+				limit: this.itemsPerPage,
+				index: index,
+			}, (posts, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.numberOfPages = Math.ceil(this.totalItems/this.itemsPerPage);
+				this.posts = posts;
+				if ($location.hash().indexOf('post') > -1) {
+					$timeout(function () {
+						$anchorScroll();
+					}, 100);
+				}
+				if (firstload) {
+					firstload = false;
+					this.currentPage = $stateParams.page || 1;
+				}
+				if (scrollToLastPost) {
+					if (this.currentPage != this.numberOfPages) {
+						this.currentPage = this.numberOfPages;
+						this.fetchPosts(true, true);
+						return;
+					}
+					this.gotoAnchor(posts[posts.length - 1].id);
+				}
+			});
+		};
+
+		this.savePost = function () {
+			this.closeAlert();
+			this.postStatus = 1;
+			ForumResource.Posts.save({
+				forumid: $stateParams.forumid,
+				topicid: $stateParams.id,
+				body: this.post.body,
+				quote: this.post.quote
+			}, () => {
+				this.post.body = '';
+				this.postStatus = 0;
+				this.post.quote = null;
+				this.fetchPosts(true);
+			}, (error) => {
+				this.postStatus = 0;
+				if (error.data) {
+					this.addAlert({ type: 'danger', msg: error.data });
+				} else {
+					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+				}
+			});
+		};
+
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
+
+		this.closeAlert = function() {
+			this.alert = null;
+		};
+
+		this.gotoAnchor = function(x) {
+			var newHash = 'post' + x;
+			if ($location.hash() !== newHash) {
+				$location.hash('post' + x).replace();
+			} else {
+				$anchorScroll();
+			}
+		};
+
+		this.quotePost = function (post) {
+			this.post.body = ''.concat(this.post.body || '') + '[quote=' + post.user.username + ']' + post.body.replace(/\[quote[\S\s]+?\[\/quote\]/g, '') + '\n[/quote]\n';
+			this.post.quote = post.user.id;
+			$location.hash('newPost');
+			$anchorScroll();
+			$timeout(function() {
+				var element = document.getElementById('postText');
+				if (element) {
+					element.focus();
+				}
+			});
+		};
+
+		this.editPost = function (post) {
+			this.editObj = {
+				id: post.id,
+				text: post.body
 			};
+		};
 
-			$scope.editObj = {
+		this.abortEdit = function () {
+			this.editObj = {
 				id: null,
 				text: ''
 			};
-			var firstload = true;
+		};
 
-			var fetchPosts = function (scrollToLastPost, dontClear) {
-				if (!dontClear) {
-					$scope.posts = null;
-				}
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				ForumResource.Posts.query({
-					forumid: $stateParams.forumid,
-					topicid: $stateParams.id,
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (posts, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.numberOfPages = Math.ceil($scope.totalItems/$scope.itemsPerPage);
-					$scope.posts = posts;
-					if ($location.hash().indexOf('post') > -1) {
-						$timeout(function () {
-							$anchorScroll();
-						}, 100);
-					}
-					if (firstload) {
-						firstload = false;
-						$scope.currentPage = $stateParams.page || 1;
-					}
-					if (scrollToLastPost) {
-						if ($scope.currentPage != $scope.numberOfPages) {
-							$scope.currentPage = $scope.numberOfPages;
-							$scope.pageChanged();
-							return;
-						}
-						$scope.gotoAnchor(posts[posts.length - 1].id);
-					}
-				});
-			};
+		this.saveEdit = function (post) {
+			ForumResource.Posts.update({
+				forumid: $stateParams.forumid,
+				topicid: $stateParams.id,
+				id: post.id,
+				postData: this.editObj.text
+			}, () => {
+				this.abortEdit();
+				this.fetchPosts(false);
+			});
+		};
 
-			$scope.$parent.activatePostView();
-
-			$scope.SavePost = function () {
-				$scope.closeAlert();
-				$scope.postStatus = 1;
-				ForumResource.Posts.save({
-					forumid: $stateParams.forumid,
-					topicid: $stateParams.id,
-					body: $scope.post.body,
-					quote: $scope.post.quote
-				}, function () {
-					$scope.post.body = '';
-					$scope.postStatus = 0;
-					$scope.post.quote = null;
-					fetchPosts(true, true);
-				}, function (error) {
-					$scope.postStatus = 0;
-					if (error.data) {
-						$scope.addAlert({ type: 'danger', msg: error.data });
-					} else {
-						$scope.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
-					}
-				});
-			};
-
-			$scope.pageChanged = function () {
-				if (firstload) return;
-				$state.transitionTo('forum.topic', { page: $scope.currentPage, forumid: $stateParams.forumid, id: $stateParams.id, }, { notify: false });
-				fetchPosts();
-			};
-
-			$scope.addAlert = function (obj) {
-				$scope.alert = obj;
-			};
-
-			$scope.closeAlert = function() {
-				$scope.alert = null;
-			};
-
-			$scope.gotoAnchor = function(x) {
-				var newHash = 'post' + x;
-				if ($location.hash() !== newHash) {
-					$location.hash('post' + x).replace();
-				} else {
-					$anchorScroll();
-				}
-			};
-
-			$scope.QuotePost = function (post) {
-				$scope.post.body = ''.concat($scope.post.body || '') + '[quote=' + post.user.username + ']' + post.body.replace(/\[quote[\S\s]+?\[\/quote\]/g, '') + '\n[/quote]\n';
-				$scope.post.quote = post.user.id;
-				$location.hash('newPost');
-				$anchorScroll();
-				$timeout(function() {
-					var element = document.getElementById('postText');
-					if (element) {
-						element.focus();
-					}
-				});
-			};
-
-			$scope.EditPost = function (post) {
-				$scope.editObj = {
-					id: post.id,
-					text: post.body
-				};
-			};
-
-			$scope.AbortEdit = function () {
-				$scope.editObj = {
-					id: null,
-					text: ''
-				};
-			};
-
-			$scope.SaveEdit = function (post) {
-				ForumResource.Posts.update({
-					forumid: $stateParams.forumid,
-					topicid: $stateParams.id,
-					id: post.id,
-					postData: $scope.editObj.text
-				}, function () {
-					$scope.AbortEdit();
-					fetchPosts(false, true);
-				});
-			};
-
-			$scope.deleteTopic = function (){
-				var dialog = DeleteDialog('Radera tråd', 'Vill du radera tråden?', false);
-
-				dialog.then(function () {
-					ForumResource.Topics.delete({
-						forumid: $stateParams.forumid,
-						id: $stateParams.id,
-					}, function () {
-						$state.go('forum.topics', {id: $stateParams.forumid});
-					});
-				});
-			};
-
-			$scope.DeletePost = function (post){
-				var dialog = DeleteDialog('Radera inlägg', 'Vill du radera foruminlägget?', false);
-
-				dialog.then(function () {
-					ForumResource.Posts.delete({
+		this.deletePost = function (post){
+			DeleteDialog('Radera inlägg', 'Vill du radera foruminlägget?', false)
+				.then(() => {
+					return ForumResource.Posts.delete({
 						forumid: $stateParams.forumid,
 						topicid: $stateParams.id,
 						id: post.id
-					}, function () {
-						var index = $scope.posts.indexOf(post);
-						$scope.posts.splice(index, 1);
-					});
+					}).$promise;
+				})
+				.then(() => {
+					var index = this.posts.indexOf(post);
+					this.posts.splice(index, 1);
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
-			};
+		};
 
-			$scope.report = function (post) {
-				new ReportDialog('post', post.id, post.body);
-			};
+		$scope.$parent.vm.activatePostView();
+		this.fetchPosts($stateParams.lastpost === 1);
+	}
 
-			fetchPosts($stateParams.lastpost === 1);
-
-			/* Generate a nice drop-down for selecting forums in the admin-panel */
-			if (user.class >= userClasses.STAFF.id) {
-				ForumResource.Forums.query({}, function (forums) {
-					forums = Array.prototype.slice.call(forums);
-					var subforums = [];
-					forums.forEach(function(forums) {
-						forums.forums = forums.forums.map(function(forum) {
-							forum.forumhead = forums.name;
-							return forum;
-						});
-						subforums = subforums.concat(forums.forums);
-					});
-					$scope.forums = subforums;
-				});
-			}
-		});
 })();

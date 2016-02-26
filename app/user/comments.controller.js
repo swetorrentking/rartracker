@@ -1,28 +1,37 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('UserTorrentComments', function ($scope, $stateParams, UsersResource) {
-			$scope.itemsPerPage = 10;
-			
-			var loadPosts = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				UsersResource.Comments.query({
-					id: $stateParams.id,
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (posts, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.numberOfPages = Math.ceil($scope.totalItems/$scope.itemsPerPage);
-					$scope.posts = posts;
-				});
-			};
+	angular
+		.module('app.shared')
+		.controller('UserTorrentComments', UserTorrentComments);
 
-			$scope.pageChanged = function () {
-				loadPosts();
-			};
+	function UserTorrentComments($state, $stateParams, UsersResource) {
 
-			loadPosts();
-		});
+		this.itemsPerPage = 10;
+		this.currentPage = $stateParams.page;
+
+		this.loadPosts = function () {
+
+			$state.go($state.current.name, { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+
+			UsersResource.Comments.query({
+				id: $stateParams.id,
+				limit: this.itemsPerPage,
+				index: index,
+			}, (posts, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.numberOfPages = Math.ceil(this.totalItems/this.itemsPerPage);
+				this.posts = posts;
+				if (!this.hasLoadedFirstTime) {
+					this.currentPage = $stateParams.page;
+					this.hasLoadedFirstTime = true;
+				}
+			});
+		};
+
+		this.loadPosts();
+	}
+
 })();

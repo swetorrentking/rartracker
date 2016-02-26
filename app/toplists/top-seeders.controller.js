@@ -1,15 +1,19 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('TopSeedersController', function ($scope, UsersResource) {
+	angular
+		.module('app.shared')
+		.controller('TopSeedersController', TopSeedersController);
 
-			UsersResource.Users.get({id: 'topseeders'}, function (data) {
-				$scope.newSeeders = data.new;
-				$scope.archiveSeeders = data.archive;
-			}, function () {
-				$scope.error = true;
-			});
+	function TopSeedersController(UsersResource) {
 
+		UsersResource.Users.get({id: 'topseeders'}, (data) => {
+			this.newSeeders = data.new;
+			this.archiveSeeders = data.archive;
+		}, () => {
+			this.error = true;
 		});
+
+	}
+
 })();

@@ -1,44 +1,46 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('FriendsController', function ($scope, $uibModal, AuthService, ErrorDialog, SendMessageDialog, FriendsResource, BlocksResource) {
-			
-			FriendsResource.query({}).$promise
-				.then(function (response) {
-					$scope.friends = response;
+	angular
+		.module('app.shared')
+		.controller('FriendsController', FriendsController);
+
+	function FriendsController($uibModal, ErrorDialog, FriendsResource, BlocksResource, user) {
+
+		this.currentUser = user;
+
+		FriendsResource.query({}).$promise
+			.then((response) => {
+				this.friends = response;
+			});
+
+		BlocksResource.query({}).$promise
+			.then((response) => {
+				this.blocked = response;
+			});
+
+		this.deleteFriend = function (friend) {
+			FriendsResource.delete({id: friend.id}).$promise
+				.then(() => {
+					var index = this.friends.indexOf(friend);
+					this.friends.splice(index, 1);
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
+		};
 
-			BlocksResource.query({}).$promise
-				.then(function (response) {
-					$scope.blocked = response;
+		this.deleteBlock = function (enemy) {
+			BlocksResource.delete({id: enemy.id}).$promise
+				.then(() => {
+					var index = this.blocked.indexOf(enemy);
+					this.blocked.splice(index, 1);
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
+		};
 
-			$scope.deleteFriend = function (friend) {
-				FriendsResource.delete({id: friend.id}).$promise
-					.then(function () {
-						var index = $scope.friends.indexOf(friend);
-						$scope.friends.splice(index, 1);
-					})
-					.catch(function(error) {
-						ErrorDialog.display(error.data);
-					});
-			};
+	}
 
-			$scope.deleteBlock = function (enemy) {
-				BlocksResource.delete({id: enemy.id}).$promise
-					.then(function () {
-						var index = $scope.blocked.indexOf(enemy);
-						$scope.blocked.splice(index, 1);
-					})
-					.catch(function(error) {
-						ErrorDialog.display(error.data);
-					});
-			};
-
-			$scope.sendMessage = function (receiver) {
-				new SendMessageDialog({user:receiver});
-			};
-
-		});
 })();

@@ -1,0 +1,401 @@
+<div ng-show="vm.notFoundMessage" class="alert alert-warning" role="alert">{{ vm.notFoundMessage }}</div>
+<div class="text-center" ng-show="vm.user && !vm.notFoundMessage">
+	<h2>Inställningar för <user user="vm.user" show-class="false" icon-size="big" /></h2>
+</div>
+
+<loading-indicator hide="vm.user || vm.notFoundMessage"></loading-indicator>
+
+<div class="row row-centered">
+	<div class="col-md-9 col-centered" ng-show="vm.user && !vm.notFoundMessage">
+		<uib-tabset>
+			<uib-tab>
+				<uib-tab-heading><i class="fa fa-cog"></i> Allmänt</uib-tab-heading>
+				<table class="table table-striped" cellpadding="15">
+					<tr>
+						<td style="width: 200px;" class="text-right tdBold alignMiddle">Visa endast följande kategorier</td>
+						<td class="text-left">
+							<categories-checkboxes user-categories="vm.user.notifs"></categories-checkboxes>
+
+							<button class="btn btn-default btn-xs" ng-model="vm.user.visagammalt" uib-btn-checkbox btn-checkbox-true="0" btn-checkbox-false="1">Dölj gamla filmer</button>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Avatar URL</td>
+						<td class="text-left">
+							<input type="url" class="form-control" ng-model="vm.user.avatar" placeholder="http://" />
+							Storleken bör vara max 150 pixlar bred.
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Visa avatarer</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.avatars" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.avatars" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Design</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<select class="form-control" ng-model="vm.user.design" ng-options="i.id as i.text for i in vm.cssDesigns"></select>
+							</div>
+						</td>
+					</tr>
+					<tr ng-show="vm.user.design == 1">
+						<td class="text-right tdBold alignMiddle">CSS URL</td>
+						<td class="text-left">
+							<input type="url" class="form-control" ng-model="vm.user.css" placeholder="https://" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Svensk TV-vy</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.tvvy" uib-btn-radio="0">Tablåvy</label>
+								<label class="btn btn-default" ng-model="vm.user.tvvy" uib-btn-radio="1">Torrentvy</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Söksortering</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.search_sort" uib-btn-radio="'name'">Bokstavsordning</label>
+								<label class="btn btn-default" ng-model="vm.user.search_sort" uib-btn-radio="'added'">Senast först</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Torrents per sida</td>
+						<td class="text-left">
+							<input type="number" min="0" class="form-control" ng-model="vm.user.torrentsperpage" />
+							(0 = använd standard)
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Forumtrådar per sida</td>
+						<td class="text-left">
+							<input type="number" min="0" class="form-control" ng-model="vm.user.topicsperpage" pattern="[0-9]{1,2}" />
+							(0 = använd standard)
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Foruminlägg per sida</td>
+						<td class="text-left">
+							<input type="number" min="0" class="form-control" ng-model="vm.user.postsperpage" />
+							(0 = använd standard)
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Kön</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.gender" uib-btn-radio="1">Man</label>
+								<label class="btn btn-default" ng-model="vm.user.gender" uib-btn-radio="2">Kvinna</label>
+								<label class="btn btn-default" ng-model="vm.user.gender" uib-btn-radio="0">Hen</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Ålder</td>
+						<td class="text-left">
+							<input type="number" class="form-control" ng-model="vm.user.alder" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Bandbredd</td>
+						<td class="text-left">
+							<table>
+								<tr>
+									<td><b>Mbit upp&nbsp;</b></td>
+									<td><input type="text" class="form-control" style="width: 75px;" ng-model="vm.user.mbitupp" /></td>
+									<td><b>&nbsp;Mbit ner&nbsp;</b></td>
+									<td><input type="text" class="form-control" style="width: 75px;" ng-model="vm.user.mbitner" /></td>
+									<td><b>&nbsp;Operatör&nbsp;</b></td>
+									<td><input type="text" class="form-control" placeholder="ISP" style="width: 100px;" ng-model="vm.user.isp" /></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold">Profil</td>
+						<td class="text-left">
+							<textarea class="form-control" style="min-height: 200px;" ng-model="vm.user.info"></textarea>
+						</td>
+					</tr>
+				</table>
+			</uib-tab>
+			<uib-tab>
+			<uib-tab-heading><i class="fa fa-lock"></i> Säkerhet</uib-tab-heading>
+				<table class="table table-striped" cellpadding="15">
+					<tr>
+						<td style="width: 200px;" class="text-right tdBold alignMiddle">Acceptera PM</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.acceptpms" uib-btn-radio="'yes'">Alla</label>
+								<label class="btn btn-default" ng-model="vm.user.acceptpms" uib-btn-radio="'friends'">Endast vänner</label>
+								<label class="btn btn-default" ng-model="vm.user.acceptpms" uib-btn-radio="'no'">Endast admins</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Tracker via HTTPS</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.https" uib-btn-radio="1">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.https" uib-btn-radio="0">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Anonym torrentaktivitet</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.anonym" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.anonym" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Anonyma upp/ner stats</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.anonymratio" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.anonymratio" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Anonyma leechbonus och pokal</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.anonymicons" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.anonymicons" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr ng-if="vm.currentUser.class >= 6">
+						<td class="text-right tdBold alignMiddle">Maskera som klass</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<select class="form-control" ng-model="vm.user.doljuploader" ng-options="i.id as i.name for i in vm.getMaskedClasses()" style="width: 150px;"></select>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</uib-tab>
+			<uib-tab>
+			<uib-tab-heading><i class="fa fa-user"></i> Konto</uib-tab-heading>
+				<table class="table table-striped" cellpadding="15">
+					<tr>
+						<td style="width: 200px;" class="text-right tdBold alignMiddle">Parkerad</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.parkerad" uib-btn-radio="1">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.parkerad" uib-btn-radio="0">Nej</label>
+							</div>
+							<br />
+							Du kan parkera ditt konto för att förhindra det från att bli borttaget pga inaktivitet om du åker bort på semester eller liknande. När kontot är parkerat kan du inte se alla sidor.
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Email-adress</td>
+						<td class="text-left">
+							<div ng-if="vm.currentUser.class < 8">
+								<input type="text" class="form-control" ng-model="vm.user.email" disabled />
+							För att ändra mail. Skicka ett Staff-PM med mailen du vill byta till och en anledning till bytet.
+							</div>
+							<div ng-if="vm.currentUser.class >= 8">
+								<input type="text" class="form-control" ng-model="vm.user.email" />
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Nytt lösenord</td>
+						<td class="text-left">
+							<input type="password" class="form-control" ng-model="vm.user.password" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Upprepa lösenordet</td>
+						<td class="text-left">
+							<input type="password" class="form-control" ng-model="vm.user.passwordRepeat" />
+						</td>
+					</tr>
+					<tr ng-show="vm.user.password">
+						<td class="text-right tdBold alignMiddle">Nuvarande lösenord</td>
+						<td class="text-left">
+							<input type="password" class="form-control" ng-model="vm.user.previousPassword" />
+						</td>
+					</tr>
+				</table>
+			</uib-tab>
+			<uib-tab ng-if="vm.currentUser.class >= 8">
+			<uib-tab-heading><i class="fa fa-user-secret"></i> Admin</uib-tab-heading>
+				<table class="table table-striped" cellpadding="15">
+					<tr>
+						<td class="text-right tdBold alignMiddle" style="width:200px">Användarnamn</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.username" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Custom title</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.title" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Upladdat</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.uploaded" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Nerladdat</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.downloaded" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Fri leech till</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.leechstart" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Bonuspoäng</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.bonuspoang" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Invites</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.invites" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Request slots</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.reqslots" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Hjärtan</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.hearts" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Inbjuden utav (användar-id)</td>
+						<td class="text-left">
+							<input type="text" class="form-control" ng-model="vm.user.invited_by" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Statusnivå</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<select class="form-control" ng-model="vm.user.class" ng-options="i.id as i.name for i in vm.userClasses" style="width: 150px;"></select>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Donerat</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.donor" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.donor" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Forumbannad</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.forumban" uib-btn-radio="1">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.forumban" uib-btn-radio="0">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Invitebannad</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.inviteban" uib-btn-radio="1">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.inviteban" uib-btn-radio="0">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Uploadbannad</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.uploadban" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.uploadban" uib-btn-radio="'no'">Nej</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Passkey</td>
+						<td class="text-left">
+							<button ng-click="vm.generatePasskey()" class="btn btn-default btn-xs">Generera ny passkey</button>
+							<input type="text" class="form-control" readonly ng-model="vm.user.passkey" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Varna</td>
+						<td class="text-left">
+							<button class="btn btn-default btn-xs" ng-model="vm.user.warned" uib-btn-checkbox btn-checkbox-true="'yes'" btn-checkbox-false="'no'">Varna användare</button>
+							<select ng-show="vm.user.warned == 'yes'" class="form-control" ng-model="vm.user.warnDays">
+								<option value="">- Välj varningstid - </option>
+								<option value="1">1 dag</option>
+								<option value="2">2 dag</option>
+								<option value="3">3 dag</option>
+								<option value="4">4 dag</option>
+								<option value="7">7 dag</option>
+							</select>
+							<input ng-show="vm.user.warned == 'yes'" type="text" class="form-control" placeholder="Anledning till varning" ng-model="vm.user.warnReason" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Konto aktivt</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.enabled" uib-btn-radio="'yes'">Ja</label>
+								<label class="btn btn-default" ng-model="vm.user.enabled" uib-btn-radio="'no'">Nej</label>
+							</div>
+							<input ng-show="vm.user.enabled == 'no'" type="text" class="form-control" placeholder="Anledning till avstängning" ng-model="vm.user.secret" />
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold">Adminlog</td>
+						<td class="text-left">
+							<textarea class="form-control" style="min-height: 200px;" ng-model="vm.user.modcomment"></textarea>
+						</td>
+					</tr>
+					<tr>
+						<td class="text-right tdBold alignMiddle">Radera användare</td>
+						<td class="text-left">
+							<button ng-click="vm.deleteUser()" class="btn btn-xs btn-danger">Radera</button>
+						</td>
+					</tr>
+				</table>
+			</uib-tab>
+		</uib-tabset>
+
+		<br />
+		<div class="text-center">
+			<button ng-disabled="vm.editButtonDisabled" class="btn btn-primary" ng-click="vm.saveEditProfile()">Spara ändringar</button>
+		</div>
+		<br />
+		<uib-alert style="text-align: center;" type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+		 	{{ vm.alert.msg }}
+		</uib-alert>
+
+	</div>
+</div>
+<br />

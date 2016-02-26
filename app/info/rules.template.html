@@ -1,0 +1,13 @@
+<loading-indicator hide="vm.rules"></loading-indicator>
+
+<div class="panel panel-default col-sm-10 col-sm-push-1" style="padding: 0px;" ng-repeat="rule in vm.rules track by rule.id">
+	<div class="panel-heading text-left">{{ rule.title }}
+		<div ng-show="rule.id && vm.currentUser.class >= 8" class="pull-right">
+		<button ng-click="vm.edit(rule)" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i></button>
+		<button ng-click="vm.delete(rule)" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i></button>
+		</div>
+	</div>
+	<div class="panel-body  text-left" ng-bind-html="rule.text | bbCode"></div>
+</div>
+<div class="clearfix"></div>
+<button ng-click="vm.create()" ng-show="vm.currentUser.class >= 8" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nytt regelblock</button>

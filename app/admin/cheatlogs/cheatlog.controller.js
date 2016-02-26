@@ -1,34 +1,56 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('CheatlogController', function ($scope, $stateParams, AdminResource) {
-			$scope.itemsPerPage = 25;
-			var userid = $stateParams.userid || 0;
+	angular
+		.module('app.admin')
+		.controller('CheatlogController', CheatlogController);
 
-			var getLogs = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.CheatLogs.query({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-					'userid': userid
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.logs = data;
-				});
-			};
+	function CheatlogController($state, $stateParams, AdminResource) {
 
-			$scope.pageChanged = function () {
-				getLogs();
-			};
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
+		this.sort = $stateParams.sort;
+		this.order = $stateParams.order;
+		this.userid = $stateParams.userid;
 
-			$scope.searchUser = function (id) {
-				userid = id;
-				getLogs();
-			};
+		this.getLogs = function () {
+			this.loading = true;
+			$state.go('.', {
+				page: this.currentPage,
+				userid: this.userid,
+				sort: this.sort,
+				order: this.order
+			}, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			AdminResource.CheatLogs.query({
+				'limit': this.itemsPerPage,
+				'index': index,
+				'userid': this.userid,
+				'sort': this.sort,
+				'order': this.order
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.logs = data;
+				this.loading = false;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			getLogs();
+		this.sortCol = function (col) {
+			if (col === this.sort) {
+				this.order = this.order === 'desc' ? 'asc' : 'desc';
+			} else {
+				this.order = 'desc';
+			}
+			this.sort = col;
+			this.getLogs();
+		};
 
-		});
+		this.getLogs();
+	}
+
 })();

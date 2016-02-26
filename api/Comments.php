@@ -194,6 +194,10 @@ class Comments {
 	}
 
 	public function delete($id) {
+		if ($this->user->getClass() < User::CLASS_ADMIN) {
+			throw new Exception('Du saknar rättigheter.', 401);
+		}
+
 		$comment = $this->get($id);
 
 		$this->db->query("DELETE FROM comments WHERE id = " . $comment["id"]);
@@ -230,7 +234,7 @@ class Comments {
 
 		$sth = $this->db->prepare('INSERT INTO comments(torrent, user, added, text) VALUES(?, ?, NOW(), ?)');
 		$sth->bindParam(1, $torrentId, PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(3, $post, PDO::PARAM_STR);
 		$sth->execute();
 
@@ -250,7 +254,7 @@ class Comments {
 
 		$sth = $this->db->prepare('UPDATE comments SET ori_text = text, text = ?, editedby = ?, editedat = NOW() WHERE id = ?');
 		$sth->bindParam(1, $postData, PDO::PARAM_STR);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(3, $postId, PDO::PARAM_INT);
 		$sth->execute();
 	}

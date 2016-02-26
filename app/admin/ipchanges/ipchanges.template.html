@@ -1,0 +1,29 @@
+<div class="text-center">
+	<h1>IP-byten</h1>
+
+	<loading-indicator hide="vm.ipchanges"></loading-indicator>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getIpChanges()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+	<div class="col-lg-10 col-lg-push-1">
+		<table class="table text-left" ng-show="vm.ipchanges">
+			<tr>
+				<th class="text-left">Datum</th>
+				<th class="text-left">Namn</th>
+				<th class="text-left" style="width: 500px;">IP/Host</th>
+				<th class="text-center" style="width: 150px;">Säkerhetskoll</th>
+			</tr>
+			<tr ng-repeat="ipchange in vm.ipchanges">
+				<td>{{ ::ipchange.added }}</td>
+				<td><user user="::ipchange.user"></user></td>
+				<td><a href="" ui-sref="admin-search({ip: ipchange.ip})">{{ ::ipchange.ip }}</a> (<b>{{ ::ipchange.hostname }}</b>)</td>
+				<td class="text-center">
+					<button ng-show="::ipchange.level == 1" ui-sref="admin-search({ip: ipchange.ip})" class="btn btn-xs btn-warning">IP-varning</button>
+					<button ng-show="::ipchange.level > 1" ui-sref="admin-search({ip: ipchange.ip})" class="btn btn-xs btn-danger">IP-varning</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getIpChanges()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

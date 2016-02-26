@@ -1,0 +1,21 @@
+<div class="text-center">
+	<h1>Vänner</h1>
+
+	<loading-indicator hide="vm.friends"></loading-indicator>
+	<div ng-show="vm.friends.length == 0" class="alert alert-warning" role="alert">Du har inga vänner</div>
+
+	<friend-list friends="vm.friends" delete="vm.deleteFriend(friend)" show-send-message="true"></friend-list>
+
+	<br /><br />
+
+	<h1>Blockerade</h1>
+
+	<loading-indicator hide="vm.blocked"></loading-indicator>
+
+	<friend-list friends="vm.blocked" delete="vm.deleteBlock(friend)"></friend-list>
+
+	<div ng-show="vm.blocked.length == 0" class="alert alert-warning" role="alert">Du har inga blockerade användare</div>
+
+	<br /><br />
+	<i>För att lägga till en vän eller blockering, <a user-picker href="#">sök först upp användarens profil</a> och använd funktionsknapparna.</i>
+</div>

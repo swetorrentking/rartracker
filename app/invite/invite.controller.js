@@ -1,53 +1,64 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('InviteController', function ($scope, $http, $uibModal, $timeout, ErrorDialog, AuthService, InvitesResource, configs) {
-			$scope.configs = configs;
-			$scope.timeLeft = 10;
-			$scope.createButtonText = 'Läs reglerna (10)';
+	angular
+		.module('app.shared')
+		.controller('InviteController', InviteController);
 
-			var fetchInvites = function () {
-				InvitesResource.query({}).$promise
-					.then(function (response) {
-						$scope.invites = response;
-					});
-			};
+	function InviteController($timeout, ErrorDialog, InvitesResource, configs, ConfirmDialog, user) {
 
-			$scope.createInvite = function () {
-				InvitesResource.save({}).$promise
-					.then(function () {
-						fetchInvites();
-					})
-					.catch(function(error) {
+		this.currentUser = user;
+		this.configs = configs;
+		this.timeLeft = 10;
+		this.createButtonText = 'Läs reglerna (10)';
+
+		this.fetchInvites = function () {
+			InvitesResource.query({}).$promise
+				.then((response) => {
+					this.invites = response;
+				});
+		};
+
+		this.createInvite = function () {
+			InvitesResource.save({}).$promise
+				.then(() => {
+					this.fetchInvites();
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
+				});
+		};
+
+		this.deleteInvite = function (invite) {
+			ConfirmDialog('Radera invite', 'Vill du verkligen radera invitelänken. Den kommer bli okbrukbar!')
+				.then(() => {
+					return InvitesResource.delete({id: invite.id}).$promise;
+				})
+				.then(() => {
+					var index = this.invites.indexOf(invite);
+					this.invites.splice(index, 1);
+				})
+				.catch((error) => {
+					if (error) {
 						ErrorDialog.display(error.data);
-					});
-			};
-
-			$scope.deleteInvite = function (invite) {
-				InvitesResource.delete({id: invite.id}).$promise
-					.then(function () {
-						var index = $scope.invites.indexOf(invite);
-						$scope.invites.splice(index, 1);
-					})
-					.catch(function(error) {
-						ErrorDialog.display(error.data);
-					});
-			};
-
-			var countDownTick = function () {
-				$timeout(function () {
-					$scope.timeLeft -= 1;
-					if ($scope.timeLeft > 0) {
-						$scope.createButtonText = 'Läs reglerna! (' + $scope.timeLeft + ')';
-						countDownTick();
-					} else {
-						$scope.createButtonText = 'Skapa ny invite-länk';
 					}
-				}, 1000);
-			};
+				});
+		};
 
-			fetchInvites();
-			countDownTick();
-		});
+		this.countDownTick = function () {
+			$timeout(() => {
+				this.timeLeft -= 1;
+				if (this.timeLeft > 0) {
+					this.createButtonText = 'Läs reglerna! (' + this.timeLeft + ')';
+					this.countDownTick();
+				} else {
+					this.createButtonText = 'Skapa ny invite-länk';
+				}
+			}, 1000);
+		};
+
+		this.fetchInvites();
+		this.countDownTick();
+	}
+
 })();

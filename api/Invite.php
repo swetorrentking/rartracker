@@ -30,8 +30,8 @@ class Invite implements IResource {
 
 		$this->db->query("UPDATE users SET invites = invites - 1 WHERE id = " . $this->user->getId());
 		$sth = $this->db->prepare("INSERT INTO invites(userid, secret, skapad) VALUES(?, ?, NOW())");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
-		$sth->bindParam(2, md5(uniqid()), PDO::PARAM_STR);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, md5(uniqid()), PDO::PARAM_STR);
 		$sth->execute();
 	}
 

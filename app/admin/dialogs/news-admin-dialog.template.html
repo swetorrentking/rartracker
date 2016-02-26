@@ -1,0 +1,41 @@
+<div class="text-center">
+	<div class="modal-header">
+		<h2 class="modal-title">
+			<span ng-hide="vm.news.id">Skapa ny nyhet</span>
+			<span ng-show="vm.news.id">Redigera nyhet</span>
+		</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form">
+			<div class="form-group" style="text-align: left;">
+				<label for="subject">Rubrik</label>
+				<input type="text" id="subject" class="form-control" placeholder="Rubrik" ng-model="vm.news.subject" />
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="postText">Text</label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="vm.news.body" placeholder="Skriv nyheten..." auto-focus required></textarea>
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="postText">Flash-nyhet som uppmanar alla att läsa</label>
+				<br />
+				<div class="btn-group">
+					<label class="btn btn-default" ng-model="vm.news.announce" uib-btn-radio="1">Ja</label>
+					<label class="btn btn-default" ng-model="vm.news.announce" uib-btn-radio="0">Nej</label>
+				</div>
+			</div>
+		</form>
+		<br />
+		<uib-alert style="text-align: center;" type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+		 	{{ vm.alert.msg }}
+		</uib-alert>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-primary" ng-click="vm.create()">
+				<span ng-hide="vm.news.id">Skapa nyhet</span>
+				<span ng-show="vm.news.id">Spara ändringar</span>
+			</button>
+			<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

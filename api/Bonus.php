@@ -78,27 +78,27 @@ class Bonus {
 				if ($torr["reqid"] > 1) {
 
 					$req = $this->db->query("SELECT UNIX_TIMESTAMP(requests.added) as added2, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests WHERE id = $torr[reqid]");
-				 
+
 					$reg = $req->fetch(PDO::FETCH_ASSOC);
-					
+
 					$hitte = $torr["added1"] - $reg["added2"];
 					$hitte = round($hitte/86400);
 					$hitte+=2;
 					$requestReward += $reg["krydda"] + $hitte;
-					
+
 				} else {
 					if ($torr["reqid"] == 0) {
-				 	 
-				 	 	if ($torr["category"] > 5) {
+
+				 	 	if ($torr["category"] > Torrent::MOVIE_1080P || $torr["category"] == Torrent::BLURAY) {
 				 	 		$torrp += 5;
 				 	 	}
 				 	 	else {
 				 	 		$torrp += 10;
 				 	 	}
-				 	 
+
 				 	 }
 				}
-				
+
 			}
 
 			$slutbonus = $bonusp + $torrp + $subp + $requestReward;

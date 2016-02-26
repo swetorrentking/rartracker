@@ -1,41 +1,55 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('AdminSearchController', function ($scope, AdminResource, $stateParams) {
-			$scope.itemsPerPage = 15;
+	angular
+		.module('app.admin')
+		.controller('AdminSearchController', AdminSearchController);
 
-			$scope.search = {};
-			$scope.search.ip = $stateParams.ip;
+	function AdminSearchController($state, $stateParams, AdminResource) {
 
-			var fetchUsers = function () {
-				$scope.users = null;
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.Search.get({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-					'username': $scope.search.username,
-					'ip': $scope.search.ip,
-					'email': $scope.search.email,
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.users = data.users;
-					$scope.loginAttempts = data.loginAttempts;
-					$scope.iplog = data.iplog;
-					$scope.recoveryLog = data.recoveryLog;
-				});
-			};
+		this.itemsPerPage = 15;
+		this.currentPage = $stateParams.page;
+		this.search = {
+			ip: $stateParams.ip,
+			name: $stateParams.name,
+			email: $stateParams.email
+		};
 
-			$scope.pageChanged = function () {
-				fetchUsers();
-			};
+		this.loadUsers = function () {
+			$state.go('.', {
+				page: this.currentPage,
+				ip: this.search.ip,
+				name: this.search.name,
+				email: this.search.email
+			}, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.Search.get({
+				'limit': this.itemsPerPage,
+				'index': index,
+				'username': this.search.name,
+				'ip': this.search.ip,
+				'email': this.search.email,
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.users = data.users;
+				this.loginAttempts = data.loginAttempts;
+				this.iplog = data.iplog;
+				this.recoveryLog = data.recoveryLog;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			$scope.doSearch = function (){
-				fetchUsers();
-			};
+		this.doSearch = function () {
+			this.currentPage = 1;
+			this.loadUsers();
+		};
 
-			fetchUsers();
+		this.loadUsers();
 
-		});
+	}
+
 })();

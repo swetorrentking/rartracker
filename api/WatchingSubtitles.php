@@ -23,7 +23,7 @@ class WatchingSubtitles implements IResource {
 	public function getByTorrentId($id) {
 		$sth = $this->db->prepare("SELECT * FROM bevakasubs WHERE torrentid = ? AND userid = ?");
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->execute();
 		return $sth->fetch(PDO::FETCH_ASSOC);
 	}
@@ -37,7 +37,7 @@ class WatchingSubtitles implements IResource {
 
 	public function create($postdata) {
 		$sth = $this->db->prepare('SELECT * FROM bevakasubs WHERE userid = ? AND torrentid = ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
@@ -45,7 +45,7 @@ class WatchingSubtitles implements IResource {
 		}
 
 		$sth = $this->db->prepare("INSERT INTO bevakasubs(userid, torrentid) VALUES(?, ?)");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_STR);
 		$sth->execute();
 	}

@@ -1,0 +1,22 @@
+<div class="text-center">
+	<div class="modal-header">
+		<h2 class="modal-title">Välj format att bevaka för:</h2>
+		{{ ::vm.movie.title }} ({{ ::vm.movie.year }})
+	</div>
+	<div class="modal-body">
+		<button class="btn btn-default btn-xs" ng-model="vm.model.formats.hd720" uib-btn-checkbox>720p</button>
+		<button class="btn btn-default btn-xs" ng-model="vm.model.formats.hd1080" uib-btn-checkbox>1080p</button>
+		<button class="btn btn-default btn-xs" ng-model="vm.model.formats.dvdrpal" uib-btn-checkbox>DVDR PAL</button>
+		<button class="btn btn-default btn-xs" ng-model="vm.model.formats.dvdrcustom" uib-btn-checkbox>DVDR CUSTOM</button>
+		<button class="btn btn-default btn-xs" ng-model="vm.model.formats.bluray" uib-btn-checkbox ng-show="vm.model.typ == 0">BLURAY</button>
+		<button class="btn btn-default btn-xs" ng-model="vm.model.swesub" uib-btn-checkbox ng-change="vm.updateWatch(w)">Kräv svensk text</button>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button ng-show="vm.dialogStatus == 0" class="btn btn-primary" ng-click="vm.ok()" ng-disabled="!vm.isSomeSelected()">Lägg till bevakning</button>
+			<button ng-show="vm.dialogStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
+			<button ng-show="vm.dialogStatus == 2" class="btn btn-primary disabled"><i class="fa fa-check"></i></button>
+			<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

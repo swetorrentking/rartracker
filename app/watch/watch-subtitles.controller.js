@@ -1,25 +1,28 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('WatchingSubtitlesController', function ($scope, $uibModal, ErrorDialog, WatchingSubtitlesResource) {
-			
-			WatchingSubtitlesResource.query({}).$promise
-				.then(function (response) {
-					$scope.watchingSubtitles = response;
+	angular
+		.module('app.watcher')
+		.controller('WatchingSubtitlesController', WatchingSubtitlesController);
+
+	function WatchingSubtitlesController($uibModal, ErrorDialog, WatchingSubtitlesResource) {
+
+		WatchingSubtitlesResource.query({}).$promise
+			.then((response) => {
+				this.watchingSubtitles = response;
+			});
+
+		this.delete = function (torrent) {
+			WatchingSubtitlesResource.delete({id: torrent.bevakaSubsId}).$promise
+				.then(() => {
+					var index = this.watchingSubtitles.indexOf(torrent);
+					this.watchingSubtitles.splice(index, 1);
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
+		};
 
+	}
 
-			$scope.delete = function (torrent) {
-				WatchingSubtitlesResource.delete({id: torrent.bevakaSubsId}).$promise
-					.then(function () {
-						var index = $scope.watchingSubtitles.indexOf(torrent);
-						$scope.watchingSubtitles.splice(index, 1);
-					})
-					.catch(function(error) {
-						ErrorDialog.display(error.data);
-					});
-			};
-
-		});
 })();

@@ -1,7 +1,0 @@
-Hej, <user user="myself"></user> <a ui-sref="userEdit({id: myself.id, username: myself.username})"><button class="btn btn-default btn-xs"><i class="fa fa-cog"></i><span class="hidden-xs"> Inställningar</span></button></a>  <button ng-click="logout()" class="btn btn-default btn-xs"><i class="fa fa-sign-out"></i><span class="hidden-xs">  Logga ut</span></button>
-<br />
-<span style="color: #1900D1;">Ratio:</span> <b ng-bind-html="myself.uploaded/myself.downloaded | ratio"></b> <span style="color: #008000;">Uppladdat:</span> <b>{{ myself.uploaded | prettysize }}</b> <span style="color: #800000;">Nerladdat:</span> <b>{{ myself.downloaded | prettysize }}</b>
-<br />
-<a ui-sref="leechbonus"><span style="color: #999900;">LeechBonus:</span></a> <b>{{ myself.leechbonus }}%</b> <span ng-show="myself.class > 0"><a ui-sref="bonus"><span style="color: #999900;">Bonuspoäng:</span></a>&nbsp;<b>{{ myself.bonuspoang }}p</b></span>&nbsp;<span ng-show="myself.class > 0"><a ui-sref="invite"><span style="color: #c245a3;">Invites:</span></a>&nbsp;<b>{{ myself.invites }} st</b></span>
-<br />
-<span style="font-weight: bold; font-size: 14px;" ng-show="leechTime">{{ leechTime }} kvar på fri leech</span>

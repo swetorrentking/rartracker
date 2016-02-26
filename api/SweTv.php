@@ -40,7 +40,7 @@ class SweTv {
 		$name = Helper::searchfield($name);
 		preg_match("/E([0-9]+)/i", $name, $match);
 
-		$releaseEpisodeNumber = $match[1]; 
+		$releaseEpisodeNumber = $match[1];
 
 		$hits = array();
 		$sth = $this->db->prepare("SELECT tv_program.id AS programid, priority, kanalid, episod, FROM_UNIXTIME(datum), MATCH(program_search) AGAINST(?) AS relevance FROM `tv_program` LEFT JOIN tv_kanaler ON tv_program.kanalid = tv_kanaler.id  WHERE MATCH(program_search) AGAINST(?) AND FROM_UNIXTIME(datum) > (NOW() - INTERVAL 4 DAY) ORDER BY relevance DESC, datum DESC, tv_kanaler.priority ASC LIMIT 10");
@@ -48,7 +48,7 @@ class SweTv {
 		$sth->bindParam(1, $name, PDO::PARAM_STR);
 		$sth->bindParam(2, $name, PDO::PARAM_STR);
 		$sth->execute();
-		
+
 		$relevance = -1;
 		while ($r = $sth->fetch(PDO::FETCH_ASSOC)) {
 		    if ($relevance == -1) {

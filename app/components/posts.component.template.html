@@ -1,0 +1,40 @@
+<table class="table forumtable table-text-center">
+	<tr ng-repeat="post in vm.posts track by post.id">
+		<td class="text-left">
+			<div class="post-header" ng-if="::post.torrent">
+				<torrent torrent="::post.torrent"></torrent>
+			</div>
+			<div id="post{{ ::post.id }}" class="post-header">
+				<a href="" ng-click="vm.gotoAnchor({postId: post.id})">#{{ ::post.id }}</a> av <user user="::post.user"></user> <br class="visible-xs" />vid {{ ::post.added }} ({{ ::post.added | dateDifference }} sedan)
+				<span class="pull-right" ng-if="::post.topic">
+					Tråd: <a href="" ui-sref="forum.topic({id: post.topic.id, forumid: post.topic.forumid, slug: post.topic.slug})">{{ post.topic.subject }}</a>
+				</span>
+				<span ng-show="vm.uploadCommentsView == 'true' && vm.currentUser.uplLastReadCommentId < post.id" class="badge" style="font-size:10px">NY</span>
+				<span class="pull-right-sm" ng-hide="post.torrent || post.topic">
+					<button ng-show="vm.currentUser.class == 8" ng-click="vm.deletePost({post:post})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Radera</button>
+					<button ng-show="vm.currentUser.id == post.user.id || vm.currentUser.class == 8" ng-disabled="editingPostId" ng-click="vm.editPost({post:post})" class="btn btn-default btn-xs"><i class="fa fa-pencil"></i> Redigera</button>
+					<button ng-click="vm.onQuote({post:post})" class="btn btn-default btn-xs"><i class="fa fa-quote-right"></i> Citera</button>
+					<report-button type="{{ ::post.topicid ? 'post' : 'comment' }}" id="post.id" body="post.body"></report-button>
+				</span>
+			</div>
+			<div>
+				<div class="hidden-xs forumAvatarHolder">
+					<div ng-if="post.user.avatar && vm.currentUser.avatars == 'yes'" class="post-avatar" style="background-image: url('{{post.user.avatar}}');"></div>
+					<div ng-if="vm.currentUser.avatars == 'no' || !post.user.avatar" class="post-avatar" style="background-image: url('/img/default-avatar.png');"></div>
+				</div>
+				<div class="forumPost" style="padding: 5px;">
+					<p ng-hide="vm.editObj.id == post.id" ng-bind-html="post.body | bbCode | highlight:vm.searchText"></p>
+					<div ng-show="vm.editObj.id == post.id">
+						<textarea class="form-control" rows="11" id="editPostText" placeholder="Skriv inlägg..." ng-model="vm.editObj.text"></textarea>
+						<br>
+						<div class="pull-right">
+							<button class="btn btn-default" ng-click="vm.abortEdit()">Avbryt</button>
+							<button class="btn btn-default" ng-click="vm.saveEdit({post:post})">Spara ändringar</button>
+						</div>
+					</div>
+					<div ng-if="post.editedat != '0000-00-00 00:00:00'"><i>Senast ändrad {{ post.editedat }}</i></div>
+				</div>
+			</div>
+		</td>
+	</tr>
+</table>

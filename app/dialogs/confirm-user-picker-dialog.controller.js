@@ -1,28 +1,31 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ConfirmUserPickerDialogController', function ($scope, $uibModalInstance, UsersResource, settings) {
-			$scope.settings = settings;
-			$scope.asyncSelected = null;
+	angular
+		.module('app.shared')
+		.controller('ConfirmUserPickerDialogController', ConfirmUserPickerDialogController);
 
-			$scope.confirm = function () {
-				$uibModalInstance.close($scope.settings);
-			};
+	function ConfirmUserPickerDialogController($uibModalInstance, UsersResource, settings) {
+		this.settings = settings;
+		this.asyncSelected = null;
 
-			$scope.cancel = function () {
-				$uibModalInstance.dismiss();
-			};
+		this.confirm = function () {
+			$uibModalInstance.close(this.settings);
+		};
 
-			$scope.onSelected = function (item) {
-				$scope.settings.user = item;
-			};
+		this.cancel = function () {
+			$uibModalInstance.dismiss();
+		};
 
-			$scope.getUsers = function (val) {
-				return UsersResource.Users.query({search: val}).$promise.then(function (users) {
-					return users;
-				});
-			};
+		this.onSelected = function (item) {
+			this.settings.user = item;
+		};
 
-		});
+		this.getUsers = function (val) {
+			return UsersResource.Users.query({search: val}).$promise
+				.then(users => users);
+		};
+
+	}
+
 })();

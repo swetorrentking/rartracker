@@ -1,59 +1,54 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('MyRequestsController', function ($scope, $state, $stateParams, ErrorDialog, DeleteDialog, $uibModal, RequestsResource) {
-			
-			var getRequestData = function () {
-				RequestsResource.My.get({ id: $stateParams.id }).$promise
-					.then(function (data) {
-						$scope.myRequests = data.myRequests;
-						$scope.myVotedRequests = data.myVotedRequests;
-					})
-					.catch(function (error) {
-						$scope.notFoundMessage = error.data;
-					});
-			};
+	angular
+		.module('app.requests')
+		.controller('MyRequestsController', MyRequestsController);
 
-			$scope.vote = function (request) {
-				RequestsResource.Votes.save({
-					id: request.id
-				}, function (){
-					getRequestData();
+	function MyRequestsController($stateParams, ErrorDialog, DeleteDialog, $uibModal, RequestsResource, user) {
+		this.currentUser = user;
+
+		this.getRequestData = function () {
+			RequestsResource.My.get({ id: $stateParams.id }).$promise
+				.then((data) => {
+					this.myRequests = data.myRequests;
+					this.myVotedRequests = data.myVotedRequests;
 				});
-			};
+		};
 
-			$scope.delete = function (request) {
-				var dialog = DeleteDialog('Radera request', 'Vill du radera requesten \''+request.request+'\'?', true);
-
-				dialog.then(function (reason) {
-					RequestsResource.Requests.delete({ id: request.id, reason: reason }).$promise
-						.then(function () {
-							getRequestData();
-						})
-						.catch(function (error) {
-							ErrorDialog.display(error.data);
-						});
+		this.delete = function (request) {
+			DeleteDialog('Radera request', 'Vill du radera requesten \''+request.request+'\'?', true)
+				.then((reason) => {
+					return RequestsResource.Requests.delete({ id: request.id, reason: reason }).$promise;
+				})
+				.then(() => {
+					this.getRequestData();
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
-			};
+		};
 
-			$scope.giveReward = function (request) {
-				var modalInstance = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/request-reward-dialog.html',
-					controller: 'RequestRewardController',
-					size: 'sm',
-					resolve: {
-						request: function () {
-							return request;
-						}
-					}
-				});
+		this.giveReward = function (request) {
+			var modalInstance = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/requests/request-reward-dialog.template.html',
+				controller: 'RequestRewardController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'sm',
+				resolve: {
+					request: () => request
+				}
+			});
 
-				modalInstance.result.then(function () {
-					getRequestData();
-				});
-			};
-			getRequestData();
-		});
+			modalInstance.result.then(function () {
+				this.getRequestData();
+			});
+		};
+
+		this.getRequestData();
+
+	}
+
 })();

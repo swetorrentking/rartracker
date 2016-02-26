@@ -5,6 +5,7 @@ ignore_user_abort(1);
 
 include("api/secrets.php");
 include("api/benc.php");
+include('api/Config.php');
 
 $db = new PDO($database.':host='.$host.';dbname='.$dbname.';charset=utf8', $username, $password);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -45,14 +46,14 @@ if (!$user) {
 }
 
 $dict = bdec_file($filePath, filesize($filePath));
-$dict['value']['announce']['value'] = "http".($user["https"] == 1 ? "s" : "")."://127.0.0.1:133".($user["https"] == 1 ? "8" : "7")."/tracker.php/{$passkey}/announce";
+$dict['value']['announce']['value'] = ($user["https"] == 1 ? Config::TRACKER_URL_SSL : Config::TRACKER_URL) ."/tracker.php/{$passkey}/announce";
 $dict['value']['announce']['string'] = strlen($dict['value']['announce']['value']).":".$dict['value']['announce']['value'];
 $dict['value']['announce']['strlen'] = strlen($dict['value']['announce']['string']);
 
 $dict["value"]["comment"]["type"] = "string";
-$dict["value"]["comment"]["value"] = "rartracker";
-$dict["value"]["comment"]["strlen"] = strlen(strlen("127.0.0.1") . ":127.0.0.1");
-$dict["value"]["comment"]["string"] = strlen("127.0.0.1") . ":127.0.0.1";
+$dict["value"]["comment"]["value"] = Config::SITE_NAME;
+$dict["value"]["comment"]["strlen"] = strlen(strlen(Config::SITE_NAME) . ":" . Config::SITE_NAME);
+$dict["value"]["comment"]["string"] = strlen(Config::SITE_NAME) . ":" . Config::SITE_NAME;
 
 unset($dict['value']['announce-list']);
 header('Content-Disposition: attachment;filename="'.$torrent['filename'].'"');

@@ -1,0 +1,8 @@
+<div class="text-center">
+	<loading-indicator hide="vm.watchingSubtitles"></loading-indicator>
+	<div class="table-responsive">
+		<torrents-table torrents="vm.watchingSubtitles" on-delete="vm.delete(torrent)" col-download="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true" col-delete="true"></torrents-table>
+	</div>
+	<br />
+	<div ng-show="vm.watchingSubtitles.length == 0" class="alert alert-warning" role="alert">Du bevakar inte svensk text på någon torrent</div>
+</div>

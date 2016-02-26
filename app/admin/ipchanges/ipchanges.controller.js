@@ -1,28 +1,34 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('IpChangesController', function ($scope, AdminResource) {
+	angular
+		.module('app.admin')
+		.controller('IpChangesController', IpChangesController);
 
-			$scope.itemsPerPage = 25;
+	function IpChangesController($state, $stateParams, AdminResource) {
 
-			var getIpChanges = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.IpChanges.query({
-					'limit': $scope.itemsPerPage,
-					'index': index
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.ipchanges = data;
-				});
-			};
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
 
-			$scope.pageChanged = function () {
-				getIpChanges();
-			};
+		this.getIpChanges = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.IpChanges.query({
+				'limit': this.itemsPerPage,
+				'index': index
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.ipchanges = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			getIpChanges();
+		this.getIpChanges();
 
-		});
+	}
+
 })();

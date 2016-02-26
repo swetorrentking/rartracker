@@ -1,102 +1,97 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('EditTorrentController', function ($scope, $stateParams, DateService, ErrorDialog, SweTvResource, MovieDataResource, categories, $state, TorrentsResource, UploadService) {
-			
-			$scope.tvChannels = SweTvResource.Channels.query();
+	angular
+		.module('app.shared')
+		.controller('EditTorrentController', EditTorrentController);
 
-			var arr = [];
-			for (var i = 0; i < 21; i++) {
-				var d = new Date();
-				arr.push(DateService.getYMD(d.getTime()/1000 - i*86400 ));
+	function EditTorrentController($state, $stateParams, DateService, ErrorDialog, SweTvResource, user, MovieDataResource, categories, TorrentsResource, uploadService) {
+
+		this.currentUser = user;
+		this.tvChannels = SweTvResource.Channels.query();
+		this.tvDates = uploadService.getSweTvDates();
+		this.categories = categories;
+
+		TorrentsResource.Torrents.get({id: $stateParams.id}, (torrent) => {
+			this.torrent = torrent;
+			if (this.torrent.tv_kanalid > 0) {
+				this.updatePrograms();
 			}
-			$scope.tvDates = arr;
-
-			$scope.categories = categories;
-
-			TorrentsResource.Torrents.get({id: $stateParams.id}, function (torrent) {
-				$scope.torrent = torrent;
-				if ($scope.torrent.tv_kanalid > 0) {
-					$scope.updatePrograms();
-				}
-				if ($scope.torrent.imdbid) {
-					TorrentsResource.Related.query({id: $scope.torrent.imdbid}, function (torrents) {
-						torrents = torrents.filter(function (torrent) { return torrent.id !== $scope.torrent.id; });
-						$scope.relatedTorrents = torrents;
-					});
-				}
-			}, function (error){
-				$scope.notFoundMessage = error.data;
-			});
-
-			$scope.$watch('torrent.descr', function (newTxt, oldTxt) {
-				if (!newTxt || oldTxt && oldTxt.length + 10 > newTxt.length) {
-					return;
-				}
-				$scope.torrent.descr = UploadService.stripAscii($scope.torrent.descr);
-		 	});
-
-			$scope.updateTorrent = function () {
-				TorrentsResource.Torrents.update({id: $scope.torrent.id}, $scope.torrent, function () {
-					$state.go('torrent', {id: $scope.torrent.id, name: $scope.torrent.name});
-				}, function (error) {
-					ErrorDialog.display(error.data);
+			if (this.torrent.imdbid) {
+				TorrentsResource.Related.query({id: this.torrent.imdbid}, (torrents) => {
+					torrents = torrents.filter(torrent => torrent.id !== this.torrent.id);
+					this.relatedTorrents = torrents;
 				});
-			};
-
-			$scope.deleteTorrent = function () {
-				TorrentsResource.Torrents.remove({
-					id: $scope.torrent.id,
-					reason: $scope.deleteVars.reason,
-					pmUploader: $scope.deleteVars.pmUploader,
-					pmPeers: $scope.deleteVars.pmPeers,
-					banRelease: $scope.deleteVars.banRelease,
-					attachTorrentId: $scope.deleteVars.attachTorrentId,
-					restoreRequest: $scope.deleteVars.restoreRequest,
-				}, function () {
-					$scope.notFoundMessage = 'Torrenten är nu raderad.';
-				}, function (error) {
-					ErrorDialog.display(error.data);
-				});
-			};
-
-			$scope.fetchImdbInfo = function () {
-		 		if ($scope.torrent.imdbUrl.length > 1) {
-		 			$scope.submitDisabled = true;
-		 			var imdbId = $scope.torrent.imdbUrl.match(/\/(tt[0-9]+)(\/|$)/)[1];
-		 			MovieDataResource.Imdb.get({id: imdbId}, function (imdb) {
-						$scope.torrent.imdbInfo = imdb['title'] + ' (' + imdb['year'] +')';
-						$scope.torrent.imdbid = imdb['id'];
-						$scope.submitDisabled = false;
-					}, function (error) {
-						$scope.torrent.imdbInfo = 'Error: ' + error;
-						$scope.submitDisabled = false;
-					});
-		 		}
-		 	};
-
-			$scope.removeImdb = function () {
-				$scope.torrent.imdbid = 0;
-				$scope.torrent.imdbUrl = '';
-				$scope.torrent.imdbInfo = '';
-			};
-
-			$scope.updatePrograms = function () {
-		 		$scope.tvPrograms = null;
-				SweTvResource.Programs.query({id:$scope.torrent.tv_kanalid}).$promise
-					.then(function (programs) {
-						programs = Array.prototype.slice.call(programs);
-						programs = UploadService.generateProgramSelectList(programs);
-						if (!programs.some(function (p) { return p.id == $scope.torrent.tv_programid; })) {
-							programs.unshift({
-								id: 2,
-								program: DateService.getHI($scope.torrent.tv_klockslag) + ' - ' + $scope.torrent.tv_program,
-							});
-						}
-						$scope.tvPrograms = programs;
-					});
-		 	};
-
+			}
+		}, (error) => {
+			this.notFoundMessage = error.data;
 		});
+
+		this.stripNfo = function () {
+			this.torrent.descr = uploadService.stripAscii(this.torrent.descr);
+	 	};
+
+		this.updateTorrent = function () {
+			TorrentsResource.Torrents.update({id: this.torrent.id}, this.torrent, () => {
+				$state.go('torrent', {id: this.torrent.id, name: this.torrent.name});
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
+
+		this.deleteTorrent = function () {
+			TorrentsResource.Torrents.remove({
+				id: this.torrent.id,
+				reason: this.deleteVars.reason,
+				pmUploader: this.deleteVars.pmUploader,
+				pmPeers: this.deleteVars.pmPeers,
+				banRelease: this.deleteVars.banRelease,
+				attachTorrentId: this.deleteVars.attachTorrentId,
+				restoreRequest: this.deleteVars.restoreRequest,
+			}, () => {
+				this.notFoundMessage = 'Torrenten är nu raderad.';
+			}, (error) => {
+				ErrorDialog.display(error.data);
+			});
+		};
+
+		this.fetchImdbInfo = function () {
+	 		if (this.torrent.imdbUrl.length > 1) {
+	 			this.submitDisabled = true;
+	 			var imdbId = this.torrent.imdbUrl.match(/\/(tt[0-9]+)(\/|$)/)[1];
+	 			MovieDataResource.Imdb.get({id: imdbId}, (imdb) => {
+					this.torrent.imdbInfo = imdb['title'] + ' (' + imdb['year'] +')';
+					this.torrent.imdbid = imdb['id'];
+					this.submitDisabled = false;
+				}, (error) => {
+					this.torrent.imdbInfo = 'Error: ' + error;
+					this.submitDisabled = false;
+				});
+	 		}
+	 	};
+
+		this.removeImdb = function () {
+			this.torrent.imdbid = 0;
+			this.torrent.imdbUrl = '';
+			this.torrent.imdbInfo = '';
+		};
+
+		this.updatePrograms = function () {
+	 		this.tvPrograms = null;
+			SweTvResource.Programs.query({id: this.torrent.tv_kanalid }).$promise
+				.then((programs) => {
+					programs = Array.prototype.slice.call(programs);
+					programs = uploadService.generateProgramSelectList(programs);
+					if (!programs.some(p => p.id == this.torrent.tv_programid)) {
+						programs.unshift({
+							id: 2,
+							program: DateService.getHI(this.torrent.tv_klockslag) + ' - ' + this.torrent.tv_program,
+						});
+					}
+					this.tvPrograms = programs;
+				});
+	 	};
+
+	}
+
 })();

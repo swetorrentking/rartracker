@@ -1,6 +1,7 @@
 <?php
 
 include('api/secrets.php');
+include('api/Config.php');
 
 $db = new PDO($database.':host='.$host.';dbname='.$dbname.';charset=utf8', $username, $password);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -85,14 +86,15 @@ if (count($where) > 0) {
 	$finalWhere = "WHERE " . implode(" AND ", $where);
 }
 
-$SITENAME = "Rartracker";
+$SITENAME = Config::NAME;
 $DESCR = "RSS Feeds";
-$BASEURL = "https://127.0.0.1.org";
+$BASEURL = Config::SITE_URL;
+$SITEMAIL = Config::SITE_MAIL;
 
 header("Content-Type: application/xml");
 print("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n<rss version=\"0.91\">\n<channel>\n" .
 "<title>" . $SITENAME . "</title>\n<link>" . $BASEURL . "</link>\n<description>" . $DESCR . "</description>\n" .
-"<language>en-usde</language>\n<copyright> Copyright " . $SITENAME . "</copyright>\n<webMaster>noreply@127.0.0.1.org</webMaster>\n" .
+"<language>en-usde</language>\n<copyright> Copyright " . $SITENAME . "</copyright>\n<webMaster>".$SITEMAIL."</webMaster>\n" .
 "<image><title>" . $SITENAME . "</title>\n<url>" . $BASEURL . "/favicon.ico</url>\n<link>" . $BASEURL . "</link>\n" .
 "<width>16</width>\n<height>16</height>\n<description>" . $DESCR . "</description>\n</image>\n");
 
@@ -105,7 +107,7 @@ if ($bookmark) {
 while ($row = $res->fetch()){
 	list($id, $name, $descr, $filename, $size, $cat, $seeders, $leechers, $added, $catname) = $row;
 
-	$link = "https://127.0.0.1.org/download.php?id=$id&amp;passkey=$passkey";
+	$link = $BASEURL . "/download.php?id=$id&amp;passkey=$passkey";
 
 	echo("<item><title>" . htmlspecialchars($name) . "</title>\n<link>" . $link . "</link>\n<description>Kategori: " . $category[$cat] . " \n Storlek: " . mksize($size) . "\n " . htmlspecialchars($descr) . "\n</description>\n<pubDate>".$added."</pubDate></item> \n");
 }

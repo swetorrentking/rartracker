@@ -19,7 +19,7 @@ class AdminMailbox implements IResource {
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM staffmessages');
 		$sth->bindParam(1, $location, PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->execute();
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];

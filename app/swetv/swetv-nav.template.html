@@ -1,0 +1,12 @@
+<div class="text-center">
+
+	<div class="btn-group">
+		<label class="btn btn-default" ng-model="vm.tvView" uib-btn-radio="0" ng-click="vm.switchView(0)">Tablåvy</label>
+		<label class="btn btn-default" ng-model="vm.tvView" uib-btn-radio="1" ng-click="vm.switchView(1)">Torrentvy</label>
+	</div>
+
+	<br /><br />
+
+	<div ui-view></div>
+
+</div>

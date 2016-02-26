@@ -33,7 +33,7 @@ class Reports implements IResource {
 		}
 
 		$sth = $this->db->prepare('INSERT INTO reports (added, userid, reason, targetid, type) VALUES (NOW(), ?, ?, ?, ?)');
-		$sth->bindParam(1, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["reason"],		PDO::PARAM_STR);
 		$sth->bindParam(3, $postdata["targetid"],	PDO::PARAM_STR);
 		$sth->bindParam(4, $postdata["type"],		PDO::PARAM_INT);
@@ -52,7 +52,7 @@ class Reports implements IResource {
 		}
 
 		$sth = $this->db->prepare('UPDATE reports SET handledBy = ? WHERE id = ?');
-		$sth->bindParam(1, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->bindParam(2, $id,						PDO::PARAM_INT);
 		$sth->execute();
 	}

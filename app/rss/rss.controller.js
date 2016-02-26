@@ -1,39 +1,44 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('RssController', function ($scope, configs, categories, user) {
-			var url = configs.SITE_URL + '/rss.php';
+	angular
+		.module('app.shared')
+		.controller('RssController', RssController);
 
-			$scope.model = {
-				url: url,
-				setting: 0,
-				categories: [],
-				p2p: 0,
-			};
+	function RssController(configs, categories, user) {
+		var url = configs.SITE_URL + '/rss.php';
 
-			$scope.$watch('model', function () {
-				var params = [];
-				var cats = $scope.model.categories.filter(function(cat) { return !!cat.checked;});
-				if (cats.length > 0) {
-					cats = cats.map(function(cat) { return cat.id; });
-					params.push('cat=' + cats.join(','));
-				} 
-				if ($scope.model.setting > 0) {
-					params.push('s=' + $scope.model.setting);
-				}
-				if ($scope.model.p2p) {
-					params.push('p2p=' + 1);
-				}
-				params.push('passkey=' + user['passkey']);
-				$scope.model.url = url + '?' + params.join('&');
-			}, true);
+		this.settings = {
+			url: url,
+			setting: 0,
+			categories: [],
+			p2p: 0,
+		};
 
-			var catArray = [];
-			for (var c in categories) {
-				catArray.push(categories[c]);
+		this.update = function () {
+			var params = [];
+			var cats = this.settings.categories.filter(cat => !!cat.checked);
+			if (cats.length > 0) {
+				cats = cats.map(cat => cat.id);
+				params.push('cat=' + cats.join(','));
 			}
+			if (this.settings.setting > 0) {
+				params.push('s=' + this.settings.setting);
+			}
+			if (this.settings.p2p) {
+				params.push('p2p=' + 1);
+			}
+			params.push('passkey=' + user['passkey']);
+			this.settings.url = url + '?' + params.join('&');
+		};
 
-			$scope.model.categories = catArray;
-		});
+		var catArray = [];
+		for (var c in categories) {
+			catArray.push(categories[c]);
+		}
+
+		this.settings.categories = catArray;
+		this.update();
+	}
+
 })();

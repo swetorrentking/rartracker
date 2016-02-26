@@ -1,0 +1,20 @@
+<table class="table-responsive noborder col-sm-10 col-md-6 col-lg-5 col-centered">
+	<tr ng-show="vm.movieData">
+		<td valign="top" style="text-align: left; background: none repeat scroll 0% 0% transparent;" class="imdbinfotext">
+			<div style="font-weight: bold; font-size: 15px;"><a target="_blank" ng-href="http://anonym.to/?http://www.imdb.com/title/{{ vm.movieData.imdbid }}/">{{ vm.movieData.title }} ({{ vm.movieData.year }})</a></div>
+			<br />
+			<div data-goldstars stars="vm.movieData.rating"></div>
+			<br />
+			<b>Genres</b> <span ng-show="vm.movieData.genres" class="label label-default" ng-repeat-start="genre in vm.movieData.genres | split">{{genre}}</span> <span ng-repeat-end></span>
+			<br /><br />
+			<b>Skådespelare</b> <span ng-show="vm.movieData.cast" class="label label-default" ng-repeat-start="cast in vm.movieData.cast | split">{{cast}}</span> <span ng-repeat-end></span>
+
+			<div style="margin-top: 5px;" ng-if="vm.currentUser.class >= 6"><button ng-show="!vm.updatingMovieData" ng-click="vm.refreshMovieData()" class="btn btn-xs btn-default">Läs om IMDB-info</button><button ng-show="vm.updatingMovieData" class="btn btn-default btn-xs disabled">Uppdaterar data... vänta...</button></div>
+		</td>
+		<td style="border: 0px; padding: 5px;" ng-show="vm.movieData.photo">
+			<a target="_blank" ng-href="http://anonym.to/?http://www.imdb.com/title/{{ vm.movieData.imdbid }}/">
+				<img alt="Imdb poster" style="width: 175px; height: 259px;" src="/img/imdb/{{ vm.movieData.imdbid }}.jpg">
+			</a>
+		</td>
+	</tr>
+</table>

@@ -1,64 +1,153 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('RequestController', function ($scope, $state, $stateParams, DeleteDialog, ErrorDialog, $uibModal, RequestsResource) {
-			
-			var getRequestData = function () {
-				RequestsResource.Requests.get({ id: $stateParams.id }).$promise
-					.then(function (data) {
-						$scope.request = data.request;
-						$scope.votes = data.votes;
-						$scope.movieData = data.movieData;
-					})
-					.catch(function (error) {
-						$scope.notFoundMessage = error.data;
-					});
-			};
+	angular
+		.module('app.requests')
+		.controller('RequestController', RequestController);
 
-			$scope.upload = function (request) {
-				$state.go('upload', {requestId: request.id, requestName: request.request});
-			};
+	function RequestController($state, $stateParams, DeleteDialog, ErrorDialog, $uibModal, RequestsResource, $location, $anchorScroll, $timeout, user) {
 
-			$scope.vote = function (request) {
-				RequestsResource.Votes.save({
-					id: request.id
-				}, function (){
-					getRequestData();
+		this.currentUser = user;
+		this.postStatus = 0;
+		this.editObj = {
+			id: null,
+			text: ''
+		};
+
+		this.getRequestData = function () {
+			RequestsResource.Requests.get({ id: $stateParams.id }).$promise
+				.then((data) => {
+					this.request = data.request;
+					this.votes = data.votes;
+					this.movieData = data.movieData;
+				})
+				.catch((error) => {
+					this.notFoundMessage = error.data;
 				});
-			};
+		};
 
-			$scope.delete = function () {
-				var dialog = DeleteDialog('Radera request', 'Vill du radera requesten \''+$scope.request.request+'\'?', true);
+		this.getComments = function () {
+			RequestsResource.Comments.query({ requestId: $stateParams.id }).$promise
+				.then((comments) => {
+					this.comments = comments;
 
-				dialog.then(function (reason) {
-					RequestsResource.Requests.delete({ id: $stateParams.id, reason: reason }).$promise
-						.then(function () {
-							$state.go('requests.requests');
-						})
-						.catch(function (error) {
-							ErrorDialog.display(error.data);
-						});
-				});
-			};
-
-			$scope.giveReward = function (request) {
-				var modalInstance = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/request-reward-dialog.html',
-					controller: 'RequestRewardController',
-					size: 'sm',
-					resolve: {
-						request: function () {
-							return request;
-						}
+					if ($stateParams.scrollTo == 'comments') {
+						$location.hash('comments');
+						$anchorScroll();
 					}
 				});
+		};
 
-				modalInstance.result.then(function () {
-					getRequestData();
+		this.upload = function (request) {
+			$state.go('upload', {requestId: request.id, requestName: request.request});
+		};
+
+		this.vote = function () {
+			RequestsResource.Votes.save({
+				id: this.request.id
+			}, () => {
+				this.getRequestData();
+			});
+		};
+
+		this.delete = function () {
+			DeleteDialog('Radera request', 'Vill du radera requesten \''+this.request.request+'\'?', true)
+				.then((reason) => {
+					return RequestsResource.Requests.delete({ id: $stateParams.id, reason: reason }).$promise;
+				})
+				.then(() => {
+					$state.go('requests.requests');
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
 				});
+		};
+
+		this.giveReward = function () {
+			var modalInstance = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/requests/request-reward-dialog.template.html',
+				controller: 'RequestRewardController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'sm',
+				resolve: {
+					request: () => this.request
+				}
+			});
+
+			modalInstance.result.then(() => {
+				this.getRequestData();
+			});
+		};
+
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
+
+		this.closeAlert = function() {
+			this.alert = null;
+		};
+
+		this.editPost = function (post) {
+			this.editObj = {
+				id: post.id,
+				text: post.body
 			};
-			getRequestData();
-		});
+		};
+
+		this.abortEdit = function () {
+			this.editObj = {
+				id: null,
+				text: ''
+			};
+		};
+
+		this.saveEdit = function (post) {
+			RequestsResource.Comments.update({
+				requestId: $stateParams.id,
+				id: post.id,
+				postData: this.editObj.text
+			}, () => {
+				this.abortEdit();
+				this.getComments();
+			});
+		};
+
+		this.createComment = function () {
+			this.closeAlert();
+			this.postStatus = 1;
+			RequestsResource.Comments.save({
+				requestId: $stateParams.id,
+				data: this.postText
+			}, () => {
+				this.postText = '';
+				this.getComments();
+				this.postStatus = 0;
+			}, (error) => {
+				this.postStatus = 0;
+				if (error.data) {
+					this.addAlert({ type: 'danger', msg: error.data });
+				} else {
+					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+				}
+			});
+		};
+
+		this.quoteComment = function (post) {
+			this.postText = ''.concat(this.postText || '') + '[quote=Anonym]' + post.body.replace(/\[quote[\S\s]+?\[\/quote\]/g, '') + '\n[/quote]\n';
+			$location.hash('newPost');
+			$anchorScroll();
+			$timeout(() => {
+				var element = document.getElementById('postText');
+				if (element) {
+					element.focus();
+				}
+			});
+		};
+
+		this.getRequestData();
+		this.getComments();
+
+	}
 })();

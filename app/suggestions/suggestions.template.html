@@ -1,0 +1,55 @@
+<div class="text-center ng-cloak">
+	<h1>Förslag</h1>
+
+	<button class="btn btn-default btn-xs" ng-click="vm.createSuggestion()"><i class="fa fa-lightbulb-o"></i> Skapa nytt förslag</button>
+
+	<br /><br />
+
+	<nav class="navbar navbar-default">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" ng-init="navCollapsed = true" ng-click="navCollapsed = !navCollapsed">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+		</div>
+		<div class="collapse navbar-collapse" ng-class="{'in': !navCollapsed}">
+			<ul class="nav navbar-nav navbar-nav-one">
+				<li class="menu" ng-class="{active: vm.currentView=='hot'}"><a href="" ng-click="vm.switchView('hot')">Heta idéer</a></li>
+				<li class="menu" ng-class="{active: vm.currentView=='top'}"><a href="" ng-click="vm.switchView('top')">Topplista</a></li>
+				<li class="menu" ng-class="{active: vm.currentView=='new'}"><a href="" ng-click="vm.switchView('new')">Nya</a></li>
+				<li class="menu" ng-class="{active: vm.currentView=='denied'}"><a href="" ng-click="vm.switchView('denied')">Nekade</a></li>
+				<li class="menu" ng-class="{active: vm.currentView=='done'}"><a href="" ng-click="vm.switchView('done')">Godkända</a></li>
+			</ul>
+		</div>
+	</nav>
+
+	<loading-indicator hide="vm.suggestions"></loading-indicator>
+
+	<div class="col-md-8 col-md-push-2">
+		<table class="table" ng-show="vm.suggestions">
+			<tr ng-repeat="suggestion in vm.suggestions track by suggestion.id">
+				<td style="width: 125px;">
+					<div style="font-size: 25px; font-weight: bold;">{{ suggestion.votes }}</div>
+					<div>röster</div>
+					<div style="font-size: 26px;">
+						<i class="fa fa-arrow-up" style="color: #00C853; cursor: pointer;" ng-click="vm.voteUp(suggestion)"></i>
+						<i class="fa fa-arrow-down" style="color: #F44336; cursor: pointer;" ng-click="vm.voteDown(suggestion)"></i></div>
+				</td>
+				<td class="text-left" valign="top">
+					<h2 style="margin-top: 0px;" class="pull-left">{{ ::suggestion.title }}
+						<suggestion-label status="suggestion.status"></suggestion-label>
+					</h2>
+					<button class="btn btn-default btn-xs pull-right" ng-show="vm.currentUser.class >= 8" ng-click="vm.delete(suggestion)"><i class="fa fa-trash-o"></i></button>
+					<select ng-show="vm.currentUser.class >= 8" class="form-control pull-right" style="width: 140px;" ng-change="vm.updateStatus(suggestion)" ng-model="suggestion.status" ng-options="vm.convertToInt(key) as value for (key, value) in ::vm.voteOptions"></select>
+					<div class="clearfix"></div>
+					<p>{{ ::suggestion.body }}</p>
+					<div>{{ ::suggestion.comments}} kommentarer - {{ ::suggestion.added }} - <a href="" ui-sref="forum.topic({id: suggestion.topicid, forumid: vm.forumId, page: 1})">Läs mer i forumet »</a></div>
+				</td>
+			</tr>
+		</table>
+	<br />
+	</div>
+
+</div>

@@ -47,7 +47,7 @@ class ReseedRequests {
 
 		$sth = $this->db->prepare("INSERT INTO reseed_requests(torrentid, userid, added) VALUES(?, ?, NOW())");
 		$sth->bindParam(1, $torrent["id"],			PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 
 		$this->log->log(1, "Seed önskas till ([url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]) utav {{username}}", $this->user->getId(), 1);

@@ -14,7 +14,7 @@ ob_start("ob_gzhandler");
 
 /* Will auto include needed class php files */
 function __autoload($class) {
-	if ($class == "Memcache") {
+	if ($class == "Memcached") {
 		return;
 	}
 	require_once $class . '.php';
@@ -37,12 +37,12 @@ $postdata = json_decode($http_body, true);
 $params = explode('/', $_GET['url']);
 
 /* Memcache */
-if (class_exists('Memcache')) {
+if (class_exists('Memcached')) {
 	try {
-		$memcache = new Memcache;
-		@$memcache->connect('127.0.0.1', 11211);
+		$memcached = new Memcached;
+		@$memcached->addServer('127.0.0.1', 11211);
 	} catch (Exception $e) {
-		$memcache = null;
+		$memcached = null;
 	}
 }
 
@@ -124,11 +124,11 @@ try {
 	switch(true) {
 		case validateRoute('GET', 'status'):
 			/* IP change check and logging */
-			if ($user->getClass() < User::CLASS_UPLOADER && ((int)$_GET["timeSinceLastCheck"] < 5100 || $user->getBrowserIp() !== $user->getIp())) {
+			if ($user->getClass() < User::CLASS_FILMSTJARNA && ((int)$_GET["timeSinceLastCheck"] < 5100 || $user->getBrowserIp() !== $user->getIp())) {
 				$user->logIp();
 			}
 
-			/* Only update last access if user refreshed a page recently */			 
+			/* Only update last access if user refreshed a page recently */
 			if ((int)$_GET["timeSinceLastCheck"] < 5100) {
 				$user->updateLastAccess();
 			}
@@ -178,7 +178,10 @@ try {
 
 		case validateRoute('GET', 'polls'):
 			$polls = new Polls($db, $user);
-			httpResponse($polls->query());
+			list($result, $totalCount) = $polls->query(
+				(int)$_GET["limit"] ?: 10,
+				(int)$_GET["index"] ?: 0);
+			httpResponse($result, $totalCount);
 			break;
 
 		case validateRoute('GET', 'polls/latest'):
@@ -279,20 +282,18 @@ try {
 			$torrent->update((int)$params[1], $postdata);
 			httpResponse();
 			break;
-		
+
 		case validateRoute('GET', 'torrents/\d+/multi'):
 			$torrent = new Torrent($db, $user);
 			$subtitles = new Subtitles($db, $user);
 			$requests = new Requests($db, $user);
 			$movieData = new MovieData($db);
-			$watching = new Watching($db, $user);
 			$sweTv = new SweTv($db);
 			$watchSubtitles = new WatchingSubtitles($db, $user);
 
 			$myTorrent = $torrent->get($params[1], true);
 			if ($myTorrent["imdbid"] > 0) {
 				$relatedTorrents = $torrent->getRelated($myTorrent["imdbid"], $myTorrent["id"]);
-				$watching = $watching->query($user->getId(), $myTorrent["imdbid"]);
 				$moviedata = $movieData->getData($myTorrent["imdbid"]);
 			}
 			$subtitles = $subtitles->fetch($myTorrent["id"]);
@@ -307,7 +308,6 @@ try {
 				"movieData" => $moviedata,
 				"relatedTorrents" => $relatedTorrents,
 				"subtitles" => $subtitles,
-				"watching" => is_array($watching) ? $watching[0] : null,
 				"request" => $request,
 				"watchSubtitles" => $watchSubtitles->getByTorrentId($params[1]),
 				"tvChannel" => $sweTv->getChannel($myTorrent["tv_kanalid"])));
@@ -344,7 +344,7 @@ try {
 			$torrent = new Torrent($db, $user);
 			$comments = new Comments($db, $user, $torrent);
 			list($result, $totalCount) = $comments->query(
-				(int)$params[1], 
+				(int)$params[1],
 				(int)$_GET["limit"] ?: 10,
 				(int)$_GET["index"] ?: 0);
 
@@ -355,7 +355,7 @@ try {
 			$torrent = new Torrent($db);
 			$comments = new Comments($db, $user, $torrent);
 			$comments->add(
-				(int)$params[1], 
+				(int)$params[1],
 				$postdata["data"]);
 			httpResponse($result, $totalCount);
 			break;
@@ -378,12 +378,12 @@ try {
 
 		case validateRoute('GET', 'torrents/toplists'):
 			$cacheId = 'toplists-' . $_GET["limit"];
-			if ($memcache && $cached = $memcache->get($cacheId)) {
+			if ($memcached && $cached = $memcached->get($cacheId)) {
 				httpResponse($cached);
 			} else {
 				$torrent = new Torrent($db);
 				$toplists = $torrent->getToplists($_GET["limit"] ?: 15);
-				$memcache && $memcache->set($cacheId, $toplists, MEMCACHE_COMPRESSED, 60*60);
+				$memcached && $memcached->set($cacheId, $toplists, 60*60);
 				httpResponse($toplists);
 			}
 			break;
@@ -456,6 +456,43 @@ try {
 			httpResponse($response);
 			break;
 
+		case validateRoute('GET', 'requests/\d+/comments'):
+			$requests = new Requests($db, $user);
+			$comments = new RequestComments($db, $user, $requests);
+			list($result, $totalCount) = $comments->query(
+				(int)$params[1],
+				(int)$_GET["limit"] ?: 10,
+				(int)$_GET["index"] ?: 0);
+
+			httpResponse($result, $totalCount);
+			break;
+
+		case validateRoute('POST', 'requests/\d+/comments'):
+			$requests = new Requests($db, $user);
+			$mailbox = new Mailbox($db, $user);
+			$comments = new RequestComments($db, $user, $requests, $mailbox);
+			$comments->add(
+				(int)$params[1],
+				$postdata["data"]);
+			httpResponse($result, $totalCount);
+			break;
+
+		case validateRoute('PATCH', 'requests/\d+/comments/\d+'):
+			$comments = new RequestComments($db, $user);
+			$comments->update(
+				(int)$params[1],
+				(int)$params[3],
+				$postdata["postData"]);
+			httpResponse($result, $totalCount);
+			break;
+
+		case validateRoute('DELETE', 'requests/\d+/comments/\d+'):
+			$requests = new Requests($db, $user);
+			$comments = new RequestComments($db, $user, $requests);
+			$comments->delete((int)$params[3]);
+			httpResponse();
+			break;
+
 		case validateRoute('GET', 'mailbox'):
 			$mailbox = new Mailbox($db, $user);
 			list($result, $totalCount) = $mailbox->query(
@@ -496,6 +533,11 @@ try {
 			httpResponse($movieData->search($_GET["search"]));
 			break;
 
+		case validateRoute('GET', 'moviedata/guess'):
+			$movieData = new MovieData($db);
+			httpResponse($movieData->findImdbInfoByReleaseName($_GET["name"]));
+			break;
+
 		case validateRoute('GET', 'moviedata/imdb/\w+'):
 			$movieData = new MovieData($db);
 			$arr = $movieData->getDataByImdbId($params[2]);
@@ -504,7 +546,7 @@ try {
 
 		case validateRoute('GET', 'moviedata/toplist'):
 			$cacheId = 'toplists-toplist';
-			if ($memcache && $cached = $memcache->get($cacheId)) {
+			if ($memcached && $cached = $memcached->get($cacheId)) {
 				httpResponse($cached);
 			} else {
 				$movieData = new MovieData($db);
@@ -516,7 +558,7 @@ try {
 					$movie["torrents"] = $torrent->getByMovieId($movie["id"]);
 					$result[] = $movie;
 				}
-				$memcache && $memcache->set($cacheId, $result, MEMCACHE_COMPRESSED, 60*60*6);
+				$memcached && $memcached->set($cacheId, $result, 60*60*6);
 				httpResponse($result);
 			}
 			break;
@@ -601,7 +643,7 @@ try {
 		case validateRoute('GET', 'users/\d+/torrent-comments'):
 			$comments = new Comments($db, $user);
 			list($result, $totalCount) = $comments->getCommentsForUserTorrents(
-				(int)$params[1], 
+				(int)$params[1],
 				(int)$_GET["limit"] ?: 10,
 				(int)$_GET["index"] ?: 0);
 
@@ -611,7 +653,7 @@ try {
 		case validateRoute('GET', 'users/\d+/comments'):
 			$comments = new Comments($db, $user);
 			list($result, $totalCount) = $comments->getUserComments(
-				(int)$params[1], 
+				(int)$params[1],
 				(int)$_GET["limit"] ?: 10,
 				(int)$_GET["index"] ?: 0);
 
@@ -645,6 +687,16 @@ try {
 		case validateRoute('GET', 'users/\d+/watching'):
 			$watching = new Watching($db, $user);
 			httpResponse($watching->query($params[1], (int)$_GET["imdbid"]));
+			break;
+
+		case validateRoute('GET', 'users/\d+/watching/imdb/\d+'):
+			$watching = new Watching($db, $user);
+			$watch = $watching->query($params[1], $params[4]);
+			if (is_array($watch) && $watch[0]) {
+				httpResponse($watch[0]);
+			} else {
+				httpResponseError(404, 'Bevakning saknas för imdb-id ' . $params[4]);
+			}
 			break;
 
 		case validateRoute('POST', 'users/\d+/watching'):
@@ -690,7 +742,7 @@ try {
 		case validateRoute('GET', 'users/\d+/forum-posts'):
 			$forum = new Forum($db, $user);
 			list($result, $totalCount) = $forum->getUserPosts(
-				(int)$params[1], 
+				(int)$params[1],
 				(int)$_GET["limit"] ?: 10,
 				(int)$_GET["index"] ?: 0);
 			httpResponse($result, $totalCount);
@@ -720,7 +772,7 @@ try {
 
 		case validateRoute('GET', 'suggestions'):
 			$suggestions = new Suggestions($db, $user);
-			$arr = $suggestions->get(
+			$arr = $suggestions->query(
 				$_GET["view"] ?: 'top',
 				(int)$_GET["limit"] ?: 10);
 			httpResponse($arr);
@@ -730,7 +782,7 @@ try {
 			$suggestions = new Suggestions($db, $user);
 			$arr = $suggestions->vote(
 				$params[1],
-				$postdata["direction"]);	
+				$postdata["direction"]);
 			httpResponse($arr);
 			break;
 
@@ -741,14 +793,20 @@ try {
 			break;
 
 		case validateRoute('PATCH', 'suggestions/\d+'):
-			$suggestions = new Suggestions($db, $user);
+			$forum = new Forum($db, $user);
+			$suggestions = new Suggestions($db, $user, $forum);
 			httpResponse($suggestions->update($params[1], $postdata));
+			break;
+
+		case validateRoute('DELETE', 'suggestions/\d+'):
+			$suggestions = new Suggestions($db, $user);
+			httpResponse($suggestions->delete($params[1]));
 			break;
 
 		case validateRoute('GET', 'sweTvGuide'):
 			$week = (int)$_GET["week"];
 			$cacheId = 'swetvguide-' . $week;
-			if ($memcache && $cached = $memcache->get($cacheId)) {
+			if ($memcached && $cached = $memcached->get($cacheId)) {
 				if ($week == 0) {
 					$user->updateLastTorrentViewAccess('last_tvbrowse');
 				}
@@ -766,7 +824,7 @@ try {
 					$endDate = strtotime( date("Y-m-d", $d) . ' 23:59');
 					$array[] = $torrents = $torrent->getSweTvGuideTorrents($startDate, $endDate);
 				}
-				$memcache && $memcache->set($cacheId, $array, MEMCACHE_COMPRESSED, 60*15);
+				$memcached && $memcached->set($cacheId, $array, 60*15);
 				if ($week == 0) {
 					$user->updateLastTorrentViewAccess('last_tvbrowse');
 				}
@@ -820,7 +878,7 @@ try {
 			$forum = new Forum($db, $user);
 			$user->updateLastForumAccess();
 			list($result, $totalCount) = $forum->getPosts(
-				(int)$params[3], 
+				(int)$params[3],
 				(int)$_GET["limit"] ?: 10,
 				(int)$_GET["index"] ?: 0);
 			httpResponse($result, $totalCount);
@@ -829,8 +887,8 @@ try {
 		case validateRoute('POST', 'forums/\d+/topics'):
 			$forum = new Forum($db, $user);
 			$user->updateLastForumAccess();
-			$topicId = $forum ->addTopic((int)$params[1], $postdata["subject"], $postdata["sub"] ?:'', $postdata["body"]);
-			httpResponse(Array("topicId" => $topicId));
+			$topic = $forum ->addTopic((int)$params[1], $postdata["subject"], $postdata["sub"] ?:'', $postdata["body"]);
+			httpResponse($topic);
 			break;
 
 		case validateRoute('POST', 'forums/\d+/topics/\d+/posts'):
@@ -838,7 +896,7 @@ try {
 			$forum = new Forum($db, $user, $mailbox);
 			$user->updateLastForumAccess();
 			$forum->addPost(
-				(int)$params[3], 
+				(int)$params[3],
 				$postdata);
 			httpResponse($result, $totalCount);
 			break;
@@ -848,7 +906,7 @@ try {
 			$forum->updatePost(
 				(int)$params[1],
 				(int)$params[3],
-				(int)$params[5], 
+				(int)$params[5],
 				$postdata["postData"]);
 			httpResponse($result, $totalCount);
 			break;
@@ -895,12 +953,12 @@ try {
 
 		case validateRoute('GET', 'statistics/start'):
 			$cacheId = 'stats-start';
-			if ($memcache && $cached = $memcache->get($cacheId)) {
+			if ($memcached && $cached = $memcached->get($cacheId)) {
 				httpResponse($cached);
 			} else {
 				$stats = new Statistics($db);
 				$data = $stats->getStartStats();
-				$memcache && $memcache->set($cacheId, $data, MEMCACHE_COMPRESSED, 60*15);
+				$memcached && $memcached->set($cacheId, $data, 60*15);
 				httpResponse($data);
 			}
 			break;
@@ -921,9 +979,9 @@ try {
 			httpResponse($swetv->getPrograms((int)$params[2]));
 			break;
 
-		case validateRoute('GET', 'swetv/guess/\S+'):
+		case validateRoute('GET', 'swetv/guess'):
 			$swetv = new SweTv($db);
-			list($channel, $program) = $swetv->guessChannelAndProgram($params[2]);
+			list($channel, $program) = $swetv->guessChannelAndProgram($_GET["name"]);
 			httpResponse(array("channel" => $channel, "program" => $program));
 			break;
 
@@ -1126,7 +1184,9 @@ try {
 			list($result, $totalCount) = $cheatlogs->query(array(
 				"limit" => $_GET["limit"],
 				"index" => $_GET["index"],
-				"userid" => $_GET["userid"]));
+				"userid" => $_GET["userid"],
+				"sort" => $_GET["sort"],
+				"order" => $_GET["order"]));
 			httpResponse($result, $totalCount);
 			break;
 

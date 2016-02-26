@@ -26,6 +26,7 @@ class Subtitles {
 			$subtitle = array();
 			$subtitle["filename"] = $row["filnamn"];
 			$subtitle["date"] = $row["datum"];
+			$subtitle["quality"] = $row["quality"];
 			$subtitle["id"] = $row["id"];
 			if ($this->user->getClass() < USER::CLASS_ADMIN && $row["userid"] != $this->user->getId()) {
 				$subtitle["user"] = null;
@@ -67,13 +68,17 @@ class Subtitles {
 
 		@unlink($this->subsDir . $subtitle["filnamn"]);
 
+		$anonymous = 1;
+
 		if ($subtitle["userid"] != $this->user->getId()) {
 			$torrent = $this->torrent->get($subtitle["torrentid"]);
 			$subject = "Undertext har raderats";
 			$message = "Undertexten [b]".$subtitle["filnamn"]."[/b] som du laddat upp till [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url] har blivit raderad.\n\nAnledning: [b]".$reason."[/b]";
 			$this->mailbox->sendSystemMessage($subtitle["userid"], $subject, $message);
+			$anonymous = 0;
 		}
-		$this->log->log(3, "Undertexten ([b]".$subtitle["filnamn"]."[/b]) raderades utav {{username}} med anledningen: [i]".($reason?:"-")."[/i]", $this->user->getId(), false);
+
+		$this->log->log(3, "Undertexten ([b]".$subtitle["filnamn"]."[/b]) raderades utav {{username}} med anledningen: [i]".($reason?:"-")."[/i]", $this->user->getId(), $anonymous);
 	}
 
 	public function upload($file, $post) {
@@ -97,24 +102,25 @@ class Subtitles {
 			throw new Exception('Det finns redan en undertext med samma namn.');
 		}
 
-		$sth = $this->db->prepare("INSERT INTO subs(torrentid, filnamn, datum, userid) VALUES(?, ?, NOW(), ?)");
+		$sth = $this->db->prepare("INSERT INTO subs(torrentid, filnamn, datum, quality, userid) VALUES(?, ?, NOW(), ?, ?)");
 		$sth->bindParam(1,	$post["torrentid"], 	PDO::PARAM_INT);
 		$sth->bindParam(2,	$file["name"],			PDO::PARAM_STR);
-		$sth->bindParam(3,	$this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(3,	$post["quality"] ?: '',	PDO::PARAM_STR);
+		$sth->bindValue(4,	$this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 
 		move_uploaded_file($file["tmp_name"], $this->subsDir.$file["name"]);
 
 		$torrent = $this->torrent->get($post["torrentid"]);
 		$this->db->query("UPDATE torrents SET swesub = 1 WHERE id = " . $torrent["id"]);
-		$this->log->log(1, "Undertext till ([url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]) laddades upp utav {{username}}", $this->user->getId(), 1);
+		$this->log->log(1, "Undertext till ([url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]) laddades upp utav {{username}}", $this->user->getId(), true);
 
 		// Inform users watching for subtitles
 		$sth = $this->db->prepare("SELECT * FROM bevakasubs WHERE torrentid = ? AND userid != ?");
 		$sth->bindParam(1,	$torrent["id"],			PDO::PARAM_INT);
-		$sth->bindParam(2,	$this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2,	$this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
-		
+
 		$subject = "Undertext har laddats upp till " . $torrent["name"];
 		$message = "Undertexten [b]".$file["name"]."[/b] har laddats upp till torrenten [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url].";
 

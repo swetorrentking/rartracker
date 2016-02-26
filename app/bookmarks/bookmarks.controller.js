@@ -1,25 +1,32 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('BookmarksController', function ($scope, $uibModal, ErrorDialog, BookmarksResource) {
-			
-			BookmarksResource.query({}).$promise
-				.then(function (response) {
-					$scope.bookmarks = response;
+	angular
+		.module('app.shared')
+		.controller('BookmarksController', BookmarksController);
+
+	function BookmarksController($uibModal, ErrorDialog, BookmarksResource) {
+		
+		this.loadBookmarks = function () {
+			this.bookmarks = BookmarksResource.query({}).$promise
+				.then((response) => {
+					this.bookmarks = response;
 				});
+		};
 
+		this.delete = function (torrent) {
+			BookmarksResource.delete({id: torrent.bookmarkId}).$promise
+				.then(() => {
+					var index = this.bookmarks.indexOf(torrent);
+					this.bookmarks.splice(index, 1);
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
+				});
+		};
 
-			$scope.delete = function (torrent) {
-				BookmarksResource.delete({id: torrent.bookmarkId}).$promise
-					.then(function () {
-						var index = $scope.bookmarks.indexOf(torrent);
-						$scope.bookmarks.splice(index, 1);
-					})
-					.catch(function(error) {
-						ErrorDialog.display(error.data);
-					});
-			};
+		this.loadBookmarks();
 
-		});
+	}
+
 })();

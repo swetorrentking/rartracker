@@ -1,0 +1,52 @@
+<table class="table table-striped" cellpadding="15">
+	<tr ng-show="vm.relatedTorrents.length > 0">
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Länka till annan release:</td>
+		<td class="text-left">
+			<select class="form-control" ng-model="vm.model.attachTorrentId" ng-options="i.id as i.name for i in ::vm.relatedTorrents" ng-change="vm.model.attachTorrentId ? vm.model.reason = 'Det finns nu en nyare/bättre release' : vm.model.reason = ''">
+				<option value="">--- Välj en torrent att bifoga i PM ---</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Anledning</td>
+		<td class="text-left">
+			<input type="textbox" class="form-control" ng-model="vm.model.reason" required />
+		</td>
+	</tr>
+	<tr ng-show="vm.torrent.reqid > 1">
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Lägg tillbaka requesten</td>
+		<td class="text-left">
+			<div class="btn-group">
+				<label class="btn btn-default" ng-model="vm.model.restoreRequest" uib-btn-radio="1">Ja</label>
+				<label class="btn btn-default" ng-model="vm.model.restoreRequest" uib-btn-radio="0">Nej</label>
+			</div>
+		</td>
+	</tr>
+	<tr ng-show="vm.currentUser.class >= 8 && vm.showPmuploader !== 'false'">
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Meddela uppladdaren via PM</td>
+		<td class="text-left">
+			<div class="btn-group">
+				<label class="btn btn-default" ng-model="vm.model.pmUploader" uib-btn-radio="1">Ja</label>
+				<label class="btn btn-default" ng-model="vm.model.pmUploader" uib-btn-radio="0">Nej</label>
+			</div>
+		</td>
+	</tr>
+	<tr>
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Meddela alla seedare/leechare via PM</td>
+		<td class="text-left">
+			<div class="btn-group">
+				<label class="btn btn-default" ng-model="vm.model.pmPeers" uib-btn-radio="1">Ja</label>
+				<label class="btn btn-default" ng-model="vm.model.pmPeers" uib-btn-radio="0">Nej</label>
+			</div>
+		</td>
+	</tr>
+	<tr ng-show="vm.currentUser.class >= 8 && vm.showBan != 'false'">
+		<td style="width: 250px;" class="text-right tdBold alignMiddle">Banna releasen</td>
+		<td class="text-left">
+			<div class="btn-group">
+				<label class="btn btn-default" ng-model="vm.model.banRelease" uib-btn-radio="1">Ja</label>
+				<label class="btn btn-default" ng-model="vm.model.banRelease" uib-btn-radio="0">Nej</label>
+			</div>
+		</td>
+	</tr>
+</table>

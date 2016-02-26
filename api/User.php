@@ -93,7 +93,6 @@ class User {
 		if ($this->getUplLastReadCommentId() > 0) {
 			$returnUserArray["unreadTorrentComments"] = $this->unreadTorrentComments();
 		}
-		$returnUserArray["donatedAmount"] = $this->getDonatedAmount();
 		$returnUserArray["currentGbSeed"] = $this->getCurrentGbSeed();
 		$returnUserArray["pastDaysSeed"] = $this->getPastDaysSeed();
 
@@ -104,6 +103,7 @@ class User {
 
 		$array["user"] = $returnUserArray;
 		$array["settings"]["serverTime"] = Helper::getDateWithTimezoneOffset();
+		$array["settings"]["donatedAmount"] = $this->getDonatedAmount();
 		return $array;
 	}
 
@@ -130,7 +130,7 @@ class User {
 		$res = $sth->fetch();
 		return $res[0];
 	}
-	
+
 	public function loginCheck(){
 		if (isset($_COOKIE["uid"]) && isset($_COOKIE["pass"])) {
 			$uid = (int)$_COOKIE["uid"];
@@ -138,7 +138,7 @@ class User {
 			$sth->execute(array($uid, "yes"));
 
 			if ($arr = $sth->fetch(PDO::FETCH_ASSOC)) {
-				if ($this->hashCookie($arr["passhash"], $_COOKIE["notuseip"]) == $_COOKIE["pass"]) {
+				if ($this->hashCookie($arr["passhash"], $arr["class"] >= User::CLASS_VIP) == $_COOKIE["pass"]) {
 					$this->setPrivateVars($arr);
 				} else {
 					throw new Exception('Cookie nyckeln matchar inte med användarkontot.', 401);
@@ -172,15 +172,7 @@ class User {
 				}
 
 				setcookie("uid", $arr["id"], time()+31556926, "/");
-				if ($arr["class"] >= 7) {
-  					$hashWithIp = "true";
-  					setcookie("notuseip", "true", time()+315569260, "/");
-  				}
-				setcookie("pass", $this->hashCookie($arr["passhash"], $arr["class"] >= 7), time()+31556926, "/");
-				
-				if ($arr["class"] >= 8) {
-					setcookie("admin", md5($this->cookieSalt.$_SERVER["REMOTE_ADDR"]), time()+315569260, "/");
-				}
+				setcookie("pass", $this->hashCookie($arr["passhash"], $arr["class"] >= User::CLASS_VIP), time()+31556926, "/");
 
 				$this->setPrivateVars($arr);
 			} else {
@@ -237,16 +229,16 @@ class User {
 		$secret = md5(uniqid());
 		$this->db->query("UPDATE users SET secret = " . $this->db->quote($secret) . " WHERE id = " . $res["id"]);
 
-		$headers = "Reply-To: ".Helper::$name." <".Helper::$siteMail.">\r\n"; 
-		$headers .= "Return-Path: ".Helper::$name." <".Helper::$siteMail.">\r\n"; 
-		$headers .= "From: ".Helper::$name." <".Helper::$siteMail.">\r\n"; 
-		$headers .= "Organization: ".Helper::$siteName."\r\n";
+		$headers = "Reply-To: ".Config::NAME." <".Config::SITE_MAIL.">\r\n";
+		$headers .= "Return-Path: ".Config::NAME." <".Config::SITE_MAIL.">\r\n";
+		$headers .= "From: ".Config::NAME." <".Config::SITE_MAIL.">\r\n";
+		$headers .= "Organization: ".Config::SITE_NAME."\r\n";
 		$headers .= "MIME-Version: 1.0\r\n";
 		$headers .= "Content-type: text/plain; charset=utf-8\r\n";
 		$headers .= "X-Mailer: PHP". phpversion() ."\r\n";
 
-		$siteName = Helper::$siteName;
-		$siteUrl = Helper::$siteUrl;
+		$siteName = Config::SITE_NAME;
+		$siteUrl = Config::SITE_URL;
 
 		$body = <<<EOD
 Någon, förhoppningsvis du, har försökt återställa lösenordet till kontot kopplat till denna email.
@@ -259,8 +251,8 @@ Om du vill fortsätta återställa lösenordet, följ länken:
 
 {$siteName}
 EOD;
-		mail($res["email"], Helper::$siteName . " password reset confirmation", $body, $headers, "-f" . Helper::$siteMail);
-		
+		mail($res["email"], Config::SITE_NAME . " password reset confirmation", $body, $headers, "-f" . Config::SITE_MAIL);
+
 		$hostname = gethostbyaddr($ip);
 
 		$recoverLog->create(array(
@@ -304,7 +296,7 @@ EOD;
 			throw new Exception('Användarnamnet är för kort', 411);
 		}
 		if (strlen($postdata["username"]) > 14 ) {
-			throw new Exception('Användarnamnet är för långt', 411); 
+			throw new Exception('Användarnamnet är för långt', 411);
 		}
 		if (!preg_match ('/^[a-z0-9][a-z0-9-_]+$/i', $postdata["username"]) ){
 			throw new Exception('Användarnamnet ska bestå av följande tecken: A-Z 0-9', 412);
@@ -319,14 +311,14 @@ EOD;
 			throw new Exception('E-postadressen används redan på sidan', 409);
 		}
 		if (strlen($postdata["password"]) < 6) {
-			throw new Exception('Lösenordet är för kort', 411); 
+			throw new Exception('Lösenordet är för kort', 411);
 		}
 		if ($postdata["password"] != $postdata["passwordAgain"] ) {
 			throw new Exception('Lösenorden stämmer ej överrens', 412);
 		}
 
 		switch ($postdata["format"]) {
-			case 0: 
+			case 0:
 				$indexlist = '2, 6'; // DVDR
 				break;
 			case 3:
@@ -352,11 +344,11 @@ EOD;
 		$uploaded = 1073741824 * $this->gigabyteUploadedOnSignup;
 		$leechEnd = date('Y-m-d H:i:s', time() + 86400); // 24h frree leech
 
-		$sth = $this->db->prepare("INSERT INTO users (username, passhash, email, passkey, invited_by, indexlist, added, gender, alder, leechstart, uploaded, lastreadnews, last_access) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+		$sth = $this->db->prepare("INSERT INTO users (username, passhash, email, passkey, invited_by, indexlist, added, gender, alder, leechstart, uploaded, lastreadnews, last_access, anonym) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'yes')");
 		$sth->bindParam(1,	$postdata["username"],			PDO::PARAM_STR);
 		$sth->bindParam(2,	$passhash,						PDO::PARAM_STR);
-		$sth->bindParam(3,	strtolower($postdata["email"]),	PDO::PARAM_STR);
-		$sth->bindParam(4,	md5(uniqid()),					PDO::PARAM_STR);
+		$sth->bindValue(3,	strtolower($postdata["email"]),	PDO::PARAM_STR);
+		$sth->bindValue(4,	md5(uniqid()),					PDO::PARAM_STR);
 		$sth->bindParam(5,	$invite["userid"],				PDO::PARAM_INT);
 		$sth->bindParam(6,	$indexlist,						PDO::PARAM_INT);
 		$sth->bindParam(7,	$added,							PDO::PARAM_STR);
@@ -376,11 +368,11 @@ EOD;
 		$ip = $_SERVER["REMOTE_ADDR"];
 		$hostname = gethostbyaddr($ip);
 
-		$sth = $this->db->query("SELECT COUNT(*) FROM iplog WHERE ip = '".$ip."'");
+		$sth = $this->db->query("SELECT COUNT(*) FROM iplog WHERE ip = '".$ip."' AND userid != " . $userId);
 		$res = $sth->fetch();
 		$iplogHits = $res[0];
 
-		$sth = $this->db->query("SELECT COUNT(*) FROM inlogg WHERE ip = '".$ip."'");
+		$sth = $this->db->query("SELECT COUNT(*) FROM inlogg WHERE ip = '".$ip."' AND uid != " . $userId);
 		$res = $sth->fetch();
 		$loginAttemptsHits = $res[0];
 
@@ -479,7 +471,7 @@ EOD;
 
 				$userData["doljuploader"] = $userData["class"];
 
-				if ($userData["class"] >= self::CLASS_UPLOADER) {
+				if ($userData["class"] >= self::CLASS_REGISSAR) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $user["id"]);
 				}
 			}
@@ -492,7 +484,7 @@ EOD;
 				if ($userData["warned"] == "yes") {
 					$days = max(1, $userData["warnDays"]);
 					$userData["warneduntil"] = date("Y-m-d H:i:s", time() + 86400 * $days);
-				
+
 					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Varnad i '. $days.' dagar utav ' . $this->getUsername().' med anledning: ' . $userData["warnReason"]);
 					$adminlogs->create("{{username}} varnade [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url] i [b]".$days." dagar[/b] med anledning: [i]" . $userData["warnReason"] . "[/i]");
 					$mailbox->sendSystemMessage($user["id"], "Du är varnad!", "Du har mottagit en varning på [b]" . $days." dagar[/b] utav en administratör.\n\nAnledning: [b]" . $userData["warnReason"] . "[/b]");
@@ -605,7 +597,7 @@ EOD;
 		$sth->execute();
 
 		if ($changedPassword && $this->getId() == $userId) {
-			$this->login($user["username"], $userData["password"], $_COOKIE["notuseip"] == "true");
+			$this->login($user["username"], $userData["password"]);
 		}
 	}
 
@@ -620,7 +612,7 @@ EOD;
 		$text = date("Y-m-d") . " - " .$text .= "\n";
 		return $text . $modcomments;
 	}
-	
+
 	public function get($id) {
 		$finalFields = array();
 		$finalFields = array_merge($finalFields, self::getDefaultFields());
@@ -711,7 +703,7 @@ EOD;
 			throw new Exception('Du har inte rättigheter att visa bonusloggen för denna användare.', 401);
 		}
 
-		$sth = $this->db->prepare('SELECT datum, msg FROM bonuslog WHERE userid = ? ORDER BY id DESC LIMIT ?');
+		$sth = $this->db->prepare('SELECT id, datum, msg FROM bonuslog WHERE userid = ? ORDER BY id DESC LIMIT ?');
 		$sth->bindParam(1, $userId, PDO::PARAM_INT);
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
@@ -724,7 +716,7 @@ EOD;
 			throw new Exception('Du har inte rättigheter att visa ip-loggen för denna användare.', 401);
 		}
 
-		$sth = $this->db->prepare('SELECT ip, host, lastseen, uptime FROM iplog WHERE userid = ? ORDER BY lastseen DESC LIMIT ?');
+		$sth = $this->db->prepare('SELECT id, ip, host, lastseen, uptime FROM iplog WHERE userid = ? ORDER BY lastseen DESC LIMIT ?');
 		$sth->bindParam(1, $userId, PDO::PARAM_INT);
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
@@ -763,7 +755,7 @@ EOD;
 
 	public function getUnreadFlashNews() {
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM news WHERE announce = 1 AND id > ?');
-		$sth->bindParam(1, $this->getLastReadNews(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->getLastReadNews(), PDO::PARAM_INT);
 		$sth->execute();
 		if ($arr = $sth->fetch()) {
 			return $arr[0];
@@ -775,7 +767,7 @@ EOD;
 		$sth->execute(array($username));
 		return count($sth->fetchAll()) === 0;
 	}
-	
+
 	public function emailIsAvailable($email) {
 		$sth = $this->db->prepare('SELECT 1 FROM users WHERE email = ?');
 		$sth->execute(array($email));
@@ -805,7 +797,7 @@ EOD;
 		setcookie("uid", "", time(), "/" );
 		setcookie("hash", "", time(), "/" );
 	}
-	
+
 	private function setPrivateVars($arr) {
 		$this->loggedIn = true;
 		$this->id = (int) $arr["id"];
@@ -826,11 +818,11 @@ EOD;
 		$this->lastreadnews = $arr["lastreadnews"];
 		$this->user = $arr;
 	}
-	
+
 	public function setTypsetting($typsetting) {
 		DB::query('UPDATE users SET typsetting = ' .$typsetting. ' WHERE id = ' . $this->id );
 	}
-	
+
 	public function updateLastAccess() {
 		$sth = $this->db->prepare("UPDATE users SET last_access = NOW(), ip = ?, muptime = muptime + 60 WHERE id= ?");
 		$sth->execute(array($this->getBrowserIp(), $this->getId()));
@@ -886,8 +878,8 @@ EOD;
 				/* Log to Staff if enough warning signals */
 				if ($warningSignals > 0) {
 					$sth = $this->db->prepare("INSERT INTO ipchanges(userid, datum, ip, hostname, level) VALUES(?, NOW(), ?, ?, ?)");
-					$sth->bindParam(1, $this->getId(), PDO::PARAM_INT);
-					$sth->bindParam(2, $this->getBrowserIp(), PDO::PARAM_INT);
+					$sth->bindValue(1, $this->getId(), PDO::PARAM_INT);
+					$sth->bindValue(2, $this->getBrowserIp(), PDO::PARAM_INT);
 					$sth->bindParam(3, $host, PDO::PARAM_INT);
 					$sth->bindParam(4, $warningSignals, PDO::PARAM_INT);
 					$sth->execute();
@@ -895,7 +887,7 @@ EOD;
 			}
 		}
 	}
-	
+
 	public function isLoggedIn() {
 		return $this->loggedIn;
 	}
@@ -903,11 +895,11 @@ EOD;
 	public function getUser() {
 		return $this->user;
 	}
-	
+
 	public function getUsername() {
 		return $this->username;
 	}
-	
+
 	public function getId() {
 		return $this->id;
 	}
@@ -939,7 +931,7 @@ EOD;
 			return $_SERVER["REMOTE_ADDR"];
 		}
 	}
-	
+
 	public function getClass() {
 		return $this->class;
 	}
@@ -995,7 +987,7 @@ EOD;
 		];
 		return md5(password_hash($password . $added, PASSWORD_BCRYPT, $options));
 	}
-	
+
 	private function hashCookie($passhash, $hashWithIp) {
 		if ($hashWithIp == "true") {
 			return md5($passhash . $this->cookieSalt . $_SERVER["REMOTE_ADDR"]);
@@ -1035,7 +1027,7 @@ EOD;
 
 		$arr = array();
 		$res = $this->db->query('SELECT id, username, nytt_seed, pokal, anonymratio, anonymicons, leechbonus, enabled, donor, coin, crown, warned FROM users WHERE enabled = "yes" ORDER BY nytt_seed DESC LIMIT 50');
-		
+
 		$newSeeds = array();
 		while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
 			$row2 = $this->generateUserObject($row, true, false);
@@ -1178,12 +1170,12 @@ EOD;
 		if (!$arr[0]) {
 			$arr = array();
 		}
-			
+
 		if (count($arr) == 4 ) {
 			throw new Exception('Du har redan fyra listor, radera en av dem för att kunna skapa en ny.');
 		}
 
-		/* Check if a similiar list already exists in the database */		
+		/* Check if a similiar list already exists in the database */
 		$sth = $this->db->prepare("SELECT id FROM customindex WHERE tid = ? AND typ = ? AND format = ? AND sektion = ? AND sort = ? AND genre = ?");
 		$sth->bindParam(1, $postdata["tid"],		PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["typ"],		PDO::PARAM_INT);
@@ -1208,7 +1200,7 @@ EOD;
 			$sth->execute();
 			$id = $this->db->lastInsertId();
 		}
-		
+
 		/* Check if the user already has an identical list */
 		foreach($arr as $t) {
 			if ($id == $t) {
@@ -1219,10 +1211,10 @@ EOD;
 		$arr[] = $id;
 
 		$indexlist = implode(",", $arr);
-		
+
 		$sth = $this->db->prepare("UPDATE users SET indexlist = ? WHERE id = ?");
 		$sth->bindParam(1, $indexlist,		PDO::PARAM_STR);
-		$sth->bindParam(2, $this->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 	}
 
@@ -1238,7 +1230,7 @@ EOD;
 		$indexlist = trim(implode(",", $newArray));
 		$sth = $this->db->prepare("UPDATE users SET indexlist = ? WHERE id = ?");
 		$sth->bindParam(1, $indexlist,		PDO::PARAM_STR);
-		$sth->bindParam(2, $this->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 	}
 
@@ -1246,42 +1238,42 @@ EOD;
 		$arr = explode(',', $this->getIndexList());
 
 		if($direction == 0) { /* Move up */
-		
+
 		 	for ($i = 0; $i < count($arr); $i++) {
 		 		if($arr[$i] == $id) {
 		 			$tmp = $arr[$i];
 		 			$arr[$i] = $arr[$i-1];
 		 			$arr[$i-1] = $tmp;
-		 			
+
 		 			break;
 		 		}
 		 	}
-		
+
 		} else if ($direction == 1) { /* Move down */
-		
+
 			for ($i = 0; $i < count($arr); $i++) {
 		 		if($arr[$i] == $id) {
 		 			$tmp = $arr[$i];
 		 			$arr[$i] = $arr[$i+1];
 		 			$arr[$i+1] = $tmp;
-		 			
+
 		 			break;
 		 		}
 		 	}
 		}
-		
+
 		$indexlist = implode(",", $arr);
 		$sth = $this->db->prepare("UPDATE users SET indexlist = ? WHERE id = ?");
 		$sth->bindParam(1, $indexlist,		PDO::PARAM_STR);
-		$sth->bindParam(2, $this->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 	}
 
 	public function resetIndexList($category) {
 
-		if ($category == 2) {
+		if ($category == Torrent::DVDR_CUSTOM) {
 			$customlist = '1,141'; // 720p
-		} else if ($category == 3) {
+		} else if ($category == Torrent::DVDR_TV) {
 			$customlist = '11,163'; // 1080p
 		} else {
 			$customlist = '2,6'; // DVDR
@@ -1289,7 +1281,7 @@ EOD;
 
 		$sth = $this->db->prepare("UPDATE users SET indexlist = ? WHERE id = ?");
 		$sth->bindParam(1, $customlist,		PDO::PARAM_STR);
-		$sth->bindParam(2, $this->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 	}
 
@@ -1342,12 +1334,12 @@ EOD;
 
 	private function getCurrentGbSeed() {
 		$sth = $this->db->query("SELECT torrents.size, peers.to_go FROM peers JOIN torrents ON peers.torrent = torrents.id WHERE userid = ".$this->getId()." GROUP BY userid, torrent");
-	
+
 		$seeded = 0;
 		while ($row = $sth->fetch()) {
 			$seeded += ($row["size"] - $row["to_go"]);
 		}
-			
+
 		return round($seeded / 1073741824);
 	}
 
@@ -1419,15 +1411,14 @@ EOD;
 		if ($this->getClass() < self::CLASS_ADMIN) {
 			throw new Exception('Du saknar rättigheter.', 401);
 		}
-		
-		
+
 		$index = (int)$getdata["index"] ?: 0;
 		$limit = (int)$getdata["limit"] ?: 25;
 
 		$where = array();
 		$finalWhere = "";
 
-		if ($getdata["username"]) {
+		if (strlen($getdata["username"]) > 1) {
 			$where[] = "username LIKE '%".$getdata["username"]."%'";
 		}
 		if ($getdata["ip"]) {
@@ -1448,12 +1439,13 @@ EOD;
 		$sth = $this->db->query("SELECT " . implode(", ", self::getDefaultFields()) . ", ip, email FROM users" . $finalWhere . " LIMIT $index, $limit");
 		$users = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-		if ($getdata["ip"]) {
+		if (strlen($getdata["ip"]) > 2) {
 			$sth = $this->db->query("SELECT iplog.ip, iplog.host, iplog.lastseen, iplog.uptime, users.username, users.id FROM iplog LEFT JOIN users ON iplog.userid = users.id WHERE iplog.ip LIKE '".$getdata["ip"]."%'");
 			$iplog = $sth->fetchAll(PDO::FETCH_ASSOC);
-
+		}
+		if (strlen($getdata["ip"]) > 2 || strlen($getdata["username"]) > 1) {
 			$loginAttempts = new LoginAttempts($this->db, $this);
-			$loginAttempts = $loginAttempts->query(array("limit" => 99, "ip" => $getdata["ip"]));
+			$loginAttempts = $loginAttempts->query(array("limit" => 99, "ip" => $getdata["ip"], "username" => $getdata["username"]));
 		}
 		if ($getdata["email"] || $getdata["ip"]) {
 			$recoveryLog = new RecoveryLog($this->db, $this);

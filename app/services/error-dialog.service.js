@@ -1,22 +1,21 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.services')
-		.service('ErrorDialog', function ($uibModal) {
+	angular
+		.module('app.shared')
+		.service('ErrorDialog', ErrorDialog);
 
-			this.display = function (body) {
-				$uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/error-dialog.html',
-					controller: 'ErrorDialogController',
-					size: 'md',
-					resolve: {
-						body: function () {
-							return body;
-						}
-					}
-				});
-			};
+	function ErrorDialog($uibModal) {
+		this.display = function (body) {
+			$uibModal.open({
+				templateUrl: '../app/dialogs/error-dialog.template.html',
+				controller: 'ErrorDialogController as vm',
+				size: 'md',
+				resolve: {
+					body: () => body
+				}
+			});
+		};
+	}
 
-		});
 })();

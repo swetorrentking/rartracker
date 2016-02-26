@@ -1,0 +1,17 @@
+<div class="text-center">
+	<h1>Omröstningar</h1>
+	<div class="text-center" style="margin-bottom: 10px;" ng-if="vm.currentUser.class >= 8">
+		<button ng-click="vm.create()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa ny omröstning</button>
+	</div>
+	<loading-indicator hide="vm.polls"></loading-indicator>
+
+	<div ng-repeat="poll in vm.polls track by poll.id" class="col-md-6">
+		<poll poll="::poll" onlyresult="true"></poll>
+	</div>
+
+	<br style="clear: both;" />
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getPolls()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+	<br />
+</div>

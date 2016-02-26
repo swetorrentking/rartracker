@@ -1,0 +1,77 @@
+<div class="row center-block" style="margin-top: 50px;">
+
+	<h1 class="text-center">Glömt lösenord</h1>
+	<br />
+	<div ng-show="vm.gotSecret">
+		<uib-alert type="{{alert.type}}" close="closeAlert()" ng-show="vm.alert != null">
+		 	<span ng-bind-html="vm.alert.msg | bbCode"></span>
+		</uib-alert>
+		<div class="text-center">
+			<button class="btn btn-default btn-xs" ui-sref="login()">Gå till inloggningen</button>
+		</div>
+	</div>
+	<div ng-hide="vm.gotSecret">
+		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"><b>Email</b> (Metod 1)</div>
+				<div class="panel-body">
+					<form class="form-horizontal" role="form" ng-submit="vm.resetByEmail()">
+					<div class="form-group">
+						<label for="inputUsername" class="col-sm-4 control-label">E-mailadress</label>
+						<div class="col-sm-8">
+							<input type="email" class="form-control" id="inputUsername" placeholder="E-mailadress"  ng-model="vm.credentials.email" required>
+						</div>
+					</div>
+					<div class="form-group last">
+						<div class="col-sm-offset-4 col-sm-8">
+							<button type="submit" class="btn btn-primary btn-md">Skicka bekräftelsemail</button>
+						</div>
+					</div>
+					</form>
+					<uib-alert type="{{ vm.alert.type }}" close="closeAlert()" ng-show="vm.alert != null">
+					 	{{ vm.alert.msg }}
+					</uib-alert>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+			<div class="panel panel-default">
+				<div class="panel-heading"><b>Passkey</b> (Metod 2)</div>
+				<div class="panel-body">
+					<form class="form-horizontal" role="form" ng-submit="vm.resetByPasskey()">
+					<div class="form-group">
+						<label for="inputUsername" class="col-sm-4 control-label">E-mailadress</label>
+						<div class="col-sm-8">
+							<input type="email" class="form-control" id="inputUsername" placeholder="E-mailadress"  ng-model="vm.credentials.email" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputUsername" class="col-sm-4 control-label">Passkey</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="inputPasskey" placeholder="Passkey" ng-model="vm.credentials.passkey" required>
+						</div>
+					</div>
+					<div class="form-group last">
+						<div class="col-sm-offset-4 col-sm-8">
+							<button type="submit" class="btn btn-primary btn-md">Begär nytt lösenord</button>
+						</div>
+					</div>
+					</form>
+					<uib-alert type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+					 	{{ vm.alert.msg }}
+					</uib-alert>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel panel-default col-sm-4 col-sm-push-4" style="padding: 0px;">
+			<div class="panel-heading"><b>IRC-support</b></div>
+			<div class="panel-body">
+			Server: <strong><a href="http://webchat.freequest.net/" target="_blank">irc.freequest.net</a></strong><br />
+			<br />
+			Kanal: <strong>#rartracker.support</strong>
+			</div>
+		</div>
+	</div>
+</div>

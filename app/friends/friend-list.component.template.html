@@ -1,0 +1,26 @@
+<div class="col-md-8 col-centered" ng-show="vm.friends.length > 0">
+	<table class="table table-striped table-hover">
+		<tr ng-repeat="friend in vm.friends track by friend.id">
+			<td style="width: 100px;">
+				<div style="height: 80px; overflow: hidden; background: none;">
+				<img ng-if="friend.user.avatar && vm.currentUser.avatars == 'yes'" ng-src="{{friend.user.avatar}}" style="width: 100px;" />
+				<img ng-if="vm.currentUser.avatars == 'no' || !friend.user.avatar" ng-src="/img/default-avatar.png" style="width: 100px;" />
+				</div>
+			</td>
+			<td>
+				<user user="::friend.user"></user>
+				<br /><br />
+				Senast sedd: {{ ::friend.user.last_access }} ({{ ::friend.user.last_access | dateDifference }} sedan)
+				<br /><br />
+				<i>{{ ::friend.comment }}</i>
+			</td>
+			<td style="text-align: center; width: 200px;" class="alignMiddle">
+				<div ng-show="vm.showSendMessage">
+					<button ng-click="vm.sendMessage(friend.user)" class="btn btn-default btn-xs"><i class="fa fa-envelope-o"></i> Skicka meddelande</button>
+					<br /><br />
+				</div>
+				<button ng-click="vm.delete({ friend: friend})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+			</td>
+		</tr>
+	</table>
+</div>

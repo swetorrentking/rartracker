@@ -206,34 +206,40 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			$timesUpdated = 1;
 		}
 
-		$sth = $db->prepare("SELECT id FROM snatch WHERE userid = ? AND torrentid = ?");
-		$sth->bindParam(1, $u_id,	PDO::PARAM_INT);
-		$sth->bindParam(2, $t_id,	PDO::PARAM_INT);
-		$sth->execute();
+		if ($u_class < 8) {
 
-		if ($sth->rowCount() == 1) {
-
-			$sth = $db->prepare("UPDATE snatch SET timesStarted = timesStarted + ?, timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, lastaction = NOW() WHERE userid = ? AND torrentid = ?");
-			$sth->bindParam(1, $timesStarted,	PDO::PARAM_INT);
-			$sth->bindParam(2, $timesCompleted,	PDO::PARAM_INT);
-			$sth->bindParam(3, $timesUpdated,	PDO::PARAM_INT);
-			$sth->bindParam(4, $u_id,			PDO::PARAM_INT);
-			$sth->bindParam(5, $t_id,			PDO::PARAM_INT);
+			$sth = $db->prepare("SELECT id FROM snatch WHERE userid = ? AND torrentid = ?");
+			$sth->bindParam(1, $u_id,	PDO::PARAM_INT);
+			$sth->bindParam(2, $t_id,	PDO::PARAM_INT);
 			$sth->execute();
 
-		} else {
+			if ($sth->rowCount() == 1) {
 
-			$sth = $db->prepare("INSERT INTO snatch(userid, torrentid, ip, port, agent, connectable, klar, lastaction, timesStarted, timesCompleted, timesUpdated) VALUES(?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?)");
-			$sth->bindParam(1, $u_id,						PDO::PARAM_INT);
-			$sth->bindParam(2, $t_id,						PDO::PARAM_INT);
-			$sth->bindParam(3, $ip,							PDO::PARAM_STR);
-			$sth->bindParam(4, $_GET['port'],				PDO::PARAM_INT);
-			$sth->bindParam(5, $userAgent,					PDO::PARAM_STR);
-			$sth->bindParam(6, $ansl,						PDO::PARAM_INT);
-			$sth->bindParam(7, $timesStarted,				PDO::PARAM_INT);
-			$sth->bindParam(8, $timesCompleted,				PDO::PARAM_INT);
-			$sth->bindParam(9, $timesUpdated,				PDO::PARAM_INT);
-			$sth->execute();
+				$sth = $db->prepare("UPDATE snatch SET timesStarted = timesStarted + ?, timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, lastaction = NOW() WHERE userid = ? AND torrentid = ?");
+				$sth->bindParam(1, $timesStarted,	PDO::PARAM_INT);
+				$sth->bindParam(2, $timesCompleted,	PDO::PARAM_INT);
+				$sth->bindParam(3, $timesUpdated,	PDO::PARAM_INT);
+				$sth->bindParam(4, $u_id,			PDO::PARAM_INT);
+				$sth->bindParam(5, $t_id,			PDO::PARAM_INT);
+				$sth->execute();
+
+			} else {
+
+				$sth = $db->prepare("INSERT INTO snatch(userid, torrentid, ip, port, agent, connectable, klar, lastaction, timesStarted, timesCompleted, timesUpdated, uploaded, downloaded) VALUES(?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?)");
+				$sth->bindParam(1, $u_id,						PDO::PARAM_INT);
+				$sth->bindParam(2, $t_id,						PDO::PARAM_INT);
+				$sth->bindParam(3, $ip,							PDO::PARAM_STR);
+				$sth->bindParam(4, $_GET['port'],				PDO::PARAM_INT);
+				$sth->bindParam(5, $userAgent,					PDO::PARAM_STR);
+				$sth->bindParam(6, $ansl,						PDO::PARAM_INT);
+				$sth->bindParam(7, $timesStarted,				PDO::PARAM_INT);
+				$sth->bindParam(8, $timesCompleted,				PDO::PARAM_INT);
+				$sth->bindParam(9, $timesUpdated,				PDO::PARAM_INT);
+				$sth->bindParam(10, $_GET['uploaded'],			PDO::PARAM_INT);
+				$sth->bindParam(11, $_GET['downloaded'],		PDO::PARAM_INT);
+				$sth->execute();
+			}
+
 		}
 
 		$compact = pack('Nn', ip2long($ip), $_GET['port']);
@@ -392,53 +398,57 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 
 
-		/* Update Snatch Stats */
+		if ($u_class < 8) {
 
-		$timesCompleted = 0;
-		$timesStopped = 0;
-		$timesUpdated = 0;
+			/* Update Snatch Stats */
 
-		if ($event == 'completed' && $_GET['left'] == 0) {
-			$timesCompleted = 1;
-		} else if ($event == "stopped" && $_GET['left'] > 0) {
-			$timesStopped = 1;
-		} else {
-			$timesUpdated = 1;
-		}
+			$timesCompleted = 0;
+			$timesStopped = 0;
+			$timesUpdated = 0;
 
-		$seedtime = time() - $last_access;
-
-		$sth = $db->prepare("UPDATE LOW_PRIORITY snatch SET timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, timesStopped = timesStopped + ?, lastaction = NOW(), uploaded = uploaded + ?, downloaded = downloaded + ?, seedtime = seedtime + ? WHERE userid = ? AND torrentid = ?");
-		$sth->bindParam(1, $timesCompleted,	PDO::PARAM_INT);
-		$sth->bindParam(2, $timesUpdated,	PDO::PARAM_INT);
-		$sth->bindParam(3, $timesStopped,	PDO::PARAM_INT);
-		$sth->bindParam(4, $add_up,			PDO::PARAM_INT);
-		$sth->bindParam(5, $add_down2,		PDO::PARAM_INT);
-		$sth->bindParam(6, $seedtime,		PDO::PARAM_INT);
-		$sth->bindParam(7, $u_id,			PDO::PARAM_INT);
-		$sth->bindParam(8, $t_id,			PDO::PARAM_INT);
-		$sth->execute();
-
-		/* END snatch update */
-		
-		
-		// peer has closed - remove the peer and exit, no updates to do or peers to send to client
-		if ($event == 'stopped') {
-			$sth = $db->prepare("DELETE FROM peers WHERE id = ?");
-			$sth->bindParam(1, $peerid,	PDO::PARAM_INT);
-			$sth->execute();
-			
-			if ($seeder_db == 'yes') {
-				$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET seeders = seeders - 1 WHERE id = ?");
-				$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
-				$sth->execute();
+			if ($event == 'completed' && $_GET['left'] == 0) {
+				$timesCompleted = 1;
+			} else if ($event == "stopped" && $_GET['left'] > 0) {
+				$timesStopped = 1;
 			} else {
-				$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET leechers = leechers - 1 WHERE id = ?");
-				$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
-				$sth->execute();
+				$timesUpdated = 1;
 			}
+
+			$seedtime = time() - $last_access;
+
+			$sth = $db->prepare("UPDATE LOW_PRIORITY snatch SET timesCompleted = timesCompleted + ?, timesUpdated = timesUpdated + ?, timesStopped = timesStopped + ?, lastaction = NOW(), uploaded = uploaded + ?, downloaded = downloaded + ?, seedtime = seedtime + ? WHERE userid = ? AND torrentid = ?");
+			$sth->bindParam(1, $timesCompleted,	PDO::PARAM_INT);
+			$sth->bindParam(2, $timesUpdated,	PDO::PARAM_INT);
+			$sth->bindParam(3, $timesStopped,	PDO::PARAM_INT);
+			$sth->bindParam(4, $add_up,			PDO::PARAM_INT);
+			$sth->bindParam(5, $add_down2,		PDO::PARAM_INT);
+			$sth->bindParam(6, $seedtime,		PDO::PARAM_INT);
+			$sth->bindParam(7, $u_id,			PDO::PARAM_INT);
+			$sth->bindParam(8, $t_id,			PDO::PARAM_INT);
+			$sth->execute();
+
+			/* END snatch update */
 			
-			die();
+			
+			// peer has closed - remove the peer and exit, no updates to do or peers to send to client
+			if ($event == 'stopped') {
+				$sth = $db->prepare("DELETE FROM peers WHERE id = ?");
+				$sth->bindParam(1, $peerid,	PDO::PARAM_INT);
+				$sth->execute();
+				
+				if ($seeder_db == 'yes') {
+					$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET seeders = seeders - 1 WHERE id = ?");
+					$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+					$sth->execute();
+				} else {
+					$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET leechers = leechers - 1 WHERE id = ?");
+					$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
+					$sth->execute();
+				}
+				
+				die();
+			}
+
 		}
 
 		// $finishedat = 

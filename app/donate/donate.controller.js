@@ -1,21 +1,26 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('DonateController', function ($scope, $uibModal, SendMessageDialog) {
+	angular
+		.module('app.shared')
+		.controller('DonateController', DonateController);
 
-			$scope.haveDonated = function () {
-				$uibModal.open({
-					animation: true,
-					templateUrl: '../app/donate/have-donated-dialog.html',
-					controller: 'HaveDonatedController',
-					size: 'md',
-				});
-			};
+	function DonateController($uibModal, SendMessageDialog) {
 
-			$scope.sendMessage = function () {
-				new SendMessageDialog({user: {id:3, username: 'Akilles'}});
-			};
+		this.haveDonated = function () {
+			$uibModal.open({
+				animation:		true,
+				templateUrl:	'../app/donate/have-donated-dialog.template.html',
+				controller:		'HaveDonatedController',
+				controllerAs:	'vm',
+				size:			'md',
+			});
+		};
 
-		});
+		this.sendMessage = function () {
+			new SendMessageDialog({user: {id:3, username: 'Akilles'}});
+		};
+
+	}
+
 })();

@@ -1,28 +1,30 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.services')
-		.service('DeleteDialog', function ($uibModal) {
+	angular
+		.module('app.shared')
+		.service('DeleteDialog', DeleteDialog);
 
-			return function (title, body, wantReason, reason) {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/delete-dialog.html',
-					controller: 'DeleteDialogController',
-					size: 'sm',
-					resolve: {
-						settings: function () {
-							return {
-								title: title,
-								body: body,
-								wantReason: wantReason,
-								reason: reason || ''
-							};
-						}
+	function DeleteDialog($uibModal) {
+		return function (title, body, wantReason, reason) {
+			var modal = $uibModal.open({
+				templateUrl: '../app/dialogs/delete-dialog.template.html',
+				controller: 'DeleteDialogController as vm',
+				backdrop: 'static',
+				size: 'md',
+				resolve: {
+					settings: () => {
+						return {
+							title: title,
+							body: body,
+							wantReason: wantReason,
+							reason: reason || ''
+						};
 					}
-				});
-				return modal.result;
-			};
+				}
+			});
+			return modal.result;
+		};
+	}
 
-		});
 })();

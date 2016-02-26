@@ -1,0 +1,94 @@
+<loading-indicator hide="vm.highligtedTorrents"></loading-indicator>
+
+<div ng-show="vm.highligtedTorrents">
+	<div ng-repeat="highlightedRow in ::vm.highligtedTorrents" style="clear: left;">
+		<div class="panel panel-green">
+			<div class="panel-heading">{{ highlightedRow.headline }}</div>
+
+			<div ng-repeat="torrent in highlightedRow.torrents" class="col-md-2 col-sm-4 col-xs-6 highlightedRow">
+				<div class="cover">
+					<a ui-sref='torrent({id: torrent.id, name: torrent.name})'>
+						<img class="poster" ng-src="/img/imdb/{{ torrent.imdbid }}.jpg" alt="Poster" />
+					</a>
+				</div>
+			</div>
+			<br style="clear: both;" />
+		</div>
+	</div>
+	<button ui-sref="start-edit" class="btn btn-default btn-xs center-block"><i class="fa fa-cog"></i> Anpassa startsidan</button>
+
+	<br />
+
+	<div class="panel panel-green">
+		<div class="panel-heading">Nyheter</div>
+
+		<br />
+		<news limit="2"></news>
+
+		<br style="clear: both;" />
+		<div class="text-center">
+			<button ui-sref="news" class="btn btn-default btn-xs"><i class="fa fa-newspaper-o"></i> Visa alla nyheter</button>
+		</div>
+		<br />
+	</div>
+
+	<br />
+
+	<div class="row">
+		<div class="col-lg-5 col-lg-push-1 col-md-6">
+			<div class="panel panel-green">
+				<div class="panel-heading">Omröstning</div>
+				<div>
+					<poll poll="vm.poll" vote="vm.vote()"></poll>
+				</div>
+				<br style="clear: both;" />
+			</div>
+		</div>
+		<div class="col-lg-5 col-lg-push-1  col-md-6">
+
+			<div class="panel panel-green">
+				<div class="panel-heading">Statistik</div>
+				<div>
+					<table class="table table-striped table-hover noshadow">
+						<tr>
+							<td class="text-right" style="width: 60%">Registrerade användare</td>
+							<td class="text-left">{{ ::vm.stats.users | number }}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Torrents</td>
+							<td class="text-left">{{ ::vm.stats.torrents | number }}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Peers</td>
+							<td class="text-left">{{ ::vm.stats.seeders + vm.stats.leechers | number}}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Peersrekord</td>
+							<td class="text-left">{{ ::vm.stats.peersRecord | number}}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Seedare</td>
+							<td class="text-left">{{ ::vm.stats.seeders | number}}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Leechare</td>
+							<td class="text-left">{{ ::vm.stats.leechers | number}}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Aktiva användare senaste 15 min</td>
+							<td class="text-left">{{ ::vm.stats.active15m | number}}</td>
+						</tr>
+						<tr>
+							<td class="text-right">Aktiva användare senaste dygnet</td>
+							<td class="text-left">{{ ::vm.stats.active24h }}</td>
+						</tr>
+					</table>
+					<br />
+					<button class="btn btn-default btn-xs center-block" ui-sref="statistics()"><i class="fa fa-bar-chart"></i> Visa all statistik</button>
+				</div>
+				<br style="clear: both;" />
+			</div>
+		</div>
+	</div>
+
+</div>

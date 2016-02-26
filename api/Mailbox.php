@@ -12,13 +12,13 @@ class Mailbox {
 	public function query($location, $limit = 10, $index = 0) {
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM messages WHERE var = ? AND receiver = ?');
 		$sth->bindParam(1, $location, PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->execute();
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];
 
 		$sth = $this->db->prepare('SELECT messages.svarad, messages.subject, messages.last, messages.saved, messages.unread, messages.sender, messages.receiver, messages.id AS pid, messages.added AS padded, messages.msg AS pbody, '.implode(',', User::getDefaultFields()).' FROM messages LEFT JOIN users ON users.id = messages.sender WHERE receiver = ? AND var = ? ORDER BY messages.id DESC LIMIT ?, ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $location, PDO::PARAM_INT);
 		$sth->bindParam(3, $index, PDO::PARAM_INT);
 		$sth->bindParam(4, $limit, PDO::PARAM_INT);
@@ -130,7 +130,7 @@ class Mailbox {
 				throw new Exception('Användaren tillåter inte meddelanden.');
 			} else if ($receiver["acceptpms"] == "friends") {
 				$sth = $this->db->prepare("SELECT 1 FROM friends WHERE userid = ? AND friendid = ?");
-				$sth->bindParam(1, $this->user->getId(),	PDO::PARAM_INT);
+				$sth->bindValue(1, $this->user->getId(),	PDO::PARAM_INT);
 				$sth->bindParam(2, $postData["receiver"],	PDO::PARAM_INT);
 				$sth->execute();
 				$res = $sth->fetch();
@@ -141,7 +141,7 @@ class Mailbox {
 
 			$sth = $this->db->prepare("SELECT 1 FROM blocks WHERE userid = ? AND blockid = ?");
 			$sth->bindParam(1, $postData["receiver"],	PDO::PARAM_INT);
-			$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
+			$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
 			$sth->execute();
 			if ($sth->fetch()) {
 				throw new Exception('Användaren har blockerat dig.');
@@ -162,7 +162,7 @@ class Mailbox {
 
 		// For the receivers inbox
 		$sth = $this->db->prepare("INSERT INTO messages (sender, receiver, added, msg, subject) VALUES(?, ?, NOW(), ?, ?)");
-		$sth->bindParam(1, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->bindParam(2, $postData["receiver"],	PDO::PARAM_INT);
 		$sth->bindParam(3, $postData["body"],		PDO::PARAM_STR);
 		$sth->bindParam(4, $postData["subject"],	PDO::PARAM_STR);
@@ -171,7 +171,7 @@ class Mailbox {
 		// For senders outbox
 		$sth = $this->db->prepare("INSERT INTO messages (sender, receiver, added, unread, msg, subject, var, last) VALUES(?, ?, NOW(), 'no', ?, ?, 1, NOW())");
 		$sth->bindParam(1, $postData["receiver"],	PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->bindParam(3, $postData["body"],		PDO::PARAM_STR);
 		$sth->bindParam(4, $postData["subject"],	PDO::PARAM_STR);
 		$sth->execute();

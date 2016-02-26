@@ -1,0 +1,20 @@
+<p style="text-align: center;">
+	<i class="fa fa-rss-square fa-4x" style="color: #CE6000"></i>
+</p>
+
+<h2>Generera personlig RSS-flöde</h2>
+
+<button class="btn btn-default btn-xs" ng-model="vm.model.setting" ng-change="vm.updateRssUrl()" uib-btn-radio="1">Endast film</button>
+<button class="btn btn-default btn-xs" ng-model="vm.model.setting" ng-change="vm.updateRssUrl()" uib-btn-radio="2">Endast TV-serier</button>
+<button class="btn btn-default btn-xs" ng-model="vm.model.setting" ng-change="vm.updateRssUrl()" uib-btn-radio="0">Båda</button>
+
+<button class="btn btn-default btn-xs" ng-model="vm.model.time" ng-change="vm.updateRssUrl()" uib-btn-checkbox>Endast releaser från och med nu</button>
+<br />
+<input type="text" class="form-control readonly-pretty" readonly="readonly" ng-model="vm.model.url" ng-change="vm.updateRssUrl()" style="width: 630px; margin: auto; margin-top: 5px;" />
+<br />
+<h2>Automatisk nerladdning</h2>
+<h3>1. Välj vart på datorn nerladdningar ska sparas som standard</h3>
+<img src="img/bevakaRss0.png" />
+<br />
+<h3>2. Gå till Arkiv -> Lägg till RSS-flöde</h3>
+<img src="img/bevakaRss.png" />

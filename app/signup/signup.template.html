@@ -1,0 +1,70 @@
+<div class="row center-block">
+	<div class="col-md-8 col-md-offset-2">
+		<div class="panel panel-default">
+			<div class="panel-heading"><b>Skapa konto</b></div>
+			<div class="panel-body">
+				<form class="form-horizontal" role="form" ng-submit="vm.signup()">
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Användarnamn</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" placeholder="Användarnamn" ng-model="vm.credentials.username" pattern=".{2,12}" title="2-12 tecken" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">E-mail</label>
+						<div class="col-sm-8">
+							<input type="email" class="form-control" placeholder="E-mail"  ng-model="vm.credentials.email" required>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Kön</label>
+						<div class="col-sm-8">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="1">Man</label>
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="2">Kvinna</label>
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="0">Hen</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Ålder</label>
+						<div class="col-sm-8">
+							<input type="number" class="form-control" placeholder="Ålder" ng-model="vm.credentials.age" />
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Föredrar format</label>
+						<div class="col-sm-8">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.credentials.format" uib-btn-radio="0">DVDR</label>
+								<label class="btn btn-default" ng-model="vm.credentials.format" uib-btn-radio="1">720p HD</label>
+								<label class="btn btn-default" ng-model="vm.credentials.format" uib-btn-radio="2">1080p HD</label>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="col-sm-4 control-label">Lösenord</label>
+						<div class="col-sm-8">
+							<input type="password" class="form-control" placeholder="Lösenord" ng-model="vm.credentials.password" required />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="col-sm-4 control-label">Upprepa lösenord</label>
+						<div class="col-sm-8">
+							<input type="password" class="form-control" placeholder="Lösenord (igen)" ng-model="vm.credentials.passwordAgain" required />
+						</div>
+					</div>
+					<div class="form-group last">
+						<div class="col-sm-offset-4 col-sm-8">
+							<button type="submit" class="btn btn-primary btn-md">Skapa konto</button>
+							<button type="reset" class="btn btn-default btn-md">Rensa</button>
+						</div>
+					</div>
+				</form>
+				<uib-alert type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+				 	{{ vm.alert.msg }}
+				</uib-alert>
+			</div>
+		</div>
+	</div>
+</div>

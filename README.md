@@ -1,7 +1,7 @@
 # rartracker
-A modern front and backend bittorrent tracker written in PHP and AngularJS.
+A modern front and backend bittorrent tracker written in AngularJS and PHP.
 ## Version
-0.1.0
+0.2.0
 ## Author
 the swedish torrent king
 ## Feature highlights
@@ -10,6 +10,7 @@ the swedish torrent king
 * Many features suitable for scene only trackers
 * Awesome features like bonus-system, leech bonus, seed-time, request system and rss-system.
 * Highly skinnable and mobile friendly design with Bootstrap CSS
+* Very clean code to grasp for developers
 
 # Installation
 ## 1. Install Node.js/npm and Git
@@ -27,13 +28,13 @@ $ sudo apt-get install -y git-core
 ## 2. Install dependencies
 From the project folder install all build script packages and all 3rd party dependencies
 ```sh
-$ npm install -g bower
-$ npm install -g grunt-cli
+$ npm install --global bower
+$ npm install --global gulp-cli
 $ npm install
 $ bower install
-$ grunt dist
+$ gulp dist
 ```
-## 3. Import database (database.sql)
+## 3. Import database (databse/database.sql)
 
 # Configurations
 
@@ -48,7 +49,7 @@ $username = 'root';
 $password = '';
 ````
 
-Some site settings in api/Helper.php
+Some site settings in api/Config.php and app/app.config.js
 ### 2. Generate new unique salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
@@ -59,7 +60,7 @@ The "System" account **must remain** as a parked account and have Staff rights b
 
 ## Server settings
 ### Recommended packages
-``php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql php5-memcache``
+``php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql memcached php5-curl php5-memcached``
 ### Enable rewrite module for .htaccess
 ``a2enmod rewrite``
 ### Permissions
@@ -91,14 +92,14 @@ max_heap_table_size=2G
 
 ## Developing and deploying
 ### Developing
-In the project folder run ``grunt dev``. This will lauch a watcher that continuously build the code into the dist/.
+In the project folder run ``gulp watch``. This will lauch a watcher that continuously build the code into the dist/.
 ### Deploying
-In the project folder run ``grunt dist`` and the code will be minified and scrambled, a JsHint check will also be made.
+In the project folder run ``gulp dist`` and the code will be minified and scrambled, a JsHint check will also be made.
 
 The **app/** folder should never be exposed in live production, since its html/js is beeing packaged into **dist/**
 
 # License
 [WTFPL]
 
-[//]: # 
+[//]: #
 [WTFPL]: <http://www.wtfpl.net/>

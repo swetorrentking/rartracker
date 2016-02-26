@@ -1,48 +1,51 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('NewTopicController', function ($scope, ForumResource, $state, $stateParams, user, AuthService) {
-			$scope.$parent.activateTopicsView();
-			$scope.postStatus = 0;
+	angular
+		.module('app.forums')
+		.controller('NewTopicController', NewTopicController);
 
-			var isoDate = new Date(AuthService.getServerTime()).toISOString();
-			var currentDatetime = isoDate.replace(/T/g, ' ').replace(/Z/g, '');
+	function NewTopicController($scope, ForumResource, $state, $stateParams, user, authService) {
+		$scope.$parent.vm.activateTopicsView();
+		this.postStatus = 0;
 
-			$scope.post = {
-				id: '?',
-				added: currentDatetime,
-				editedat: '0000-00-00 00:00:00',
-				user: user
-			};
+		var isoDate = new Date(authService.getServerTime()).toISOString();
+		var currentDatetime = isoDate.replace(/T/g, ' ').replace(/Z/g, '');
 
-			$scope.CreateTopic = function () {
-				$scope.closeAlert();
-				$scope.postStatus = 1;
-				ForumResource.Topics.save({
-					forumid: $stateParams.id,
-					subject: $scope.post.subject,
-					sub: $scope.post.sub,
-					body: $scope.post.body,
-				}, function (result) {
-					$state.go('forum.topic', {forumid: $stateParams.id, id: result.topicId});
-				}, function (error) {
-					$scope.postStatus = 0;
-					if (error.data) {
-						$scope.addAlert({ type: 'danger', msg: error.data });
-					} else {
-						$scope.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
-					}
-				});
-			};
+		this.post = {
+			id: '?',
+			added: currentDatetime,
+			editedat: '0000-00-00 00:00:00',
+			user: user
+		};
 
-			$scope.addAlert = function (obj) {
-				$scope.alert = obj;
-			};
+		this.createTopic = function () {
+			this.closeAlert();
+			this.postStatus = 1;
+			ForumResource.Topics.save({
+				forumid: $stateParams.id,
+				subject: this.post.subject,
+				sub: this.post.sub,
+				body: this.post.body,
+			}, (topic) => {
+				$state.go('forum.topic', {forumid: $stateParams.id, id: topic.id, slug: topic.slug});
+			}, (error) => {
+				this.postStatus = 0;
+				if (error.data) {
+					this.addAlert({ type: 'danger', msg: error.data });
+				} else {
+					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+				}
+			});
+		};
 
-			$scope.closeAlert = function() {
-				$scope.alert = null;
-			};
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
 
-		});
+		this.closeAlert = function() {
+			this.alert = null;
+		};
+
+	}
 })();

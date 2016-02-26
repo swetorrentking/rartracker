@@ -1,13 +1,16 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ErrorDialogController', function ($scope, $uibModalInstance, body) {
-			$scope.body = body;
+	angular
+		.module('app.shared')
+		.controller('ErrorDialogController', ErrorDialogController);
 
-			$scope.ok = function () {
-				$uibModalInstance.dismiss();
-			};
+	function ErrorDialogController($uibModalInstance, body) {
+		this.body = body;
 
-		});
+		this.ok = function () {
+			$uibModalInstance.dismiss();
+		};
+	}
+
 })();

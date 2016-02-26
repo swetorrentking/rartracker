@@ -29,7 +29,7 @@ class Bookmarks implements IResource {
 
 	public function create($postdata) {
 		$sth = $this->db->prepare('SELECT * FROM bookmarks WHERE userid = ? AND torrentid = ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
@@ -37,7 +37,7 @@ class Bookmarks implements IResource {
 		}
 
 		$sth = $this->db->prepare("INSERT INTO bookmarks(userid, torrentid) VALUES(?, ?)");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_STR);
 		$sth->execute();
 	}

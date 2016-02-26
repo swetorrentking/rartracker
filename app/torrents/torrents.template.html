@@ -1,0 +1,18 @@
+<div class="text-center center-block hidden-xs" ng-show="::!vm.hideCheckboxes" style="margin-bottom: 15px;">
+	<categories-checkboxes user-categories="vm.checkboxCategories" limit-to-categories="vm.defaultCategories" changed="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()"></categories-checkboxes>
+	<span class="normal" ng-show="vm.showHideOldCheckbox">
+		<button class="btn btn-default btn-xs" ng-model="vm.hideOld" uib-btn-checkbox ng-change="vm.getTorrents()">Dölj gamla filmer</button>
+	</span>
+</div>
+
+<div ng-show="vm.currentUser.parkerad == 1" class="alert alert-warning" role="alert">Ditt konto är parkerat och kan därför inte visa alla sidor. Parkera upp kontot ifrån inställningarna.</div>
+
+<div class="table-responsive" ng-hide="vm.currentUser.parkerad == 1">
+	<torrents-table torrents="vm.torrents" on-filter-category="vm.filterCategory(category)" on-sort="vm.sortTorrents(sort)" last-browse-date="vm.lastBrowseDate" col-download="true" col-bookmark="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
+</div>
+
+<loading-indicator hide="vm.torrents"></loading-indicator>
+
+<div class="text-center">
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getTorrents()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

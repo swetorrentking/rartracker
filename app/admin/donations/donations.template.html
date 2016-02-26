@@ -1,0 +1,40 @@
+<h1 class="text-center">Donationer</h1>
+
+<loading-indicator hide="vm.donations"></loading-indicator>
+
+<table class="table" ng-show="vm.donations">
+	<tr>
+		<th class="text-left" style="width: 150px;">Datum</th>
+		<th class="text-left" style="width: 120px;">Användare</th>
+		<th class="text-left" style="width: 100px;">Summa</th>
+		<th class="text-left" style="width: 100px;">Metod</th>
+		<th class="text-left" style="width: 150px;">Voucher PIN</th>
+		<th class="text-left" style="min-width: 300px;">Meddelande</th>
+		<th class="text-center" style="width: 80px;">Åtgärd</th>
+		<th class="text-center" style="width: 80px;">Redigera</th>
+	</tr>
+	<tr ng-repeat="donation in vm.donations">
+		<td>{{ ::donation.added }}</td>
+		<td><user user="::donation.user"></user></td>
+		<td>{{ donation.sum }} SEK</td>
+		<td>
+			<span ng-show="::donation.type == 1">Paysafe</span>
+			<span ng-show="::donation.type == 2">Bitcoin</span>
+			<span ng-show="::donation.type == 3">Paypal</span>
+			<img ng-show="::donation.nostar == 0" ng-src="/img/icons/star-small.png" />
+		</td>
+		<td>{{ ::donation.code }}</td>
+		<td>{{ ::donation.msg }}</td>
+		<td class="text-center">
+			<span ng-if="donation.status == 1" class="label label-success">Bekräftad</span>
+			<button ng-if="donation.status == 0" class="btn btn-default btn-xs" ng-click="vm.confirmDonation(donation)">Bekräfta</button>
+		</td>
+		<td class="text-center">
+			<button ng-click="vm.edit(donation)" class="btn btn-xs btn-default"><i class="fa fa-pencil"></i></button>
+			<button ng-click="vm.delete(donation)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i></button>
+		</td>
+	</tr>
+</table>
+<div class="text-center">
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getDonations()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+</div>

@@ -1,87 +1,89 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('RequestsController', function ($scope, $state, $uibModal, $stateParams, RequestsResource) {
-			var dataLoaded = false;
-			$scope.itemsPerPage = 25;
-			$scope.currentPage = $stateParams.page || 1;
+	angular
+		.module('app.requests')
+		.controller('RequestsController', RequestsController);
 
-			var getReleases = function () {
-				$scope.requests = null;
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				RequestsResource.Requests.query({
-					'index': index,
-					'limit': $scope.itemsPerPage,
-					'sort': $scope.sort,
-					'order': $scope.order
-				}, function (requests, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.requests = requests;
-					if (!dataLoaded) {
-						$scope.currentPage = $stateParams.page || 1;
-						dataLoaded = true;
-					}
-				});
-			};
+	function RequestsController($state, $uibModal, $stateParams, RequestsResource, user) {
 
-			$scope.pageChanged = function () {
-				if (!dataLoaded) return;
-				$state.transitionTo('requests.requests', { page: $scope.currentPage }, { notify: false });
-				getReleases();
-			};
+		this.currentUser = user;
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
+		this.sort = $stateParams.sort;
+		this.order = $stateParams.order;
 
-			$scope.upload = function (request) {
-				$state.go('upload', {requestId: request.id, requestName: request.request});
-			};
+		this.getRequests = function () {
+			$state.go($state.current.name, {
+				page: this.currentPage,
+				sort: this.sort,
+				order: this.order
+			}, { notify: false });
 
-			$scope.vote = function (request) {
-				RequestsResource.Votes.save({
-					id: request.id
-				}, function (response){
-					request.reward = response.reward;
-					request.votes = response.votes;
-				});
-			};
-
-			$scope.giveReward = function (request) {
-				var modalInstance = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/request-reward-dialog.html',
-					controller: 'RequestRewardController',
-					size: 'sm',
-					resolve: {
-						request: function () {
-							return request;
-						}
-					}
-				});
-
-				modalInstance.result.then(function (result) {
-					request.reward = result.reward;
-					request.votes = result.votes;
-				});
-			};
-
-			$scope.sortRequests = function (sort) {
-				if ($scope.sort == sort) {
-					if ($scope.order === 'asc'){
-						$scope.order = 'desc';
-					} else {
-						$scope.order = 'asc';
-					}
-				} else {
-					$scope.sort = sort;
-					if (sort == 'n') {
-						$scope.order = 'asc';
-					} else {
-						$scope.order = 'desc';
-					}
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			RequestsResource.Requests.query({
+				'index': index,
+				'limit': this.itemsPerPage,
+				'sort': this.sort,
+				'order': this.order
+			}, (requests, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.requests = requests;
+				if (!this.loadedFirstTime) {
+					this.currentPage = $stateParams.page;
+					this.loadedFirstTime = true;
 				}
-				getReleases();
-			};
+			});
+		};
 
-			getReleases();
-		});
+		this.vote = function (request) {
+			RequestsResource.Votes.save({
+				id: request.id
+			}, (response) => {
+				request.reward = response.reward;
+				request.votes = response.votes;
+			});
+		};
+
+		this.giveReward = function (request) {
+			var modalInstance = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/requests/request-reward-dialog.template.html',
+				controller: 'RequestRewardController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'sm',
+				resolve: {
+					request: () => request
+				}
+			});
+
+			modalInstance.result.then((result) => {
+				request.reward = result.reward;
+				request.votes = result.votes;
+			});
+		};
+
+		this.sortRequests = function (sort) {
+			if (this.sort == sort) {
+				if (this.order === 'asc'){
+					this.order = 'desc';
+				} else {
+					this.order = 'asc';
+				}
+			} else {
+				this.sort = sort;
+				if (sort == 'n') {
+					this.order = 'asc';
+				} else {
+					this.order = 'desc';
+				}
+			}
+			this.getRequests();
+		};
+
+		this.getRequests();
+	}
+
 })();

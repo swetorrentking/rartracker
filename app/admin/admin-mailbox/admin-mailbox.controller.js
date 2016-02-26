@@ -1,51 +1,61 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('AdminMailboxController', function ($scope, $filter, $uibModal, user, InfoDialog, ErrorDialog, AdminMailboxResource, SendMessageDialog) {
-			$scope.itemsPerPage = 20;
+	angular
+		.module('app.admin')
+		.controller('AdminMailboxController', AdminMailboxController);
 
-			var getMessages = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminMailboxResource.query({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.mailbox = data;
-				});
-			};
+	function AdminMailboxController($state, $stateParams, $filter, user, InfoDialog, ErrorDialog, AdminResource, SendMessageDialog) {
 
-			$scope.pageChanged = function () {
-				getMessages();
-			};
+		this.currentUser = user;
+		this.itemsPerPage = 20;
+		this.currentPage = $stateParams.page;
 
-			$scope.replyMessage = function (message) {
-				message.answeredBy = {id: user.id, username: user.username};
-				message.answered = 1;
-				AdminMailboxResource.update({id:message.id}, message, function () {
-					var dialog = new SendMessageDialog({
+		this.getMessages = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			AdminResource.MailboxAdmin.query({
+				'limit': this.itemsPerPage,
+				'index': index,
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.mailbox = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
+
+		this.replyMessage = function (message) {
+			message.answeredBy = {id: user.id, username: user.username};
+			message.answered = 1;
+			AdminResource.MailboxAdmin.update({ id: message.id }, message).$promise
+				.then(() => {
+					return new SendMessageDialog({
 						user: message.user,
 						body: message.body,
 						subject: message.subject
 					});
-
-					dialog.then(function (answer) {
-						var d = new Date();
-						message.answer = answer.body;
-						message.answeredAt = $filter('date')(d, 'yyyy-MM-dd HH:mm:ss');
-						AdminMailboxResource.update({id:message.id}, message);
-					});
-				}, function(error) {
-					ErrorDialog.display(error.data);
+				})
+				.then((answer) => {
+					var d = new Date();
+					message.answer = answer.body;
+					message.answeredAt = $filter('date')(d, 'yyyy-MM-dd HH:mm:ss');
+					return AdminResource.MailboxAdmin.update({id:message.id}, message);
+				})
+				.catch((error) => {
+					if (error) {
+						ErrorDialog.display(error.data);
+					}
 				});
-			};
+		};
 
-			$scope.viewAnswer = function (message) {
-				InfoDialog('Visa StaffPM', message.answer);
-			};
+		this.viewAnswer = function (message) {
+			InfoDialog('Visa StaffPM', message.answer);
+		};
 
-			getMessages();
-		});
+		this.getMessages();
+	}
 })();

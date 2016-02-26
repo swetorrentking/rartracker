@@ -1,17 +1,21 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ConfirmDialogController', function ($scope, $uibModalInstance, settings) {
-			$scope.settings = settings;
+	angular
+		.module('app.shared')
+		.controller('ConfirmDialogController', ConfirmDialogController);
 
-			$scope.confirm = function () {
-				$uibModalInstance.close($scope.settings.reason);
-			};
+	function ConfirmDialogController($uibModalInstance, settings) {
+		this.settings = settings;
 
-			$scope.cancel = function () {
-				$uibModalInstance.dismiss();
-			};
+		this.confirm = function () {
+			$uibModalInstance.close(this.settings.reason);
+		};
 
-		});
+		this.cancel = function () {
+			$uibModalInstance.dismiss();
+		};
+
+	}
+
 })();

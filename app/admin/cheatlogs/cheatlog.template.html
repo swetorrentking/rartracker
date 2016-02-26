@@ -1,0 +1,35 @@
+<div class="text-center">
+	<h1>Fusklogg</h1>
+
+	<div ng-hide="!vm.loading" class="fa-spinner fa-spin spinner" style="position: absolute; left: 50%; margin-top: 50px; z-index: 2;"></div>
+
+	<table class="table table-nowrap" ng-show="vm.logs" ng-class="{'opacity80': vm.loading}">
+		<tr>
+			<th style="width: 100px;"><a class="whiteLink" href="" ng-click="vm.sortCol('date')">Datum</a></th>
+			<th style="width: 125px;">Användare</th>
+			<th class="text-left">Torrent</th>
+			<th class="text-right" style="width: 90px;"><a class="whiteLink" href="" ng-click="vm.sortCol('rate')">Fart</a></th>
+			<th class="text-right" style="width: 80px;"><a class="whiteLink" href="" ng-click="vm.sortCol('time')">Tid</a></th>
+			<th class="text-right" style="width: 90px;"><a class="whiteLink" href="" ng-click="vm.sortCol('up')">Uppladdat</a></th>
+			<th class="text-right" style="width: 90px;"><a class="whiteLink" href="" ng-click="vm.sortCol('down')">Nedladdat</a></th>
+			<th class="text-center"><a class="whiteLink" href="" ng-click="vm.sortCol('ip')">IP</a> : <a class="whiteLink" href="" ng-click="vm.sortCol('port')">Port</a></th>
+			<th class="text-center" style="width: 75px;"><a class="whiteLink" href="" ng-click="vm.sortCol('connectable')">Port</a></th>
+			<th class="text-center"><a class="whiteLink" href="" ng-click="vm.sortCol('agent')">Klient</a></th>
+		</tr>
+		<tr ng-repeat="log in vm.logs track by log.id">
+			<td>{{ ::log.added }}</td>
+			<td><user user="::log.user"></user> <button class="btn btn-default btn-xs" ng-hide="vm.userid" ng-click="vm.userid = log.user.id; vm.getLogs();"><i class="fa fa-search"></i></button></td>
+			<td class="text-left"><a ui-sref="torrent({id: log.torrentid})">{{ ::log.name }}</a></td>
+			<td class="text-right" style="background-color: {{ ::log | cheatColor }};">{{ ::log.rate | prettysize }}/s</td>
+			<td class="text-right">{{ ::log.time }} sek</td>
+			<td class="text-right">{{ ::log.uploaded | prettysize }}</td>
+			<td class="text-right">{{ ::log.downloaded | prettysize }}</td>
+			<td><a ui-sref="admin-search({ip: log.ip})">{{ ::log.ip }}</a>:{{ ::log.port }} </td>
+			<td ng-bind-html="::log.connectable | connectable"></td>
+			<td ng-bind-html="::log.agent" ng-style="::log.agentdiff == 1 && {'background-color': '#f5ffbb'}"></td>
+		</tr>
+	</table>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+</div>

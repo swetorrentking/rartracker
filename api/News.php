@@ -40,18 +40,18 @@ class News {
 			throw new Exception("Rubriken är för kort", 412);
 		}
 
-		$topicId = $this->forum->addTopic($this->newsForumId, $this->subjectPrefix . $postdata["subject"], "", $postdata["body"], true, 1);
+		$topic = $this->forum->addTopic($this->newsForumId, $this->subjectPrefix . $postdata["subject"], "", $postdata["body"], true, 1);
 
 	 	$sth = $this->db->prepare("INSERT INTO news(userid, added, subject, body, announce, forumthread, forum) VALUES(?, NOW(), ?, ?, ?, ?, ?)");
-		$sth->bindParam(1, $this->user->getId(),		PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(),		PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["subject"],		PDO::PARAM_STR);
 		$sth->bindParam(3, $postdata["body"],			PDO::PARAM_STR);
 		$sth->bindParam(4, $postdata["announce"],		PDO::PARAM_INT);
-		$sth->bindParam(5, $topicId,					PDO::PARAM_INT);
-		$sth->bindParam(6, $this->newsForumId,			PDO::PARAM_INT);
+		$sth->bindParam(5, $topic["id"],					PDO::PARAM_INT);
+		$sth->bindValue(6, $this->newsForumId,			PDO::PARAM_INT);
 		$sth->execute();
 
-		return array("topicId" => $topicId);
+		return $topic;
 	}
 
 	public function update($id, $postdata) {
@@ -62,7 +62,7 @@ class News {
 		$sth->bindParam(1, $postdata["subject"],		PDO::PARAM_STR);
 		$sth->bindParam(2, $postdata["body"],			PDO::PARAM_STR);
 		$sth->bindParam(3, $postdata["announce"],		PDO::PARAM_INT);
-		$sth->bindParam(4, $id,							PDO::PARAM_INT);
+		$sth->bindParam(4, $id,								PDO::PARAM_INT);
 		$sth->execute();
 	}
 

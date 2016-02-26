@@ -1,0 +1,65 @@
+<div class="text-center">
+	<h1 style="margin-bottom: 20px;">Brevlåda</h1>
+
+	<div class="btn-group">
+		<label class="btn btn-default" ng-model="vm.currentView" uib-btn-radio="0" ng-change="vm.currentPage = 1; vm.getMessages();">Inkorg</label>
+		<label class="btn btn-default" ng-model="vm.currentView" uib-btn-radio="1" ng-change="vm.currentPage = 1; vm.getMessages();">Utkorg</label>
+	</div>
+
+	<br /><br />
+
+	<loading-indicator hide="vm.mailbox"></loading-indicator>
+
+	<div class="col-lg-10 col-lg-push-1" ng-show="vm.mailbox.length > 0">
+		<table class="table table-stripedSpecial table-hover" style="table-layout: fixed;" ng-init="itemNew=[]">
+			<thead>
+				<th class="text-left" style="width: 165px;"><span ng-show="vm.currentView == 0">Från</span><span ng-show="vm.currentView == 1">Till</span></th>
+				<th class="text-left">Ämne <span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 0">Mottaget</span><span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 1">Skickat</span></th>
+				<th style="width: 50px;"><a class="whiteLink" href="" ng-click="vm.checkAll()">Välj</a></th>
+			</thead>
+			<tbody>
+				<tr ng-init="itemsDisplay=[]" ng-repeat-start="mail in vm.mailbox track by mail.id" ng-click="itemsDisplay[$index] = !itemsDisplay[$index]; vm.readMessage(mail);">
+					<td class="text-left tvTdRow ellipsis" style="font-size: 12px;"><user user="mail.user"></user></td>
+					<td class="text-left tvTdRow" style="font-size: 12px;"><span style="float: left;">{{ mail.subject }}<span ng-show="mail.subject.length < 1">(Inget ämne)</span> <span ng-show="mail.saved==1"> <i class="fa fa-floppy-o"></i></span> <span ng-show="mail.svarad==1"> <i class="fa fa-reply"></i></span></span>
+					<span style="float: right;" class="hidden-xs">{{ mail.added }} ({{ mail.added | dateDifference }} sedan)</span> <span ng-show="mail.unread == 'yes'" class="badge" style="font-size: 10px; margin-left: 5px;">NYTT</span></td>
+					<td class="vert-align" ng-click="$event.stopPropagation();">
+						<button class="btn btn-default btn-xs" uib-btn-checkbox  ng-model="mail.selected"><i class="fa fa-check"></i></button>
+					</td>
+				</tr>
+				<tr ng-repeat-end ng-show="itemsDisplay[$index]">
+					<td colspan="2" style="background-color: #FFF;" class="text-left">
+
+						<div class="hidden-xs forumAvatarHolder">
+							<div ng-if="mail.user.avatar && vm.currentUser.avatars == 'yes'" class="post-avatar" style="background-image: url('{{mail.user.avatar}}');"></div>
+							<div ng-if="vm.currentUser.avatars == 'no' || !mail.user.avatar" class="post-avatar" style="background-image: url('/img/default-avatar.png');"></div>
+						</div>
+
+						<div class="forumPost">
+							<div class="button-group mailbox-buttons">
+								<button ng-if="mail.sender != 1" ng-click="vm.replyMessage(mail)" class="btn btn-default btn-xs"><i class="fa fa-reply"></i> Svara</button>
+								<button class="btn btn-default btn-xs" ng-click="vm.saveMessage(mail)"><i class="fa fa-floppy-o"></i> Spara</button>
+								<button class="btn btn-default btn-xs" ng-click="vm.delete(mail)"><i class="fa fa-trash-o"></i> Radera</button>
+								<report-button ng-if="vm.currentUser.class < 8" type="pm" id="mail.id" body="mail.subject"></report-button>
+								<button ng-if="vm.currentUser.class >= 8" class="btn btn-default btn-xs" ng-click="vm.adminMessage(mail)"><i class="fa fa-exclamation-triangle"></i> Detta är StaffPM</button>
+							</div>
+							<p ng-bind-html="mail.body | bbCode" style="padding: 5px;"></p>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+
+	<div class="clearfix"></div>
+
+	<div ng-show="vm.mailbox == 0" class="alert alert-warning" role="alert">Det finns inga meddelanden här</div>
+
+	<div ng-if="vm.hasSelectedMail() > 0">
+		<br />
+		Med alla {{ vm.hasSelectedMail() }} markerade: <button type="button" class="btn btn-xs btn-default" ng-click="vm.readSelected()"><i class="fa fa-eye"></i> Markera som lästa</button> <button type="button" class="btn btn-xs btn-default" ng-click="vm.deleteSelected()"><i class="fa fa-trash-o"></i> Radera</button>
+	</div>
+	<div class="clearfix"></div>
+
+	<uib-pagination ng-show="vm.mailbox.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getMessages()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+</div>

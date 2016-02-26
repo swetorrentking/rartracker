@@ -14,9 +14,9 @@ class Blocked implements IResource {
 		$result = array();
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$friend["user"] = $this->user->generateUserObject($row);
-			$friend["id"] = $row["friends_id"];
-			$friend["comment"] = $row["kom"];
-			$friend["last_access"] = $row["last_access"];
+			$friend["id"] = $row["block_id"];
+			$friend["comment"] = $row["comment"];
+			$friend["user"]["last_access"] = $row["last_access"];
 			array_push($result, $friend);
 		}
 		return $result;
@@ -29,7 +29,7 @@ class Blocked implements IResource {
 		}
 
 		$sth = $this->db->prepare('SELECT 1 FROM blocks WHERE userid = ? AND blockid = ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $myEnemy["id"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
@@ -37,13 +37,13 @@ class Blocked implements IResource {
 		}
 
 		$sth = $this->db->prepare("INSERT INTO blocks(userid, blockid, comment) VALUES(?, ?, ?)");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $myEnemy["id"], PDO::PARAM_INT);
 		$sth->bindParam(3, $postdata["comment"], PDO::PARAM_STR);
 		$sth->execute();
 	}
 
-	public function delete($id, $postdata) {
+	public function delete($id, $postdata = "") {
 		$block = $this->get($id);
 		if ($block["userid"] != $this->user->getId()) {
 			throw new Exception('Du saknar rättigheter att radera denna blockering.');

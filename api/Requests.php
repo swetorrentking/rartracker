@@ -21,6 +21,8 @@ class Requests {
 		switch ($sort) {
 			case 'votes': $sortColumn = 'votes'; break;
 			case 'reward': $sortColumn = 'krydda'; break;
+			case 'comments': $sortColumn = 'comments'; break;
+			case 'name': $sortColumn = 'request'; break;
 			default: $sortColumn = 'requestId';
 		}
 
@@ -30,7 +32,7 @@ class Requests {
 			$order = "DESC";
 		}
 
-		$sth = $this->db->prepare('SELECT '.implode(',', User::getDefaultFields()).', imdbinfo.imdbid AS imdbid2, requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment,requests.season, requests.imdbid, requests.typ, (SELECT COUNT(*) AS cnt FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests LEFT JOIN users ON requests.userid = users.id LEFT JOIN imdbinfo ON requests.imdbid = imdbinfo.id WHERE requests.filled = 0 ORDER BY '.$sortColumn.' '.$order.' LIMIT ?, ?');
+		$sth = $this->db->prepare('SELECT '.implode(',', User::getDefaultFields()).', imdbinfo.imdbid AS imdbid2, requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment, requests.comments, requests.season, requests.imdbid, requests.typ, requests.slug, (SELECT COUNT(*) AS cnt FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests LEFT JOIN users ON requests.userid = users.id LEFT JOIN imdbinfo ON requests.imdbid = imdbinfo.id WHERE requests.filled = 0 ORDER BY '.$sortColumn.' '.$order.' LIMIT ?, ?');
 		$sth->bindParam(1, $index, PDO::PARAM_INT);
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
@@ -44,8 +46,10 @@ class Requests {
 			$arr["request"] = $row["request"];
 			$arr["p2p"] = $row["p2p"];
 			$arr["comment"] = $row["comment"];
+			$arr["comments"] = $row["comments"];
 			$arr["ersatt"] = $row["ersatt"];
 			$arr["season"] = $row["season"];
+			$arr["slug"] = $row["slug"];
 			$arr["imdbid"] = $row["imdbid"];
 			$arr["type"] = $row["typ"];
 			$arr["reward"] = $row["krydda"] += $this->getVoteTimeReward(strtotime($row["added"]));
@@ -59,7 +63,7 @@ class Requests {
 	}
 
 	public function get($id) {
-		$sth = $this->db->prepare('SELECT '.implode(',', User::getDefaultFields()).', requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment,requests.season, requests.imdbid, requests.typ, (SELECT COUNT(*) FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests LEFT JOIN users ON requests.userid = users.id WHERE requests.id = ?');
+		$sth = $this->db->prepare('SELECT '.implode(',', User::getDefaultFields()).', requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment, requests.comments, requests.season, requests.imdbid, requests.typ, requests.slug, (SELECT COUNT(*) FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests LEFT JOIN users ON requests.userid = users.id WHERE requests.id = ?');
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
 		$sth->execute();
 
@@ -75,8 +79,10 @@ class Requests {
 		$arr["request"] = $row["request"];
 		$arr["p2p"] = $row["p2p"];
 		$arr["comment"] = $row["comment"];
+		$arr["comments"] = $row["comments"];
 		$arr["ersatt"] = $row["ersatt"];
 		$arr["season"] = $row["season"];
+		$arr["slug"] = $row["slug"];
 		$arr["imdbid"] = $row["imdbid"];
 		$arr["type"] = $row["typ"];
 		$arr["reward"] = $row["krydda"] += $this->getVoteTimeReward(strtotime($row["added"]));
@@ -118,7 +124,7 @@ class Requests {
 			}
 		}
 
-		if ($postData["category"] < 1 || $postData["category"] > 12) {
+		if ($postData["category"] < Torrent::DVDR_PAL || $postData["category"] > Torrent::SUBPACK) {
 			throw new Exception('Ogiltig kategori.');
 		}
 
@@ -139,14 +145,15 @@ class Requests {
 			$requestName = $postData["customName"];
 		}
 
+		$slug = Helper::slugify($requestName);
 		$searchText = Helper::searchfield($requestName);
 		$userid = $this->user->getId();
 
 		if ($reqId) {
-			$sth = $this->db->prepare("UPDATE requests SET userid = ?, request = ?, comment = ?, search_text = ?, season = ?, imdbid = ?, typ = ? WHERE id = " . $request["id"]);
+			$sth = $this->db->prepare("UPDATE requests SET userid = ?, request = ?, comment = ?, search_text = ?, season = ?, imdbid = ?, typ = ?, slug = ? WHERE id = " . $request["id"]);
 			$userid = $request["user"]["id"];
 		} else {
-			$sth = $this->db->prepare("INSERT INTO requests(userid, request, added, comment, search_text, season, imdbid, typ) VALUES(?, ?, NOW(), ?, ?, ?, ?, ?)");
+			$sth = $this->db->prepare("INSERT INTO requests(userid, request, added, comment, search_text, season, imdbid, typ, slug) VALUES(?, ?, NOW(), ?, ?, ?, ?, ?, ?)");
 		}
 
 		$sth->bindParam(1, $userid,					PDO::PARAM_INT);
@@ -156,13 +163,14 @@ class Requests {
 		$sth->bindParam(5, $postData["season"],		PDO::PARAM_INT);
 		$sth->bindParam(6, $postData["imdbId"],		PDO::PARAM_INT);
 		$sth->bindParam(7, $postData["category"],	PDO::PARAM_INT);
+		$sth->bindParam(8, $slug,					PDO::PARAM_STR);
 		$sth->execute();
 
 		if ($reqId) {
-			return Array("id" => $request["id"], "name" => $requestName);
+			return Array("id" => $request["id"], "slug" => $slug);
 		} else {
 			$insertId = $this->db->lastInsertId();
-			$this->log->log(1, "Request ([url=/archive/request/".$insertId ."/][b]".$requestName."[/b][/url]) inlagd utav {{username}}", $this->user->getId(), false);
+			$this->log->log(1, "Request ([url=/request/".$insertId ."/".$slug."][b]".$requestName."[/b][/url]) inlagd utav {{username}}", $this->user->getId(), false);
 			$this->vote($insertId, 0);
 			return Array("id" => $insertId, "name" => $requestName);
 		}
@@ -188,19 +196,19 @@ class Requests {
 			}
 		}
 
-		$this->db->query("DELETE FROM requests WHERE id = " . $request["id"]);
-		$this->db->query("DELETE FROM reqvotes WHERE reqid = " . $request["id"]);
+		$this->purge($request["id"]);
 	}
 
 	public function purge($reqId) {
 		$this->db->query("DELETE FROM requests WHERE id = " . $reqId);
 		$this->db->query("DELETE FROM reqvotes WHERE reqid = " . $reqId);
+		$this->db->query("DELETE FROM request_comments WHERE request = " . $reqId);
 	}
 
 	public function restore($reqId, $reason) {
 		$request = $this->get($reqId);
 		$this->db->query("UPDATE requests SET filled = 0 WHERE id = " . $reqId);
-		$this->log->log(1, "Request ([url=/archive/request/".$reqId ."/][b]".$request["request"]."[/b][/url]) har blivit återställd", 0, false);
+		$this->log->log(1, "Request ([url=/request/".$reqId ."/][b]".$request["slug"]."[/b][/url]) har blivit återställd", 0, false);
 		if ($this->user->getId() != $request["user"]["id"]) {
 			$this->mailbox->sendSystemMessage($request["user"]["id"], "Request återställd", "Din request ([url=/archive/request/".$reqId ."/][b]".$request["request"]."[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{$reason}[/b]");
 		}
@@ -221,7 +229,7 @@ class Requests {
 		} else {
 			$sth = $this->db->prepare("INSERT INTO reqvotes(reqid, userid, krydda) VALUES(?, ?, ?)");
 			$sth->bindParam(1, $reqid,					PDO::PARAM_INT);
-			$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
+			$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
 			$sth->bindParam(3, $reward,					PDO::PARAM_INT);
 			$sth->execute();
 		}
@@ -246,7 +254,7 @@ class Requests {
 		$sth = $this->db->query("SELECT SUM(krydda), COUNT(*) AS cnt FROM reqvotes WHERE reqid = " .$reqid);
 		$res = $sth->fetch();
 		$sum = $res[0];
-		
+
 		$sum += $this->getVoteTimeReward($addedUnix);
 		return array("reward" => $sum, "votes" => $res[1]);
 	}
@@ -261,7 +269,7 @@ class Requests {
 	}
 
 	private function myRequests() {
-		$sth = $this->db->query("SELECT requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment,requests.season, requests.imdbid, requests.typ, (SELECT COUNT(*) AS cnt FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests WHERE requests.filled = 0 AND userid =  " . $this->user->getId() . " ORDER BY requestId DESC");
+		$sth = $this->db->query("SELECT requests.id AS requestId, requests.request, requests.added, requests.filled, requests.p2p, requests.ersatt, requests.comment,requests.season, requests.imdbid, requests.typ, requests.slug, (SELECT COUNT(*) AS cnt FROM reqvotes WHERE reqid = requests.id) AS votes, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests WHERE requests.filled = 0 AND userid =  " . $this->user->getId() . " ORDER BY requestId DESC");
 		$myRequests = array();
 		while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$arr = array();
@@ -271,7 +279,9 @@ class Requests {
 			$arr["request"] = $row["request"];
 			$arr["p2p"] = $row["p2p"];
 			$arr["comment"] = $row["comment"];
+			$arr["comments"] = $row["comments"];
 			$arr["ersatt"] = $row["ersatt"];
+			$arr["slug"] = $row["slug"];
 			$arr["season"] = $row["season"];
 			$arr["imdbid"] = $row["imdbid"];
 			$arr["type"] = $row["typ"];
@@ -292,7 +302,9 @@ class Requests {
 			$arr["filled"] = $row["filled"];
 			$arr["request"] = $row["request"];
 			$arr["p2p"] = $row["p2p"];
+			$arr["slug"] = $row["slug"];
 			$arr["comment"] = $row["comment"];
+			$arr["comments"] = $row["comments"];
 			$arr["ersatt"] = $row["ersatt"];
 			$arr["season"] = $row["season"];
 			$arr["imdbid"] = $row["imdbid"];
@@ -302,6 +314,13 @@ class Requests {
 			array_push($myVotedRequests, $arr);
 		}
 		return $myVotedRequests;
+	}
+
+	public function updateCommentsAmount($requestId, $amount) {
+		$sth = $this->db->prepare('UPDATE requests SET comments = comments + ? WHERE id = ?');
+		$sth->bindParam(1, $amount, PDO::PARAM_INT);
+		$sth->bindParam(2, $requestId, PDO::PARAM_INT);
+		$sth->execute();
 	}
 
 }

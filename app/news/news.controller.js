@@ -1,29 +1,30 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('NewsController', function ($scope, $uibModal, $state, AuthService, NewsResource) {
+	angular
+		.module('app.shared')
+		.controller('NewsController', NewsController);
 
-			NewsResource.query({limit: 999, markAsRead: 'true'}, function (data) {
-				$scope.news = data;
-				AuthService.readUnreadNews();
+	function NewsController($uibModal, $state, authService, NewsResource, user) {
+
+		this.currentUser = user;
+
+		this.createNews = function () {
+			var modalInstance = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/admin/dialogs/news-admin-dialog.template.html',
+				controller: 'NewsAdminController as vm',
+				size: 'md',
+				resolve: {
+					news: null
+				}
 			});
 
-			$scope.createNews = function () {
-				var modalInstance = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/admin/dialogs/news-admin-dialog.html',
-					controller: 'NewsAdminController',
-					size: 'md',
-					resolve: {
-						news: null
-					}
+			modalInstance.result
+				.then((topic) => {
+					$state.go('forum.topic', {forumid: 1, id: topic.id, slug: topic.slug});
 				});
+		};
 
-				modalInstance.result.then(function (result) {
-					$state.go('forum.topic', {forumid: 1, id: result.topicId});
-				});
-			};
-
-		});
+	}
 })();

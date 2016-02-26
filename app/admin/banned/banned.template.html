@@ -1,0 +1,55 @@
+<div class="text-center">
+	<h1>Tillåtna och bannade p2p-grupper</h1>
+
+	<div class="col-md-6 col-centered">
+		<table class="table table-striped" cellpadding="15">
+		<tr>
+			<td>Grupp:</td>
+			<td><input type="text" class="form-control" ng-model="vm.addnonscene.groupname" required /></td>
+		</tr>
+		<tr>
+			<td>Kommentar:</td>
+			<td><input type="text" class="form-control" ng-model="vm.addnonscene.comment" required /></td>
+		</tr>
+		<tr>
+			<td>Status:</td>
+			<td>
+				<div class="btn-group">
+					<label class="btn btn-default btn-xs" ng-model="vm.addnonscene.whitelist" uib-btn-radio="1">Tillåten</label>
+					<label class="btn btn-default btn-xs" ng-model="vm.addnonscene.whitelist" uib-btn-radio="0">Bannad</label>
+				</div>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" class="text-center"><button class="btn btn-primary" ng-click="vm.create()">Lägg till</button></td>
+		</tr>
+		</table>
+	</div>
+
+	<br /><br />
+
+	<loading-indicator hide="vm.nonscene"></loading-indicator>
+
+	<div class="col-md-6 col-centered">
+		<table class="table" ng-show="vm.nonscene">
+			<tr>
+				<th class="text-left">Grupp</th>
+				<th class="text-left">Kommentar</th>
+				<th class="text-center">Status</th>
+				<th class="text-center">Radera</th>
+			</tr>
+			<tr ng-repeat="item in vm.nonscene">
+				<td>{{ ::item.groupname }}</td>
+				<td>{{ ::item.comment }}</td>
+				<td class="text-center">
+					<span ng-if="::item.whitelist == 1" class="label label-success">Tillåten</span>
+					<span ng-if="::item.whitelist == 0" class="label label-danger">Bannad</span>
+				</td>
+				<td class="text-center">
+					<button ng-click="vm.delete(item)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i></button>
+				</td>
+			</tr>
+		</table>
+	</div>
+
+</div>

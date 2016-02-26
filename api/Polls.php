@@ -12,15 +12,22 @@ class Polls {
 		$this->forum = $forum;
 	}
 
-	public function query() {
-		$sth = $this->db->query("SELECT * FROM polls ORDER BY added DESC");
+	public function query($limit = 25, $index = 0) {
+		$sth = $this->db->query("SELECT COUNT(*) FROM polls");
+		$res = $sth->fetch();
+		$totalCount = $res[0];
+
+		$sth = $this->db->prepare("SELECT * FROM polls ORDER BY added DESC LIMIT ?, ?");
+		$sth->bindParam(1, $index, PDO::PARAM_INT);
+		$sth->bindParam(2, $limit, PDO::PARAM_INT);
+		$sth->execute();
 		$polls = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 		$polls = array_map(function($poll) {
 			return $this->generatePoll($poll);
 		}, $polls);
 
-		return $polls;
+		return Array($polls, $totalCount);
 	}
 
 	public function getLatest() {
@@ -92,7 +99,7 @@ class Polls {
 		}
 
 		$sth = $this->db->prepare("SELECT COUNT(*) FROM `pollanswers` WHERE `userid` = ? AND `pollid` = ?");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $pollId, PDO::PARAM_INT);
 		$sth->execute();
 		$res = $sth->fetch();
@@ -102,10 +109,10 @@ class Polls {
 
 		$sth = $this->db->prepare("INSERT INTO pollanswers(pollid, userid, selection, class, alder) VALUES(?, ?, ?, ?, ?)");
 		$sth->bindParam(1, $pollId, 				PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(), 	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), 	PDO::PARAM_INT);
 		$sth->bindParam(3, $choise, 				PDO::PARAM_INT);
-		$sth->bindParam(4, $this->user->getClass(), PDO::PARAM_INT);
-		$sth->bindParam(5, $this->user->getAge(), 	PDO::PARAM_INT);
+		$sth->bindValue(4, $this->user->getClass(), PDO::PARAM_INT);
+		$sth->bindValue(5, $this->user->getAge(), 	PDO::PARAM_INT);
 		$sth->execute();
 	}
 
@@ -114,11 +121,11 @@ class Polls {
 			throw new Exception("Du saknar rättigheter.", 401);
 		}
 
-		$topicId = $this->forum->addTopic($this->pollsForumId, $postdata["question"], '', $postdata["question"], true, 1);
+		$topic = $this->forum->addTopic($this->pollsForumId, $postdata["question"], '', $postdata["question"], true, 1);
 
 		$sth = $this->db->prepare("INSERT INTO polls(added, question, topicid, option0, option1, option2, option3, option4, option5, option6, option7, option8, option9, option10, option11, option12, option13, option14, option15, option16, option17, option18, option19) VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$sth->bindParam(1, $postdata["question"],		PDO::PARAM_STR);
-		$sth->bindParam(2, $topicId,					PDO::PARAM_INT);
+		$sth->bindParam(2, $topic["id"],				PDO::PARAM_INT);
 		$sth->bindParam(3, $postdata["option0"],		PDO::PARAM_STR);
 		$sth->bindParam(4, $postdata["option1"],		PDO::PARAM_STR);
 		$sth->bindParam(5, $postdata["option2"],		PDO::PARAM_STR);

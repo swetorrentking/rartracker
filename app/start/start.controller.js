@@ -1,36 +1,37 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('StartController', function ($scope, $timeout, $stateParams, $window, StartTorrentsResource, NewsResource, StatisticsResource, PollsResource) {
-			var numberOfNewsItems = 2;
+	angular
+		.module('app.shared')
+		.controller('StartController', StartController);
 
-			function fetchPoll() {
-				PollsResource.Latest.get({}, function (data) {
-					$scope.poll = data;
-				});
-			} 
-	
-			StartTorrentsResource.query({}, function (data) {
-				$scope.highligtedTorrents = data;
+	function StartController(StartTorrentsResource, NewsResource, StatisticsResource, PollsResource) {
+
+		this.pollAnswer = '';
+
+		this.fetchPoll = function () {
+			PollsResource.Latest.get({}, (data) => {
+				this.poll = data;
+			});
+		};
+
+		this.fetchData = function () {
+			StartTorrentsResource.query({}, (data) => {
+				this.highligtedTorrents = data;
 			});
 
-			NewsResource.query({limit: numberOfNewsItems}, function (data) {
-				$scope.news = data;
+			StatisticsResource.get({id: 'start'}, (data) => {
+				this.stats = data;
 			});
+		};
 
-			StatisticsResource.get({id: 'start'}, function (data) {
-				$scope.stats = data;
+		this.vote = function () {
+			PollsResource.Votes.save({id: this.poll.id, choise: this.poll.myChoise}, () => {
+				this.fetchPoll();
 			});
+		};
 
-			$scope.pollAnswer = '';
-
-			$scope.vote = function () {
-				PollsResource.Votes.save({id: $scope.poll.id, choise: $scope.poll.myChoise}, function () {
-					fetchPoll();
-				});
-			};
-
-			fetchPoll();
-		});
+		this.fetchData();
+		this.fetchPoll();
+	}
 })();

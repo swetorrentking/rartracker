@@ -1,0 +1,16 @@
+<table class="table-responsive noborder col-md-6 col-lg-5 col-centered">
+	<tr>
+		<td valign="top" style="width: 100%; text-align: left; background: none repeat scroll 0% 0% transparent;" class="imdbinfotext">
+			<h2>{{ ::vm.torrent.tv_program }}</h2>
+			<b>{{ ::vm.torrent.tv_episode }}</b>
+			<br />
+			Sändes: <b>{{ vm.torrent.tv_klockslag*1000 | date:'HH:mm' }}</b>
+			<br />
+			<br />
+			{{ ::vm.torrent.tv_info }}
+		</td>
+		<td style="border: 0px; padding: 5px;">
+			<img ng-src="/img/tvchannels/{{ ::vm.tvChannel.pic }}" />
+		</td>
+	</tr>
+</table>

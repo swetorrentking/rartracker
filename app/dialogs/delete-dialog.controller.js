@@ -1,17 +1,20 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('DeleteDialogController', function ($scope, $uibModalInstance, settings) {
-			$scope.settings = settings;
+	angular
+		.module('app.shared')
+		.controller('DeleteDialogController', DeleteDialogController);
 
-			$scope.delete = function () {
-				$uibModalInstance.close($scope.settings.reason);
-			};
+	function DeleteDialogController($uibModalInstance, settings) {
+		this.settings = settings;
 
-			$scope.cancel = function () {
-				$uibModalInstance.dismiss();
-			};
+		this.delete = function () {
+			$uibModalInstance.close(this.settings.reason);
+		};
 
-		});
+		this.cancel = function () {
+			$uibModalInstance.dismiss();
+		};
+	}
+
 })();

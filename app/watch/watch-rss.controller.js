@@ -1,26 +1,33 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('WatchRssController', function ($scope, user) {
-			var url = 'https://rartracker.org/brss.php';
+	angular
+		.module('app.watcher')
+		.controller('WatchRssController', WatchRssController);
 
-			$scope.model = {
-				url: url,
-				setting: 0,
-				time: false
-			};
+	function WatchRssController(user, configs) {
 
-			$scope.$watchCollection('model', function () {
-				var params = [];
-				if ($scope.model.setting > 0) {
-					params.push('vad=' + $scope.model.setting);
-				}
-				params.push('passkey=' + user['passkey']);
-				if ($scope.model.time) {
-					params.push('from=' + Math.floor(Date.now() / 1000));
-				}
-				$scope.model.url = url + '?' + params.join('&');
-			});
-		});
+		var url = configs.SITE_URL + '/brss.php';
+
+		this.model = {
+			url: url,
+			setting: 0,
+			time: false
+		};
+
+		this.updateRssUrl = function () {
+			var params = [];
+			if (this.model.setting > 0) {
+				params.push('vad=' + this.model.setting);
+			}
+			params.push('passkey=' + user['passkey']);
+			if (this.model.time) {
+				params.push('from=' + Math.floor(Date.now() / 1000));
+			}
+			this.model.url = url + '?' + params.join('&');
+		};
+
+		this.updateRssUrl();
+	}
+
 })();

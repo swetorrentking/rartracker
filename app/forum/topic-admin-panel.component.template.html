@@ -1,0 +1,54 @@
+<div class="col-md-6 col-md-push-3">
+	<form>
+		<table class="table table-striped" cellpadding="15">
+			<tr>
+				<td style="width: 100px;" class="text-right tdBold alignMiddle">Klistrad</td>
+				<td class="text-left">
+					<div class="btn-group">
+						<label class="btn btn-default btn-sm" ng-model="vm.topic.sticky" uib-btn-radio="'yes'">Ja</label>
+						<label class="btn btn-default btn-sm" ng-model="vm.topic.sticky" uib-btn-radio="'no'">Nej</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Låst</td>
+				<td class="text-left">
+					<div class="btn-group">
+						<label class="btn btn-default btn-sm" ng-model="vm.topic.locked" uib-btn-radio="'yes'">Ja</label>
+						<label class="btn btn-default btn-sm" ng-model="vm.topic.locked" uib-btn-radio="'no'">Nej</label>
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Rubrik</td>
+				<td class="text-left">
+					<input type="text" class="form-control" ng-model="vm.topic.subject" />
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Underrubrik</td>
+				<td class="text-left">
+					<input type="text" class="form-control" ng-model="vm.topic.sub" />
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Flytta tråd</td>
+				<td class="text-left">
+					<select class="form-control" ng-model="vm.topic.forumid" ng-options="i.id as i.name group by i.forumhead for i in ::vm.forums">
+				</select>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Radera tråd</td>
+				<td class="text-left">
+					<button class="btn btn-default btn-xs" ng-click="vm.deleteTopic()"><i class="fa fa-trash-o"></i> Radera</button>
+				</td>
+			</tr>
+		</table>
+	</form>
+	<br />
+	<button class="btn btn-primary center-block btn-sm" ng-click="vm.updateTopic()">Spara inställningar</button>
+	<br />
+	<div ng-show="vm.settingsSaved" class="alert alert-success" role="alert">Ändringarna sparade.</div>
+
+</div>

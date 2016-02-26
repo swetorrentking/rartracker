@@ -1,34 +1,38 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('ForumsController', function ($scope, $state, ForumResource, user) {
-			$scope.postsPerPage = user['postsperpage'] || 15;
-			$scope.$parent.forum = null;
-			$scope.$parent.topic = null;
+	angular
+		.module('app.forums')
+		.controller('ForumsController', ForumsController);
 
-			ForumResource.Forums.query({}, function (forums) {
-				$scope.forums = forums;
-			});
+	function ForumsController($scope, $state, ForumResource, user) {
+		this.currentUser = user;
+		this.postsPerPage = user['postsperpage'] || 15;
+		$scope.$parent.vm.forum = null;
+		$scope.$parent.vm.topic = null;
 
-			ForumResource.Online.query({}, function (onlineUsers) {
-				$scope.onlineUsers = onlineUsers;
-			});
-
-			$scope.setForum = function (forum) {
-				$scope.$parent.forum = forum;
-			};
-
-			$scope.$parent.activateForumsView();
-
-			$scope.ceil = function (item) {
-				return Math.ceil(item);
-			};
-
-			$scope.markAllTopicsAsRead = function () {
-				ForumResource.MarkTopicsAsRead.get({}, function () {
-					$state.reload();
-				});
-			};
+		ForumResource.Forums.query({}, (forums) => {
+			this.forums = forums;
 		});
+
+		ForumResource.Online.query({}, (onlineUsers) => {
+			this.onlineUsers = onlineUsers;
+		});
+
+		this.setForum = function (forum) {
+			$scope.$parent.vm.forum = forum;
+		};
+
+		$scope.$parent.vm.activateForumsView();
+
+		this.ceil = function (item) {
+			return Math.ceil(item);
+		};
+
+		this.markAllTopicsAsRead = function () {
+			ForumResource.MarkTopicsAsRead.get({}, () => {
+				$state.reload();
+			});
+		};
+	}
 })();

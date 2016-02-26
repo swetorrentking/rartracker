@@ -1,7 +1,8 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.filters', ['ngSanitize'])
+	angular
+		.module('app.shared')
 		.filter('prettysize', function () {
 			return function (bytes) {
 				if (angular.isUndefined(bytes) || bytes === null) {
@@ -104,19 +105,19 @@
 				}
 			};
 		})
-		.filter('dateDiff', function (AuthService) {
+		.filter('dateDiff', function (authService) {
 			return function (startDate, endDate) {
 				var date1 = new Date(typeof startDate == 'string' ? startDate.replace(/ /, 'T') + 'Z' : startDate);
-				var date2 = endDate !== undefined ? new Date(typeof endDate == 'string' ? endDate.replace(/ /, 'T') + 'Z' : endDate) : new Date(AuthService.getServerTime());
+				var date2 = endDate !== undefined ? new Date(typeof endDate == 'string' ? endDate.replace(/ /, 'T') + 'Z' : endDate) : new Date(authService.getServerTime());
 				var timeDiff = date1.getTime() - date2.getTime();
 				return timeDiff;
 			};
 		})
-		.filter('dateDifference', function (AuthService) {
+		.filter('dateDifference', function (authService) {
 			return function (startDate, endDate) {
 				if (startDate !== undefined) {
 					var date1 = new Date(typeof startDate == 'string' ? startDate.replace(/ /, 'T') + 'Z' : startDate);
-					var date2 = endDate !== undefined ? new Date(typeof endDate == 'string' ? endDate.replace(/ /, 'T') + 'Z' : endDate) : new Date(AuthService.getServerTime());
+					var date2 = endDate !== undefined ? new Date(typeof endDate == 'string' ? endDate.replace(/ /, 'T') + 'Z' : endDate) : new Date(authService.getServerTime());
 					var timeDiff = Math.abs(date2.getTime() - date1.getTime());
 					timeDiff = timeDiff / 1000;
 					var minutes = Math.floor(timeDiff / 60);
@@ -194,9 +195,10 @@
 			};
 		})
 		.filter('highlight', function($sce) {
-			return function (text, phrase) {
+			return function (text, phrase, customClass) {
 				text = $sce.getTrusted($sce.HTML, text);
 				if (phrase && phrase.length > 1) {
+					phrase = phrase.replace(/[^\w+\s\.\-]/gi, '');
 					phrase = phrase.split(' ');
 
 					phrase.sort(function (a, b) {
@@ -204,7 +206,7 @@
 					});
 
 					text = text.replace(new RegExp('('+phrase.join('|')+')', 'gi'),
-					'<span class="highlighted">$1</span>');
+					'<span class="' + (customClass ? customClass : 'highlighted') + '">$1</span>');
 				}
 
 				return $sce.trustAsHtml(text);
@@ -502,7 +504,7 @@
 				text = text.replace(/\[video=(?:https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)\]/g,'<iframe width="600" height="400" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');
 
 				// [*] List
-				text = text.replace(/\[\*\](.*?)\n/g,'<li>$1</li>');
+				text = text.replace(/\[\*\](.*?)(\n|$)/g,'<li>$1</li>');
 
 				var s, reg;
 				for (s in smilies) {

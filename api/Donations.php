@@ -48,12 +48,12 @@ class Donations implements IResource {
 
 	public function create($postdata) {
 		$sth = $this->db->prepare("INSERT INTO donated (date, username, msg, userid, nostar, sum, typ, kod) VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?)");
-		
+
 		$goldstar = ($postdata["goldstar"] ? 0 : 1);
 
-		$sth->bindParam(1, $this->user->getUsername(),		PDO::PARAM_STR);
+		$sth->bindValue(1, $this->user->getUsername(),		PDO::PARAM_STR);
 		$sth->bindParam(2, $postdata["comment"],			PDO::PARAM_STR);
-		$sth->bindParam(3, $this->user->getId(),			PDO::PARAM_INT);
+		$sth->bindValue(3, $this->user->getId(),			PDO::PARAM_INT);
 		$sth->bindParam(4, $goldstar,						PDO::PARAM_INT);
 		$sth->bindParam(5, $postdata["sum"],				PDO::PARAM_STR);
 		$sth->bindParam(6, $postdata["type"],				PDO::PARAM_INT);

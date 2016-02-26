@@ -1,0 +1,7 @@
+<div id="searchBoxInputGroup">
+	<div class="input-group">
+		<div class="input-group-addon"><i style="width: 20px; font-size: 16px;" class="fa fa-search" ng-class="{'fa-search': !vm.loadingSearch, 'fa-spinner fa-spin': vm.loadingSearch}"></i></div>
+		<input type="text" class="form-control input-md" placeholder="Sök film, serie..." aria-describedby="basic-addon1" ng-model="vm.searchText" ng-model-options="{ debounce: 200 }" ng-change="vm.doSearch()" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" />
+	</div>
+	<label class="normal hidden-xs ellipsis">&nbsp; <input type="checkbox" ng-model="vm.extendedSearch" ng-change="vm.changeExtendedSearch()" /> Sök även på skådespelare, regissörer...</label>
+</div>

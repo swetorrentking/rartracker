@@ -2,7 +2,7 @@
 	'use strict';
 
 	angular
-		.module('tracker.services')
+		.module('app.shared')
 		.service('DateService', function () {
 			this.leadingZeros = function (date) {
 				return date < 10 ? '0' + date : date;

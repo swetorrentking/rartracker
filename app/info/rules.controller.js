@@ -1,67 +1,77 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('RulesController', function ($scope, RulesResource, $uibModal, ErrorDialog, ConfirmDialog) {
+	angular
+		.module('app.shared')
+		.controller('RulesController', RulesController);
 
-			RulesResource.query({}, function (data) {
-				$scope.rules = data;
-			});
+	function RulesController(RulesResource, $uibModal, ConfirmDialog, user) {
 
-			$scope.Delete = function (rule) {
-				var dialog = ConfirmDialog('Radera regel', 'Vill du radera den valda regeln?');
+		this.currentUser = user;
 
-				dialog.then(function () {
-					RulesResource.delete(rule, function () {
-						var index = $scope.rules.indexOf(rule);
-						$scope.rules.splice(index, 1);
-					});
-				});
-			};
-
-			$scope.Edit = function (rule) {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/admin/dialogs/rules-admin-dialog.html',
-					controller: 'RulesAdminDialogController',
-					size: 'lg',
-					resolve: {
-						rule: function () {
-							return rule;
-						}
-					}
-				});
-				modal.result
-					.then(function (rule) {
-						RulesResource.update(rule);
-					});
-			};
-
-			$scope.Create = function () {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/admin/dialogs/rules-admin-dialog.html',
-					controller: 'RulesAdminDialogController',
-					size: 'lg',
-					resolve: {
-						rule: function () {
-							return {
-								flag: 1,
-								type: 'categ',
-								categ: 0,
-								order: 0,
-								question: '',
-								answer: ''
-							};
-						}
-					}
-				});
-				modal.result
-					.then(function (rule) {
-						RulesResource.save(rule);
-						$scope.rules.push(rule);
-					});
-			};
-
+		RulesResource.query({}, (data) => {
+			this.rules = data;
 		});
+
+		this.delete = function (rule) {
+			var dialog = ConfirmDialog('Radera regel', 'Vill du radera den valda regeln?');
+
+			dialog
+				.then(() => {
+					return RulesResource.delete(rule).$promise;
+				})
+				.then(() => {
+					var index = this.rules.indexOf(rule);
+					this.rules.splice(index, 1);
+				});
+		};
+
+		this.edit = function (rule) {
+			var modal = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/info/rules-admin-dialog.template.html',
+				controller: 'RulesAdminDialogController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'lg',
+				resolve: {
+					rule: () => rule
+				}
+			});
+			modal.result
+				.then((rule) => {
+					RulesResource.update(rule);
+				});
+		};
+
+		this.create = function () {
+			var modal = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/info/rules-admin-dialog.template.html',
+				controller: 'RulesAdminDialogController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'lg',
+				resolve: {
+					rule: () => {
+						return {
+							flag: 1,
+							type: 'categ',
+							categ: 0,
+							order: 0,
+							question: '',
+							answer: ''
+						};
+					}
+				}
+			});
+			modal.result
+				.then((rule) => {
+					RulesResource.save(rule);
+					this.rules.push(rule);
+				});
+		};
+
+	}
+
 })();

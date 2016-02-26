@@ -1,0 +1,48 @@
+<div class="text-left">
+	<div class="modal-header">
+		<h2 class="modal-title text-center">
+			<span ng-hide="vm.poll.id">Skapa ny omröstning</span>
+			<span ng-show="vm.poll.id">Redigera omröstning</span>
+		</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form">
+			<div class="form-group">
+				<label>Fråga</label>
+				<input type="text" class="form-control" placeholder="Fråga" ng-model="vm.poll.question" />
+			</div>
+			<div class="form-group">
+				<label>Svarsalternativ</label>
+				<input type="text" class="form-control" placeholder="Svarsalternativ 1" ng-model="vm.poll.option0" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 2" ng-model="vm.poll.option1" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 3 (frivilligt)" ng-model="vm.poll.option2" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 4 (frivilligt)" ng-model="vm.poll.option3" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 5 (frivilligt)" ng-model="vm.poll.option4" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 6 (frivilligt)" ng-model="vm.poll.option5" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 7 (frivilligt)" ng-model="vm.poll.option6" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 8 (frivilligt)" ng-model="vm.poll.option7" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 9 (frivilligt)" ng-model="vm.poll.option8" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 10 (frivilligt)" ng-model="vm.poll.option9" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 11 (frivilligt)" ng-model="vm.poll.option10" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 12 (frivilligt)" ng-model="vm.poll.option11" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 13 (frivilligt)" ng-model="vm.poll.option12" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 14 (frivilligt)" ng-model="vm.poll.option13" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 15 (frivilligt)" ng-model="vm.poll.option14" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 16 (frivilligt)" ng-model="vm.poll.option15" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 17 (frivilligt)" ng-model="vm.poll.option16" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 18 (frivilligt)" ng-model="vm.poll.option17" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 19 (frivilligt)" ng-model="vm.poll.option18" />
+				<input type="text" class="form-control" placeholder="Svarsalternativ 20 (frivilligt)" ng-model="vm.poll.option19" />
+			</div>
+		</form>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button class="btn btn-primary" ng-click="vm.create()">
+				<span ng-hide="vm.poll.id">Skapa ny omröstning</span>
+				<span ng-show="vm.poll.id">Spara ändringar</span>
+			</button>
+			<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

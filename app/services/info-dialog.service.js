@@ -1,25 +1,26 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.services')
-		.service('InfoDialog', function ($uibModal) {
+	angular
+		.module('app.shared')
+		.service('InfoDialog', InfoDialog);
 
-			return function (title, body) {
-				$uibModal.open({
-					animation: true,
-					templateUrl: '../app/dialogs/info-dialog.html',
-					controller: 'InfoDialogController',
-					size: 'md',
-					resolve: {
-						settings: function () {
-							return {
-								title: title,
-								body: body,
-							};
-						}
+	function InfoDialog($uibModal) {
+		return function (title, body) {
+			$uibModal.open({
+				templateUrl: '../app/dialogs/info-dialog.template.html',
+				controller: 'InfoDialogController as vm',
+				size: 'md',
+				resolve: {
+					settings: function () {
+						return {
+							title: title,
+							body: body,
+						};
 					}
-				});
-			};
+				}
+			});
+		};
+	}
 
-		});
 })();

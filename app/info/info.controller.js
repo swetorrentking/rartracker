@@ -1,44 +1,47 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('InfoController', function ($scope, AdminMailboxResource, user, $timeout, ErrorDialog) {
+	angular
+		.module('app.shared')
+		.controller('InfoController', InfoController);
 
-			var initform = function () {
-				$scope.message = {
-					sender: user.id,
-					subject: '',
-					body: '',
-					fromprivate: 0
-				};
-				$scope.dialogStatus = 0;
+	function InfoController(AdminResource, user, $timeout, ErrorDialog) {
+
+		this.initform = function () {
+			this.message = {
+				sender: user.id,
+				subject: '',
+				body: '',
+				fromprivate: 0
 			};
+			this.dialogStatus = 0;
+		};
 
-			$scope.send = function () {
-				$scope.dialogStatus = 1;
-				AdminMailboxResource.save($scope.message).$promise
-					.then(function () {
-						$scope.dialogStatus = 2;
-						$timeout(function () {
-							initform();
-							addAlert({ type: 'success', msg: 'Meddelande skickat' });
-						}, 800);
-					})
-					.catch(function(error) {
-						$scope.dialogStatus = 0;
-						ErrorDialog.display(error.data);
-					});
-			};
+		this.send = function () {
+			this.dialogStatus = 1;
+			AdminResource.MailboxAdmin.save(this.message).$promise
+				.then(() => {
+					this.dialogStatus = 2;
+					$timeout(() => {
+						this.initform();
+						this.addAlert({ type: 'success', msg: 'Meddelande skickat' });
+					}, 800);
+				})
+				.catch((error) => {
+					this.dialogStatus = 0;
+					ErrorDialog.display(error.data);
+				});
+		};
 
-			var addAlert = function (obj) {
-				$scope.alert = obj;
-			};
+		this.addAlert = function (obj) {
+			this.alert = obj;
+		};
 
-			$scope.closeAlert = function() {
-				$scope.alert = null;
-			};
+		this.closeAlert = function() {
+			this.alert = null;
+		};
 
+		this.initform();
+	}
 
-			initform();
-		});
 })();

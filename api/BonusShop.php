@@ -108,7 +108,7 @@ class BonusShop {
 				if ($receiver["id"] == $this->user->getId()) {
 					throw new Exception('Använd vanliga -10GB för att köpa bort på dig själv.');
 				}
-				if ($receiver["downloaded"] < 1073741824*$postdata["amount"] && $postdata["amount"] > 10 && $receiver["downloaded"] >= 9663676416) {
+				if ($receiver["downloaded"] < 1073741824*$postdata["amount"] && $postdata["amount"] > 10) {
 					throw new Exception('Du kan inte köpa bort mer än vad användaren har kvar på sitt nerladdat.');
 				}
 				if ($receiver["downloaded"] < 8589934592 && $postdata["amount"] == 10) {

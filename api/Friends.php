@@ -11,7 +11,7 @@ class Friends implements IResource {
 
 	public function query($postdata = null) {
 		$sth = $this->db->query('SELECT friends.id AS friends_id, friendid, kom, '.implode(',', User::getDefaultFields()).' FROM friends LEFT JOIN users ON friends.friendid = users.id WHERE friends.userid = ' . $this->user->getId() . ' ORDER BY users.username ASC');
-		
+
 		$result = array();
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$friend["user"] = $this->user->generateUserObject($row);
@@ -30,7 +30,7 @@ class Friends implements IResource {
 		}
 
 		$sth = $this->db->prepare('SELECT 1 FROM friends WHERE userid = ? AND friendid = ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $myFriend["id"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
@@ -38,7 +38,7 @@ class Friends implements IResource {
 		}
 
 		$sth = $this->db->prepare("INSERT INTO friends(userid, friendid, kom) VALUES(?, ?, ?)");
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $myFriend["id"], PDO::PARAM_INT);
 		$sth->bindParam(3, $postdata["comment"], PDO::PARAM_STR);
 		$sth->execute();

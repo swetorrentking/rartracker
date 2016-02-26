@@ -1,0 +1,40 @@
+<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+<loading-indicator hide="vm.topics"></loading-indicator>
+
+<div class="table-responsive col-md-10 col-centered nopadding" ng-show="vm.topics">
+	<table class="table table-striped table-hover table-nowrap forumtable table-text-center">
+		<tr>
+			<th class="text-left">Ämne</th>
+			<th style="width: 80px;" class="hidden-sm hidden-xs">Svar</th>
+			<th style="width: 80px;" class="hidden-sm hidden-xs">Visningar</th>
+			<th style="width: 100px;" class="hidden-xs">Skapare</th>
+			<th class="hidden-xs text-left" style="width: 200px;">Senaste inlägget</th>
+		</tr>
+		<tr ng-repeat="topic in vm.topics track by topic.id">
+			<td class="text-left">
+				<img class="forum-icon locked-new" ng-if="topic.locked == 'yes' && topic.lastpost > topic.lastpostread" />
+				<img class="forum-icon unlocked-new" ng-if="topic.locked == 'no' && topic.lastpost > topic.lastpostread"  />
+				<img class="forum-icon locked" ng-if="topic.locked == 'yes' && topic.lastpost <= topic.lastpostread" />
+				<img class="forum-icon unlocked" ng-if="topic.locked == 'no' && topic.lastpost <= topic.lastpostread" />
+
+				<span ng-show="topic.sticky == 'yes'">Klistrad: </span><a ui-sref="forum.topic({id: topic.id, forumid: vm.forumId, slug: topic.slug})"><b>{{ ::topic.subject }}</b></a>
+				<a ui-sref="forum.topic({id: topic.id, forumid: vm.forumId, page: ceil(topic.postcount, postsPerPage), 'lastpost': 1, slug: topic.slug})" class="noBorder"><i class="fa fa-arrow-right"></i></a>
+				<br/>
+				{{ ::topic.sub }}
+			</td>
+			<td class="hidden-sm hidden-xs">{{ ::topic.postcount }}</td>
+			<td class="hidden-sm hidden-xs">{{ ::topic.views }}</td>
+			<td class="hidden-xs"><user user="topic.user" show-class="false" show-icons="false"></user></td>
+			<td class="hidden-xs text-left">
+				{{ ::topic.lastpostAdded }}<br />
+				av <user user="::topic.lastpostUser" show-class="false" show-icons="false"></user>
+			</td>
+		</tr>
+	</table>
+</div>
+
+<br /><br />
+<button ng-class="{'disabled': $parent.vm.forum.minclasscreate > vm.currentUser.class}" ui-sref="forum.newTopic({id: vm.forumId})" class="btn btn-primary">Skapa ny tråd</button>
+<br />
+<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>

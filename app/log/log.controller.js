@@ -1,41 +1,40 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('LogController', function ($scope, LogsResource, $stateParams, $state) {
-			var dataLoaded = false;
-			$scope.itemsPerPage = 25;
-			$scope.searchText = '';
-			$scope.currentPage = $stateParams.page || 1;
+	angular
+		.module('app.shared')
+		.controller('LogController', LogController);
 
-			var getLogs = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				LogsResource.query({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-					'search': $scope.searchText,
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.logs = data;
-					if (!dataLoaded) {
-						$scope.currentPage = $stateParams.page || 1;
-						dataLoaded = true;
-					}
-				});
-			};
+	function LogController($stateParams, $state, LogsResource) {
+		this.itemsPerPage = 25;
+		this.firstLoad = true;
+		this.searchText = $stateParams.search;
+		this.currentPage = $stateParams.page;
 
-			$scope.pageChanged = function () {
-				if (!dataLoaded) return;
-				$state.transitionTo('log', { page: $scope.currentPage }, { notify: false });
-				getLogs();
-			};
+		this.getLogs = function () {
+			$state.go($state.current.name, { page: this.currentPage, search: this.searchText }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			LogsResource.query({
+				'limit': this.itemsPerPage,
+				'index': index,
+				'search': this.searchText,
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.logs = data;
+				if (this.firstLoad) {
+					this.currentPage = $stateParams.page;
+					this.firstLoad = false;
+				}
+			});
+		};
 
-			$scope.doSearch = function (){
-				getLogs();
-			};
+		this.doSearch = function (){
+			this.currentPage = 1;
+			this.getLogs();
+		};
 
-			getLogs();
+		this.getLogs();
+	}
 
-		});
 })();

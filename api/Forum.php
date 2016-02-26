@@ -15,17 +15,19 @@ class Forum {
 
 	public function getForums() {
 		$headforums = array();
-		$heads = $this->db->query('SELECT * FROM forumheads ORDER BY sort ASC');
-		
+		$heads = $this->db->prepare('SELECT * FROM forumheads WHERE minclassread <= ? ORDER BY sort ASC');
+		$heads->bindValue(1, $this->user->getClass(), PDO::PARAM_INT);
+		$heads->execute();
+
 		$sth = $this->db->prepare('SELECT forums.*,
 			(SELECT lastpost FROM topics WHERE forumid = forums.id ORDER BY lastpost DESC LIMIT 1) AS lastPostId
-			FROM forums WHERE forumhead = ? AND description IS NOT NULL AND minclassread <= ? ORDER BY sort ASC');
+			FROM forums WHERE forumhead = ? AND minclassread <= ? ORDER BY sort ASC');
 
 		$stdPostCount = $this->db->prepare('SELECT COUNT(*) FROM posts WHERE topicid = ?');
 
 		while ($rowHead = $heads->fetch(PDO::FETCH_ASSOC)) {
 			$sth->bindParam(1, $rowHead["id"], PDO::PARAM_INT);
-			$sth->bindParam(2, $this->user->getClass(), PDO::PARAM_INT);
+			$sth->bindValue(2, $this->user->getClass(), PDO::PARAM_INT);
 			$sth->execute();
 
 			$forums = array();
@@ -64,6 +66,7 @@ class Forum {
 				$forum["topic"] = array(
 					"id" => $topic["id"],
 					"subject" => $topic["subject"],
+					"slug" => $topic["slug"],
 					"forumid" => $topic["forumid"],
 					"lastPostRead" => $lastPostRead,
 					"post" => array(
@@ -95,12 +98,12 @@ class Forum {
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];
 
-		$sth = $this->db->prepare('SELECT *, topics.id AS topicId, '.implode(',',User::getDefaultFields()).', 
+		$sth = $this->db->prepare('SELECT *, topics.id AS topicId, '.implode(',',User::getDefaultFields()).',
 			(SELECT COUNT(*) FROM posts WHERE topicid = topics.id) AS postcount,
 			(SELECT lastpostread FROM readposts WHERE topicid = topics.id AND userid = ?) AS lastpostread FROM topics
 			LEFT JOIN users ON users.id = topics.userid WHERE forumid = ? ORDER BY sticky ASC, lastpost DESC LIMIT ?, ?');
 
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $forumId, PDO::PARAM_INT);
 		$sth->bindParam(3, $index, PDO::PARAM_INT);
 		$sth->bindParam(4, $limit, PDO::PARAM_INT);
@@ -125,6 +128,7 @@ class Forum {
 			$row["sticky"] = $topic["sticky"];
 			$row["views"] = $topic["views"];
 			$row["sub"] = $topic["sub"];
+			$row["slug"] = $topic["slug"];
 			$row["suggestid"] = $topic["suggestid"];
 			$row["postcount"] = $topic["postcount"];
 			$row["lastpostAdded"] = $thePost["added"];
@@ -227,7 +231,7 @@ class Forum {
 		}
 
 		if (count($result) > 0) {
-			$lastPost = end(array_values($result));
+			$lastPost = $result[count($result) -1];
 			$this->updateLastReadPost($topicId, $lastPost["id"]);
 			$this->db->query("UPDATE topics SET views = views + 1 WHERE id = " . $topic["id"]);
 		}
@@ -246,7 +250,7 @@ class Forum {
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];
 
-		$sth = $this->db->prepare('SELECT posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, '.implode(',', User::getDefaultFields()).', topics.subject, topics.forumid FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid WHERE posts.userid = ? ORDER BY posts.id DESC LIMIT ?, ?');
+		$sth = $this->db->prepare('SELECT posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, '.implode(',', User::getDefaultFields()).', topics.subject, topics.slug, topics.forumid FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid WHERE posts.userid = ? ORDER BY posts.id DESC LIMIT ?, ?');
 		$sth->bindParam(1, $userId, PDO::PARAM_INT);
 		$sth->bindParam(2, $index, PDO::PARAM_INT);
 		$sth->bindParam(3, $limit, PDO::PARAM_INT);
@@ -264,7 +268,8 @@ class Forum {
 			$row["topic"] = array(
 					"id" => $post["topicid"],
 					"forumid" => $post["forumid"],
-					"subject" => $post["subject"]
+					"subject" => $post["subject"],
+					"slug" => $post["slug"]
 				);
 
 			$row["user"] = $this->user->generateUserObject($post);
@@ -329,7 +334,7 @@ class Forum {
 			}
 			$pageNumber = ceil($postCount[0] / $postsPerPage ?: 15);
 
-			$this->mailbox->sendSystemMessage($post["quote"], "Citerad i tråden: \"".$topic["subject"]."\"", $this->user->getUsername() . " har svarat ditt inlägg i tråden \"".$topic["subject"]."\"\n\n[url=/forum/{$forum["id"]}/topic/{$topic["id"]}/{$pageNumber}#post{$postId}]Gå till foruminlägget »[/url]");
+			$this->mailbox->sendSystemMessage($post["quote"], "Citerad i tråden: \"".$topic["subject"]."\"", $this->user->getUsername() . " har svarat ditt inlägg i tråden \"".$topic["subject"]."\"\n\n[url=/forum/{$forum["id"]}/topic/{$topic["id"]}/{$topic["slug"]}?page={$pageNumber}#post{$postId}]Gå till foruminlägget »[/url]");
 		}
 	}
 
@@ -366,7 +371,7 @@ class Forum {
 
 		$sth = $this->db->prepare('UPDATE posts SET body_ori = body, body = ?, editedby = ?, editedat = '.$editedat.' WHERE id = ?');
 		$sth->bindParam(1, $postData, PDO::PARAM_STR);
-		$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(3, $postId, PDO::PARAM_INT);
 		$sth->execute();
 	}
@@ -418,11 +423,14 @@ class Forum {
 			$userId = $forceUserId;
 		}
 
-		$sth = $this->db->prepare('INSERT INTO topics (userid, forumid, subject, sub) VALUES(?, ?, ?, ?)');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$slug = Helper::slugify($subject);
+
+		$sth = $this->db->prepare('INSERT INTO topics (userid, forumid, subject, sub, slug) VALUES(?, ?, ?, ?, ?)');
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $forumId, PDO::PARAM_INT);
 		$sth->bindParam(3, $subject, PDO::PARAM_STR);
 		$sth->bindParam(4, $sub, PDO::PARAM_STR);
+		$sth->bindParam(5, $slug, PDO::PARAM_STR);
 		$sth->execute();
 
 		$topicId = $this->db->lastInsertId();
@@ -431,7 +439,7 @@ class Forum {
 
 		$this->addPost($topicId, array("body" => $post), $forceUserId);
 
-		return $topicId;
+		return Array("id" => $topicId, "slug" => $slug);
 	}
 
 	public function updateTopic($topicId, $postdata) {
@@ -440,14 +448,16 @@ class Forum {
 		}
 
 		$topic = $this->getTopic($topicId);
+		$slug = Helper::slugify($postdata["subject"]);
 
-		$sth = $this->db->prepare('UPDATE topics SET forumid = ?, subject = ?, sub = ?, locked = ?, sticky = ? WHERE id = ?');
+		$sth = $this->db->prepare('UPDATE topics SET forumid = ?, subject = ?, sub = ?, locked = ?, sticky = ?, slug = ? WHERE id = ?');
 		$sth->bindParam(1, $postdata["forumid"],	PDO::PARAM_INT);
 		$sth->bindParam(2, $postdata["subject"],	PDO::PARAM_STR);
 		$sth->bindParam(3, $postdata["sub"],		PDO::PARAM_STR);
 		$sth->bindParam(4, $postdata["locked"],		PDO::PARAM_STR);
 		$sth->bindParam(5, $postdata["sticky"],		PDO::PARAM_STR);
-		$sth->bindParam(6, $topicId,				PDO::PARAM_STR);
+		$sth->bindParam(6, $slug,					PDO::PARAM_STR);
+		$sth->bindParam(7, $topicId,				PDO::PARAM_STR);
 		$sth->execute();
 
 		if ($topic["forumid"] != $postdata["forumid"]) {
@@ -479,14 +489,14 @@ class Forum {
 		$lastPostRead = $this->getLastReadPost($topicId);
 		if ($lastPostRead == 0) {
 			$sth = $this->db->prepare('INSERT INTO readposts (userid, topicid, lastpostread) VALUES(?, ?, ?)');
-			$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+			$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 			$sth->bindParam(2, $topicId, PDO::PARAM_INT);
 			$sth->bindParam(3, $lastPostId, PDO::PARAM_INT);
 			$sth->execute();
 		} else if ($lastPostRead < $lastPostId) {
 				$sth = $this->db->prepare('UPDATE readposts SET lastpostread = ? WHERE userid = ? AND topicid = ?');
 				$sth->bindParam(1, $lastPostId, PDO::PARAM_INT);
-				$sth->bindParam(2, $this->user->getId(), PDO::PARAM_INT);
+				$sth->bindValue(2, $this->user->getId(), PDO::PARAM_INT);
 				$sth->bindParam(3, $topicId, PDO::PARAM_INT);
 				$sth->execute();
 		}
@@ -494,9 +504,9 @@ class Forum {
 
 	public function markAllTopicsAsRead() {
 		$sth = $this->db->prepare("SELECT topics.* FROM topics LEFT JOIN forums ON forums.id = topics.forumid WHERE forums.minclassread <= ? AND ((SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id) != topics.lastpost OR NOT EXISTS (SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id))");
-		$sth->bindParam(1, $this->user->getClass(),	PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
-		$sth->bindParam(3, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getClass(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(3, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$this->updateLastReadPost($row["id"], $row["lastpost"]);
@@ -508,18 +518,18 @@ class Forum {
 		// forums.id != 29
 		// Making an exception for forum-id 29 because it's a play/spam forum.
 
-		$sth = $this->db->prepare("SELECT COUNT(*) FROM topics LEFT JOIN forums ON forums.id = topics.forumid WHERE forums.id != 29 AND forums.minclassread <= ? AND ((SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id) != topics.lastpost OR NOT EXISTS (SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id))");
-		$sth->bindParam(1, $this->user->getClass(),	PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
-		$sth->bindParam(3, $this->user->getId(),	PDO::PARAM_INT);
+		$sth = $this->db->prepare("SELECT COUNT(*) FROM topics LEFT JOIN forums ON forums.id = topics.forumid WHERE forums.id != 29 AND forums.minclassread <= ? AND ((SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id) < topics.lastpost OR NOT EXISTS (SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id))");
+		$sth->bindValue(1, $this->user->getClass(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(3, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];
 
-		$sth = $this->db->prepare("SELECT topics.*, forums.name, (SELECT COUNT(*) FROM posts WHERE topicid = topics.id) AS postcount FROM topics LEFT JOIN forums ON forums.id = topics.forumid WHERE forums.id != 29 AND forums.minclassread <= ? AND ((SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id) != topics.lastpost OR NOT EXISTS (SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id)) ORDER BY topics.lastpost DESC LIMIT ?, ?");
-		$sth->bindParam(1, $this->user->getClass(),	PDO::PARAM_INT);
-		$sth->bindParam(2, $this->user->getId(),	PDO::PARAM_INT);
-		$sth->bindParam(3, $this->user->getId(),	PDO::PARAM_INT);
+		$sth = $this->db->prepare("SELECT topics.*, forums.name, (SELECT COUNT(*) FROM posts WHERE topicid = topics.id) AS postcount FROM topics LEFT JOIN forums ON forums.id = topics.forumid WHERE forums.id != 29 AND forums.minclassread <= ? AND ((SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id) < topics.lastpost OR NOT EXISTS (SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = topics.id)) ORDER BY topics.lastpost DESC LIMIT ?, ?");
+		$sth->bindValue(1, $this->user->getClass(),	PDO::PARAM_INT);
+		$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
+		$sth->bindValue(3, $this->user->getId(),	PDO::PARAM_INT);
 		$sth->bindParam(4, $index,					PDO::PARAM_INT);
 		$sth->bindParam(5, $limit,					PDO::PARAM_INT);
 		$sth->execute();
@@ -534,18 +544,18 @@ class Forum {
 		$limit = abs($params["limit"]) ?: 20;
 
 		$searchWords = Helper::searchTextToWordParams($params["search"]);
-		
+
 		if ($params["table"] == "topics") {
 
 			$sth = $this->db->prepare("SELECT COUNT(*) FROM topics LEFT JOIN forums ON topics.forumid = forums.id WHERE forums.minclassread <= ? AND MATCH(topics.subject) AGAINST (? IN BOOLEAN MODE)");
-			$sth->bindParam(1, $this->user->getClass(),		PDO::PARAM_INT);
+			$sth->bindValue(1, $this->user->getClass(),		PDO::PARAM_INT);
 			$sth->bindParam(2, $searchWords,				PDO::PARAM_STR);
 			$sth->execute();
 			$arr = $sth->fetch();
 			$totalCount = $arr[0];
 
 			$sth = $this->db->prepare("SELECT topics.*, forums.name, (SELECT COUNT(*) FROM posts WHERE topicid = topics.id) AS postcount FROM topics LEFT JOIN forums ON topics.forumid = forums.id WHERE forums.minclassread <= ? AND MATCH(topics.subject) AGAINST (? IN BOOLEAN MODE) LIMIT ?, ?");
-			$sth->bindParam(1, $this->user->getClass(),		PDO::PARAM_INT);
+			$sth->bindValue(1, $this->user->getClass(),		PDO::PARAM_INT);
 			$sth->bindParam(2, $searchWords,				PDO::PARAM_STR);
 			$sth->bindParam(3, $index,						PDO::PARAM_INT);
 			$sth->bindParam(4, $limit,						PDO::PARAM_INT);
@@ -554,14 +564,14 @@ class Forum {
 
 		} else if ($params["table"] == "posts") {
 			$sth = $this->db->prepare("SELECT COUNT(*) FROM posts LEFT JOIN topics ON topics.id = posts.topicid LEFT JOIN forums ON topics.forumid = forums.id WHERE forums.minclassread <= ? AND MATCH(posts.body) AGAINST (? IN BOOLEAN MODE)");
-			$sth->bindParam(1, $this->user->getClass(),		PDO::PARAM_INT);
+			$sth->bindValue(1, $this->user->getClass(),		PDO::PARAM_INT);
 			$sth->bindParam(2, $searchWords,				PDO::PARAM_STR);
 			$sth->execute();
 			$arr = $sth->fetch();
 			$totalCount = $arr[0];
 
-			$sth = $this->db->prepare("SELECT subject, forumid, posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, ".implode(',', User::getDefaultFields())." FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid LEFT JOIN forums ON topics.forumid = forums.id WHERE forums.minclassread <= ? AND MATCH(posts.body) AGAINST (? IN BOOLEAN MODE) LIMIT ?, ?");
-			$sth->bindParam(1, $this->user->getClass(),		PDO::PARAM_INT);
+			$sth = $this->db->prepare("SELECT subject, topics.slug, forumid, posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, ".implode(',', User::getDefaultFields())." FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid LEFT JOIN forums ON topics.forumid = forums.id WHERE forums.minclassread <= ? AND MATCH(posts.body) AGAINST (? IN BOOLEAN MODE) LIMIT ?, ?");
+			$sth->bindValue(1, $this->user->getClass(),		PDO::PARAM_INT);
 			$sth->bindParam(2, $searchWords,				PDO::PARAM_STR);
 			$sth->bindParam(3, $index,						PDO::PARAM_INT);
 			$sth->bindParam(4, $limit,						PDO::PARAM_INT);
@@ -578,7 +588,8 @@ class Forum {
 				$row["topic"] = array(
 						"id" => $post["topicid"],
 						"forumid" => $post["forumid"],
-						"subject" => $post["subject"]
+						"subject" => $post["subject"],
+						"slug" => $post["slug"]
 					);
 
 				$row["user"] = $this->user->generateUserObject($post);
@@ -586,7 +597,7 @@ class Forum {
 				$result[] = $row;
 			}
 		}
-  
+
 		return array($result, $totalCount);
 	}
 
@@ -601,7 +612,7 @@ class Forum {
 		$arr = $sth->fetch();
 		$totalCount = $arr[0];
 
-		$sth = $this->db->prepare('SELECT posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, '.implode(',', User::getDefaultFields()).', topics.subject, topics.forumid FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid ORDER BY posts.id DESC LIMIT ?, ?');
+		$sth = $this->db->prepare('SELECT posts.id AS pid, posts.topicid, posts.added AS padded, posts.body AS pbody, posts.editedat, '.implode(',', User::getDefaultFields()).', topics.subject, topics.slug, topics.forumid FROM posts LEFT JOIN users ON users.id = posts.userid LEFT JOIN topics ON topics.id = posts.topicid ORDER BY posts.id DESC LIMIT ?, ?');
 		$sth->bindParam(1, $index, PDO::PARAM_INT);
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
@@ -618,7 +629,8 @@ class Forum {
 			$row["topic"] = array(
 					"id" => $post["topicid"],
 					"forumid" => $post["forumid"],
-					"subject" => $post["subject"]
+					"subject" => $post["subject"],
+					"slug" => $post["slug"]
 				);
 
 			$row["user"] = $this->user->generateUserObject($post);
@@ -630,7 +642,7 @@ class Forum {
 
 	private function getLastReadPost($topicId) {
 		$sth = $this->db->prepare('SELECT lastpostread FROM readposts WHERE userid = ? AND topicid = ?');
-		$sth->bindParam(1, $this->user->getId(), PDO::PARAM_INT);
+		$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 		$sth->bindParam(2, $topicId, PDO::PARAM_INT);
 		$sth->execute();
 		$post = $sth->fetch();

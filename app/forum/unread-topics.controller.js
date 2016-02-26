@@ -1,37 +1,39 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('UnreadTopicsController', function ($scope, ForumResource, $state, user) {
+	angular
+		.module('app.forums')
+		.controller('UnreadTopicsController', UnreadTopicsController);
 
-			$scope.itemsPerPage = user['topicsperpage'] === 0 ? 15 : user['topicsperpage'];
-			$scope.postsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
+	function UnreadTopicsController($state, $stateParams, ForumResource, user) {
 
-			var fetchTopics = function () {
-				$scope.topics = null;
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				ForumResource.UnreadTopics.query({
-					limit: $scope.itemsPerPage,
-					index: index,
-				}, function (topics, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.topics = topics;
-				});
-			};
+		this.itemsPerPage = user['topicsperpage'] === 0 ? 15 : user['topicsperpage'];
+		this.postsPerPage = user['postsperpage'] === 0 ? 15 : user['postsperpage'];
+		this.currentPage = $stateParams.page;
 
-			$scope.pageChanged = function () {
-				fetchTopics();
-			};
+		this.fetchTopics = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			this.topics = null;
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage || 0;
+			ForumResource.UnreadTopics.query({
+				limit: this.itemsPerPage,
+				index: index,
+			}, (topics, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.topics = topics;
+				if (!this.hasLoadedFirstTime) {
+					this.currentPage = $stateParams.page;
+					this.hasLoadedFirstTime = true;
+				}
+			});
+		};
 
-			$scope.openTopic = function (topicId, forumId, page) {
-				$state.go('forum.posts', {id: topicId, forumid: forumId, page: page});
-			};
+		this.ceil = function (postCount, itemsPerPage) {
+			return Math.ceil(postCount/itemsPerPage);
+		};
 
-			$scope.ceil = function (postCount, itemsPerPage) {
-				return Math.ceil(postCount/itemsPerPage);
-			};
+		this.fetchTopics();
+	}
 
-			fetchTopics();
-		});
 })();

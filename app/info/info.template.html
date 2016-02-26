@@ -1,0 +1,31 @@
+<p class="text-center">Vid övrigt hjälp hänvisar vi till Support-avdelningen i forumet i första hand.</p>
+
+<div class="text-center col-md-8 col-md-push-2">
+	<div class="modal-header">
+		<h2 class="modal-title">Meddelande till Staff</h2>
+	</div>
+	<div class="modal-body">
+		<form role="form" ng-submit="vm.sendMessage()">
+			<div class="form-group" style="text-align: left;">
+				<label for="subject">Rubrik</label>
+				<input type="text" id="subject" class="form-control" placeholder="Rubrik (valfritt)" ng-model="vm.message.subject" />
+			</div>
+			<div class="form-group" style="text-align: left;">
+				<label for="postText">Meddelande</label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="vm.message.body" placeholder="Skriv meddelande..." auto-focus required></textarea>
+			</div>
+		</form>
+		<br />
+		<uib-alert style="text-align: center;" type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+		 	{{ vm.alert.msg }}
+		</uib-alert>
+	</div>
+	<div class="modal-footer">
+		<div class="button-group text-center">
+			<button ng-show="vm.dialogStatus == 0" class="btn btn-primary" ng-click="vm.send()">Skicka meddelande</button>
+			<button ng-show="vm.dialogStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
+			<button ng-show="vm.dialogStatus == 2" class="btn btn-primary disabled"><i class="fa fa-check"></i></button>
+			<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+		</div>
+	</div>
+</div>

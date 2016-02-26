@@ -1,0 +1,41 @@
+<div class="text-center">
+	<h1 class="block-center text-center">Invite</h1>
+	<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert">Du måste vara 'Skådis' för att kunna använda invite-systemet</div>
+	<div ng-show="vm.currentUser.inviteban == 1" class="alert alert-warning" role="alert">Du är bannad ifrån att kunna bjuda in användare.</div>
+
+	<div ng-show="vm.currentUser.class > 0 && vm.currentUser.inviteban == 0">
+
+	<div class="panel panel-default col-sm-6 col-centered" style="padding: 0px;">
+		<div class="panel-heading">Regler</div>
+		<div class="panel-body">
+		1. Bjuder du in någon som missköter sig riskerar du förlora invite-möjligheten.
+		<br />
+		2. Endast användare från <b>skandinavien/norden</b> är tillåtna att bjuda in.
+
+		<br /><br />
+		<b>TLDR:</b> Bjud endast in personer du litar på.
+		</div>
+	</div>
+
+	<input type="button" ng-click="vm.createInvite()" class="btn btn-default center-block btn-sm" value="{{ vm.createButtonText }}" ng-disabled="vm.timeLeft > 0" />
+	<br />
+	<loading-indicator hide="vm.invites"></loading-indicator>
+
+	<div class="col-lg-8 col-centered" ng-show="vm.invites">
+		<table class="table table-striped table-hover">
+			<tr>
+				<th style="width: 150px;" class="text-left">Skapad</th>
+				<th class="text-left">Invite-länk</th>
+				<th style="width: 80px;" class="text-center">Radera</th>
+			</tr>
+			<tr ng-repeat="invite in vm.invites">
+				<td class="alignMiddle">{{ ::invite.skapad }}</td>
+				<td class="text-left"><input type="text" class="form-control readonly-pretty" value="{{ ::vm.configs.SITE_URL }}/signup/{{ ::invite.secret }}" readonly /></td>
+				<td class="text-center alignMiddle"><button class="btn btn-default btn-xs" ng-click="vm.deleteInvite(invite)"><i class="fa fa-trash-o"></i></button></td>
+			</tr>
+		</table>
+	</div>
+	<br />
+	<br />
+	<i>Oanvända invite-länkar blir inaktiva efter en vecka</i>
+</div>

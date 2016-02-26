@@ -1,13 +1,16 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('InfoDialogController', function ($scope, $uibModalInstance, settings) {
-			$scope.settings = settings;
+	angular
+		.module('app.shared')
+		.controller('InfoDialogController', InfoDialogController);
 
-			$scope.cancel = function () {
-				$uibModalInstance.dismiss();
-			};
+	function InfoDialogController($uibModalInstance, settings) {
+		this.settings = settings;
 
-		});
+		this.cancel = function () {
+			$uibModalInstance.dismiss();
+		};
+	}
+
 })();

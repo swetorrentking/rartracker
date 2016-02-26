@@ -19,7 +19,12 @@ class CheatLogs {
 		$userid = (int)$postdata["userid"] ?: 0;
 
 		switch ($postdata["sort"]) {
-			case 'rate': $sortColumn = 'torrents.rate'; break;
+			case 'rate': $sortColumn = 'cheatlog.rate'; break;
+			case 'time': $sortColumn = 'cheatlog.time'; break;
+			case 'ip': $sortColumn = 'cheatlog.ip'; break;
+			case 'port': $sortColumn = 'cheatlog.port'; break;
+			case 'connectable': $sortColumn = 'cheatlog.connectable'; break;
+			case 'agent': $sortColumn = 'cheatlog.agent'; break;
 			case 'up': $sortColumn = 'cheatlog.uploaded'; break;
 			case 'down': $sortColumn = 'cheatlog.downloaded'; break;
 			default: $sortColumn = 'cheatlog.id';
@@ -56,6 +61,7 @@ class CheatLogs {
 				"enabled" => $r["enabled"],
 				"mbitupp" => $r["mbitupp"]
 				);
+			$row["id"] = $r["id"];
 			$row["name"] = $r["name"];
 			$row["torrentid"] = $r["torrentid"];
 			$row["ip"] = $r["ip"];

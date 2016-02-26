@@ -35,7 +35,7 @@ class Logs {
 		$res = $sth->fetch();
 		$totalCount = $res[0];
 
-		$sth = $this->db->prepare("SELECT sitelog.added, sitelog.txt, sitelog.typ, sitelog.anonymous, users.id, users.username FROM sitelog LEFT JOIN users ON sitelog.userid = users.id ".$where." ORDER BY sitelog.id DESC LIMIT ?, ?");
+		$sth = $this->db->prepare("SELECT sitelog.id AS sid, sitelog.added, sitelog.txt, sitelog.typ, sitelog.anonymous, users.id, users.username FROM sitelog LEFT JOIN users ON sitelog.userid = users.id ".$where." ORDER BY sitelog.id DESC LIMIT ?, ?");
 		$sth->bindParam(1, $index, PDO::PARAM_INT);
 		$sth->bindParam(2, $limit, PDO::PARAM_INT);
 		$sth->execute();
@@ -44,6 +44,7 @@ class Logs {
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$r = array();
+			$r["id"] = $row["sid"];
 			$r["added"] = $row["added"];
 			$r["typ"] = $row["typ"];
 			$r["typ"] = $row["typ"];

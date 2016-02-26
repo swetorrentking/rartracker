@@ -1,0 +1,46 @@
+<div class="container-fluid">
+
+	<div class="row" ng-repeat="tvData in vm.tvDataRow">
+		<div class="col-md-6" ng-repeat="dayGroup in ::tvData">
+			<table class="table noshadow">
+				<tr>
+					<th>{{ ::dayGroup.date*1000 | date:'yyyy-MM-dd' }}</th>
+				</tr>
+			</table>
+			<table class="table table-stripedTv table-hover table-nowrap" ng-init="itemNew=[]">
+				<tr class="programradtd" ng-hide="::dayGroup.day.length > 0" colspan="2"><td class="text-center"><i>Ännu inga SweTV-releaser för dagen</i></td></tr>
+				<tr ng-init="itemsDisplay=[]" ng-repeat-start="program in ::dayGroup.day" ng-click="itemsDisplay[$index] = !itemsDisplay[$index]">
+					<td style="width: 65px;"><img style="height: 23px;" ng-src="/img/tvchannels/{{ ::program.pic }}" /></td>
+					<td class="text-left tvTdRow">
+						<b>{{ ::program.tv_klockslag*1000 | date:'HH:mm' }}</b> - {{ ::program.tv_program }}
+						<span ng-show="itemNew[$index]" class="label label-danger" style="font-size:10px">NY</span>
+					</td>
+				</tr>
+				<tr ng-repeat-end ng-show="itemsDisplay[$index]">
+					<td style="background-color: #FFF;">&nbsp;</td>
+					<td style="background-color: #FFF;" class="text-left">
+						<div ng-repeat="torrent in ::program.torrents">
+							<span ng-init="(torrent.added | dateToUnix) > vm.lastBrowseDate ? itemNew[$parent.$index] = true : ''"></span>
+					 		<a ui-sref='torrent({id: torrent.id, name: torrent.name})' ng-bind="::torrent.name"></a>
+					 		<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{::torrent.id}}">
+								<button class="btn btn-default btn-xs"><i class="fa fa-download"></i></button>
+							</a>
+					 	</div>
+
+					 	<br />
+					 	<div ng-show="program.tv_episode"><b>{{ ::program.tv_episode }}</b><br /></div>
+					 	<div style="white-space: normal;">{{ ::program.tv_info }}</div>
+					 </td>
+				</tr>
+			</table>
+			<br />
+		</div>
+	</div>
+
+	<loading-indicator hide="vm.tvDataRow"></loading-indicator>
+
+	<div class="text-center" ng-show="vm.tvDataRow">
+		<uib-pagination max-size="5" items-per-page="1" total-items="5" ng-model="vm.currentPage" ng-click="vm.pageChanged()" previous-text="Nästa vecka" next-text="Föregående vecka"></uib-pagination>
+	</div>
+
+</div>

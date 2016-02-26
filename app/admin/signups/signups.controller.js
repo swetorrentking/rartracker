@@ -1,28 +1,33 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('SignupsController', function ($scope, AdminResource) {
+	angular
+		.module('app.admin')
+		.controller('SignupsController', SignupsController);
 
-			$scope.itemsPerPage = 25;
+	function SignupsController($state, $stateParams, AdminResource) {
 
-			var getSignups = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminResource.Signups.query({
-					'limit': $scope.itemsPerPage,
-					'index': index
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.signups = data;
-				});
-			};
+		this.itemsPerPage = 25;
+		this.currentPage = $stateParams.page;
 
-			$scope.pageChanged = function () {
-				getSignups();
-			};
+		this.getSignups = function () {
+			$state.go('.', { page: this.currentPage }, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.Signups.query({
+				'limit': this.itemsPerPage,
+				'index': index
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.signups = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			getSignups();
+		this.getSignups();
+	}
 
-		});
 })();

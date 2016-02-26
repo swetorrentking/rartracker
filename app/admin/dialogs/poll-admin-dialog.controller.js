@@ -1,17 +1,20 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('PollAdminDialogController', function ($scope, $uibModalInstance, poll) {
-			$scope.poll = poll;
+	angular
+		.module('app.admin')
+		.controller('PollAdminDialogController', PollAdminDialogController);
 
-			$scope.create = function () {
-				$uibModalInstance.close($scope.poll);
-			};
+	function PollAdminDialogController($uibModalInstance, poll) {
+		this.poll = poll;
 
-			$scope.cancel = function () {
-				$uibModalInstance.dismiss();
-			};
+		this.create = function () {
+			$uibModalInstance.close(this.poll);
+		};
 
-		});
+		this.cancel = function () {
+			$uibModalInstance.dismiss();
+		};
+
+	}
 })();

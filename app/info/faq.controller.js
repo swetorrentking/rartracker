@@ -1,87 +1,88 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('FaqController', function ($scope, $uibModal, FaqResource, ErrorDialog, ConfirmDialog) {
-			$scope.adminmode = false;
+	angular
+		.module('app.shared')
+		.controller('FaqController', FaqController);
 
-			FaqResource.query({}, function (data) {
-				$scope.faq = data;
-			});
+	function FaqController($uibModal, FaqResource, ErrorDialog, ConfirmDialog, user) {
 
-			$scope.filterByCategory = function (categoryId) {
-				return function (faa) {
-					return faa.categ === categoryId;
-				};
-			};
+		this.currentUser = user;
+		this.adminMode = false;
 
-			$scope.DeleteFaq = function (faq) {
-				if (faq.type === 'categ') {
-					if ($scope.faq.some(function (f) { return f.categ === faq.id;})) {
-						ErrorDialog.display('Du kan inte radera en Faq-huvudkategori som har underkategorier.');
-						return;
-					}
-				}
-
-				var dialog = ConfirmDialog('Radera faq', 'Vill du radera den valda FAQ-punkt?');
-
-				dialog.then(function () {
-					FaqResource.delete(faq, function () {
-						var index = $scope.faq.indexOf(faq);
-						$scope.faq.splice(index, 1);
-					});
-				});
-			};
-
-			$scope.EditFaq = function (faq) {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/admin/dialogs/faq-admin-dialog.html',
-					controller: 'FaqAdminDialogController',
-					size: 'lg',
-					resolve: {
-						faq: function () {
-							return faq;
-						},
-						faqList: function () {
-							return $scope.faq;
-						}
-					}
-				});
-				modal.result
-					.then(function (faq) {
-						FaqResource.update(faq);
-					});
-			};
-
-			$scope.CreateFaq = function () {
-				var modal = $uibModal.open({
-					animation: true,
-					templateUrl: '../app/admin/dialogs/faq-admin-dialog.html',
-					controller: 'FaqAdminDialogController',
-					size: 'lg',
-					resolve: {
-						faq: function () {
-							return {
-								flag: 1,
-								type: 'categ',
-								categ: 0,
-								order: 0,
-								question: '',
-								answer: ''
-							};
-						},
-						faqList: function () {
-							return $scope.faq;
-						}
-					}
-				});
-				modal.result
-					.then(function (faq) {
-						FaqResource.save(faq);
-						$scope.faq.push(faq);
-					});
-			};
-
+		FaqResource.query({}, (data) => {
+			this.faq = data;
 		});
+
+		this.filterByCategory = function (categoryId) {
+			return faa => faa.categ === categoryId;
+		};
+
+		this.deleteFaq = function (faq) {
+			if (faq.type === 'categ') {
+				if (this.faq.some(f => f.categ === faq.id)) {
+					ErrorDialog.display('Du kan inte radera en Faq-huvudkategori som har underkategorier.');
+					return;
+				}
+			}
+
+			ConfirmDialog('Radera faq', 'Vill du radera den valda FAQ-punkt?')
+				.then(() => {
+					FaqResource.delete(faq, () => {
+						var index = this.faq.indexOf(faq);
+						this.faq.splice(index, 1);
+					});
+				});
+		};
+
+		this.editFaq = function (faq) {
+			var modal = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/info/faq-admin-dialog.template.html',
+				controller: 'FaqAdminDialogController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'lg',
+				resolve: {
+					faq: () => faq,
+					faqList: () => this.faq
+				}
+			});
+			modal.result
+				.then((faq) => {
+					FaqResource.update(faq);
+				});
+		};
+
+		this.createFaq = function () {
+			var modal = $uibModal.open({
+				animation: true,
+				templateUrl: '../app/info/faq-admin-dialog.template.html',
+				controller: 'FaqAdminDialogController',
+				controllerAs: 'vm',
+				backdrop: 'static',
+				size: 'lg',
+				resolve: {
+					faq: () => {
+						return {
+							flag: 1,
+							type: 'categ',
+							categ: 0,
+							order: 0,
+							question: '',
+							answer: ''
+						};
+					},
+					faqList: () => this.faq
+				}
+			});
+			modal.result
+				.then((faq) => {
+					FaqResource.save(faq);
+					this.faq.push(faq);
+				});
+		};
+
+	}
+
 })();

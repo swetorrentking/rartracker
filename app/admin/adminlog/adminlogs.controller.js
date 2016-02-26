@@ -1,33 +1,43 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('AdminLogsController', function ($scope, AdminLogResource) {
-			$scope.itemsPerPage = 25;
-			$scope.searchText = '';
+	angular
+		.module('app.admin')
+		.controller('AdminLogsController', AdminLogsController);
 
-			var getLogs = function () {
-				var index = $scope.currentPage * $scope.itemsPerPage - $scope.itemsPerPage || 0;
-				AdminLogResource.query({
-					'limit': $scope.itemsPerPage,
-					'index': index,
-					'searchText': $scope.searchText,
-				}, function (data, responseHeaders) {
-					var headers = responseHeaders();
-					$scope.totalItems = headers['x-total-count'];
-					$scope.logs = data;
-				});
-			};
+	function AdminLogsController($state, $stateParams, AdminResource) {
 
-			$scope.pageChanged = function () {
-				getLogs();
-			};
+		this.currentPage = $stateParams.page;
+		this.itemsPerPage = 25;
+		this.searchText = '';
 
-			$scope.doSearch = function (){
-				getLogs();
-			};
+		this.getLogs = function () {
+			$state.go('.', {
+				page: this.currentPage,
+				search: this.searchText,
+			}, { notify: false });
+			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
+			AdminResource.Logs.query({
+				'limit': this.itemsPerPage,
+				'index': index,
+				'searchText': this.searchText,
+			}, (data, responseHeaders) => {
+				var headers = responseHeaders();
+				this.totalItems = headers['x-total-count'];
+				this.logs = data;
+				if (!this.hasLoaded) {
+					this.currentPage = $stateParams.page;
+					this.hasLoaded = true;
+				}
+			});
+		};
 
-			getLogs();
+		this.doSearch = function (){
+			this.getLogs();
+			this.currentPage = 1;
+		};
 
-		});
+		this.getLogs();
+	}
+
 })();

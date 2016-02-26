@@ -1,0 +1,28 @@
+<div class="text-center">
+	<h1>Adminlogg</h1>
+
+	<div class="input-group" style="margin: auto; width: 300px;">
+		<div class="input-group-addon"><i class="fa fa-search"></i></div>
+		<input type="text" class="form-control" placeholder="Sök i loggen" ng-model="vm.searchText" ng-model-options="{ debounce: 250 }" ng-change="vm.doSearch()" style="margin: auto;" />
+		<span class="input-group-btn" ng-show="vm.searchText !== ''">
+			<button class="btn btn-default" type="button" ng-click="vm.searchText = ''; vm.doSearch();vm.currentPage = 1;"><i class="fa fa-times"></i></button>
+		</span>
+	</div>
+	<br />
+
+	<loading-indicator hide="vm.logs"></loading-indicator>
+
+	<table class="table" ng-show="vm.logs">
+		<tr>
+			<th style="width: 200px;">Datum</th>
+			<th class="text-left">Händelse</th>
+		</tr>
+		<tr ng-repeat="log in vm.logs track by log.id">
+			<td>{{ ::log.added }}</td>
+			<td class="text-left" ng-bind-html="::log.txt | bbCode"></td>
+		</tr>
+	</table>
+
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+
+</div>

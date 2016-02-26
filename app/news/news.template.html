@@ -1,0 +1,12 @@
+<div class="panel panel-green">
+	<div class="panel-heading">Nyheter</div>
+	<br />
+	<div class="text-center" style="margin-bottom: 10px;" ng-if="vm.currentUser.class >= 8">
+		<button ng-click="vm.createNews()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nyhet</button>
+	</div>
+
+	<news mark-as-read="true"></news>
+
+	<br style="clear: both;" />
+	<br />
+</div>

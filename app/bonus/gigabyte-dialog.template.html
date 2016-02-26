@@ -1,0 +1,24 @@
+<div class="text-center">
+	<form ng-submit="vm.confirm()">
+		<div class="modal-header">
+			<h2 class="modal-title">{{ vm.settings.title }}</h2>
+		</div>
+		<div class="modal-body">
+			<div ng-bind="vm.settings.body"></div>
+			<br />
+			<div>
+			<b>Välj mängd:</b>
+				<select class="form-control center-block" ng-model="vm.settings.gigabyte" ng-options="i.value as i.label for i in vm.gbSelect" style="width: 200px;"></select>
+			</div>
+			<div ng-if="vm.settings.showUserPicker">
+				<b>Användare:</b> <input type="text" ng-model="vm.asyncSelected" placeholder="Användarnamn" uib-typeahead="user.username for user in vm.getUsers($viewValue)" typeahead-loading="vm.loadingUsers" class="form-control center-block" typeahead-on-select="vm.onSelected($item)" auto-focus style="width: 200px;" ng-required="vm.settings.showUserPicker" />
+			</div>
+		</div>
+		<div class="modal-footer">
+			<div class="button-group text-center">
+				<button type="submit" class="btn btn-success">Bekräfta</button>
+				<button type="button" class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+			</div>
+		</div>
+	</form>
+</div>

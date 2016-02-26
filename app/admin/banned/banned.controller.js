@@ -1,43 +1,47 @@
 (function(){
 	'use strict';
 
-	angular.module('tracker.controllers')
-		.controller('BannedController', function ($scope, AdminResource, ErrorDialog) {
+	angular
+		.module('app.admin')
+		.controller('BannedController', BannedController);
 
-			fetchNonsceneData();
-			initAddNonsceneForm();
+	function BannedController($state, $stateParams, AdminResource, ErrorDialog) {
 
-			function initAddNonsceneForm() {
-				$scope.addnonscene = {
-					whitelist: 1,
-					comment: 'Ej scene'
-				};
-			}
+		this.initForm = function () {
+			this.addnonscene = {
+				whitelist: 1,
+				comment: 'Ej scene'
+			};
+		};
 
-			function fetchNonsceneData() {
-				AdminResource.Nonscene.query().$promise
-					.then(function (data) {
-						$scope.nonscene = data;
-					});
-			}
-
-			$scope.delete = function (item) {
-				AdminResource.Nonscene.delete({ id: item.id }, function () {
-					var index = $scope.nonscene.indexOf(item);
-					$scope.nonscene.splice(index, 1);
+		this.loadData = function () {
+			AdminResource.Nonscene.query().$promise
+				.then((data) => {
+					this.nonscene = data;
 				});
-			};
+		};
 
-			$scope.create = function () {
-				AdminResource.Nonscene.save($scope.addnonscene).$promise
-					.then(function () {
-						initAddNonsceneForm();
-						fetchNonsceneData();
-					})
-					.catch(function (error) {
-						ErrorDialog.display(error.data);
-					});
-			};
+		this.delete = function (item) {
+			AdminResource.Nonscene.delete({ id: item.id }, () => {
+				var index = this.nonscene.indexOf(item);
+				this.nonscene.splice(index, 1);
+			});
+		};
 
-		});
+		this.create = function () {
+			AdminResource.Nonscene.save(this.addnonscene).$promise
+				.then(() => {
+					this.initForm();
+					this.loadData();
+				})
+				.catch((error) => {
+					ErrorDialog.display(error.data);
+				});
+		};
+
+		this.loadData();
+		this.initForm();
+
+	}
+
 })();
