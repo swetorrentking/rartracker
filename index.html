@@ -2,7 +2,7 @@
 <html lang="en-us">
   <head>
     <meta charset="UTF-8">
-    <title>Rartracker by swetorrentking</title>
+    <title>rartracker by swetorrentking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
@@ -11,8 +11,8 @@
   </head>
   <body>
     <section class="page-header">
-      <h1 class="project-name">Rartracker</h1>
-      <h2 class="project-tagline">Complete private bittorrent tracker written in PHP and AngularJS</h2>
+      <h1 class="project-name">rartracker</h1>
+      <h2 class="project-tagline">Complete private bittorrent tracker written in AngularJS and PHP</h2>
       <a href="https://github.com/swetorrentking/rartracker" class="btn">View on GitHub</a>
       <a href="https://github.com/swetorrentking/rartracker/zipball/master" class="btn">Download .zip</a>
       <a href="https://github.com/swetorrentking/rartracker/tarball/master" class="btn">Download .tar.gz</a>
@@ -20,22 +20,22 @@
 
     <section class="main-content">
       <h1>
-<a id="rartracker" class="anchor" href="#rartracker" aria-hidden="true"><span class="octicon octicon-link"></span></a>rartracker</h1>
+<a id="rartracker" class="anchor" href="#rartracker" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>rartracker</h1>
 
-<p>A modern front and backend bittorrent tracker written in PHP and AngularJS.</p>
-
-<h2>
-<a id="version" class="anchor" href="#version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Version</h2>
-
-<p>0.1.0</p>
+<p>A modern front and backend bittorrent tracker written in AngularJS and PHP.</p>
 
 <h2>
-<a id="author" class="anchor" href="#author" aria-hidden="true"><span class="octicon octicon-link"></span></a>Author</h2>
+<a id="version" class="anchor" href="#version" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Version</h2>
+
+<p>0.2.0</p>
+
+<h2>
+<a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h2>
 
 <p>the swedish torrent king</p>
 
 <h2>
-<a id="feature-highlights" class="anchor" href="#feature-highlights" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feature highlights</h2>
+<a id="feature-highlights" class="anchor" href="#feature-highlights" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Feature highlights</h2>
 
 <ul>
 <li>Super responsive GUI thanks to the SPA-application nature of AngularJS</li>
@@ -43,20 +43,21 @@
 <li>Many features suitable for scene only trackers</li>
 <li>Awesome features like bonus-system, leech bonus, seed-time, request system and rss-system.</li>
 <li>Highly skinnable and mobile friendly design with Bootstrap CSS</li>
+<li>Very clean code to grasp for developers</li>
 </ul>
 
 <h1>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h1>
 
 <h2>
-<a id="1-install-nodejs-and-npm" class="anchor" href="#1-install-nodejs-and-npm" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Install Node.js/npm and Git</h2>
-
+<a id="1-install-nodejsnpm-and-git" class="anchor" href="#1-install-nodejsnpm-and-git" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. Install Node.js/npm and Git</h2>
 
 <p><strong>Windows:</strong></p>
 
 <ul>
 <li><a href="https://nodejs.org/en/download/">https://nodejs.org/en/download/</a></li>
-<li><a href="https://git-scm.com/download/win">https://nodejs.org/en/download/</a> (Choose: Use/run Git from the Command Prompt (cmd.exe))</li>
+<li>
+<a href="https://git-scm.com/download/win">https://git-scm.com/download/win</a> (Choose: Use/run Git from the Command Prompt (cmd.exe))</li>
 </ul>
 
 <p><strong>Ubuntu/Debian:</strong></p>
@@ -64,27 +65,25 @@
 <div class="highlight highlight-source-shell"><pre>$ sudo apt-get install -y nodejs
 $ sudo apt-get install -y git-core</pre></div>
 
-
 <h2>
-<a id="2-download-dependencies" class="anchor" href="#2-download-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Install dependencies</h2>
+<a id="2-install-dependencies" class="anchor" href="#2-install-dependencies" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. Install dependencies</h2>
 
 <p>From the project folder install all build script packages and all 3rd party dependencies</p>
 
-<div class="highlight highlight-source-shell"><pre>$ npm install -g bower
-$ npm install -g grunt-cli
+<div class="highlight highlight-source-shell"><pre>$ npm install --global bower
+$ npm install --global gulp-cli
 $ npm install
 $ bower install
-$ grunt dist
-</pre></div>
+$ gulp dist</pre></div>
 
 <h2>
-<a id="3-import-database-databasesql" class="anchor" href="#3-import-database-databasesql" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Import database (database.sql)</h2>
+<a id="3-import-database-databsedatabasesql" class="anchor" href="#3-import-database-databsedatabasesql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Import database (databse/database.sql)</h2>
 
 <h1>
-<a id="configurations" class="anchor" href="#configurations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configurations</h1>
+<a id="configurations" class="anchor" href="#configurations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configurations</h1>
 
 <h3>
-<a id="1-basic-config" class="anchor" href="#1-basic-config" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Basic config</h3>
+<a id="1-basic-config" class="anchor" href="#1-basic-config" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>1. Basic config</h3>
 
 <p>Create the file <strong>secrets.php</strong> in the api/ folder.</p>
 
@@ -96,10 +95,10 @@ $username = 'root';
 $password = '';
 </code></pre>
 
-<p>Some site settings in api/Helper.php</p>
+<p>Some site settings in api/Config.php and app/app.config.js</p>
 
 <h3>
-<a id="2-generate-new-unique-salt-hashes-optional-for-security" class="anchor" href="#2-generate-new-unique-salt-hashes-optional-for-security" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Generate new unique salt hashes (optional for security)</h3>
+<a id="2-generate-new-unique-salt-hashes-optional-for-security" class="anchor" href="#2-generate-new-unique-salt-hashes-optional-for-security" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. Generate new unique salt hashes (optional for security)</h3>
 
 <ul>
 <li>Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.</li>
@@ -107,26 +106,26 @@ $password = '';
 </ul>
 
 <h3>
-<a id="3-create-admin-accounts" class="anchor" href="#3-create-admin-accounts" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Create admin accounts</h3>
+<a id="3-create-admin-accounts" class="anchor" href="#3-create-admin-accounts" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Create admin accounts</h3>
 
 <p>Use built in account named "<strong>System</strong>" password: "<strong>password</strong>" to create invites and register new admin-accounts
 The "System" account <strong>must remain</strong> as a parked account and have Staff rights because it's used as deleter of torrents, sender of PM and creation of forum topics etc. Change System password.</p>
 
 <h2>
-<a id="server-settings" class="anchor" href="#server-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Server settings</h2>
+<a id="server-settings" class="anchor" href="#server-settings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Server settings</h2>
 
 <h3>
-<a id="recommended-packages" class="anchor" href="#recommended-packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Recommended packages</h3>
+<a id="recommended-packages" class="anchor" href="#recommended-packages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Recommended packages</h3>
 
-<p><code>php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql php5-memcache</code></p>
+<p><code>php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql memcached php5-curl php5-memcached</code></p>
 
 <h3>
-<a id="enable-rewrite-module-for-htaccess" class="anchor" href="#enable-rewrite-module-for-htaccess" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enable rewrite module for .htaccess</h3>
+<a id="enable-rewrite-module-for-htaccess" class="anchor" href="#enable-rewrite-module-for-htaccess" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Enable rewrite module for .htaccess</h3>
 
 <p><code>a2enmod rewrite</code></p>
 
 <h3>
-<a id="permissions" class="anchor" href="#permissions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Permissions</h3>
+<a id="permissions" class="anchor" href="#permissions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Permissions</h3>
 
 <p>The following folders needs to be created and be given write permission:</p>
 
@@ -137,7 +136,7 @@ The "System" account <strong>must remain</strong> as a parked account and have S
 </ul>
 
 <h3>
-<a id="recommended-mariadb-settings" class="anchor" href="#recommended-mariadb-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Recommended MariaDB settings</h3>
+<a id="recommended-mariadb-settings" class="anchor" href="#recommended-mariadb-settings" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Recommended MariaDB settings</h3>
 
 <p>This is for making the fulltext search work</p>
 
@@ -148,7 +147,7 @@ tmp_table_size=2G
 max_heap_table_size=2G</pre></div>
 
 <h2>
-<a id="crontab-settings-crontab--e" class="anchor" href="#crontab-settings-crontab--e" aria-hidden="true"><span class="octicon octicon-link"></span></a>Crontab settings (crontab -e)</h2>
+<a id="crontab-settings-crontab--e" class="anchor" href="#crontab-settings-crontab--e" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Crontab settings (crontab -e)</h2>
 
 <pre><code>12      *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-leechbonus
 */20    *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-cleanup
@@ -159,27 +158,27 @@ max_heap_table_size=2G</pre></div>
 </code></pre>
 
 <h2>
-<a id="developing-and-deploying" class="anchor" href="#developing-and-deploying" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developing and deploying</h2>
+<a id="developing-and-deploying" class="anchor" href="#developing-and-deploying" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Developing and deploying</h2>
 
 <h3>
-<a id="developing" class="anchor" href="#developing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developing</h3>
+<a id="developing" class="anchor" href="#developing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Developing</h3>
 
-<p>In the project folder run <code>grunt dev</code>. This will lauch a watcher that continuously build the code into the dist/.</p>
+<p>In the project folder run <code>gulp watch</code>. This will lauch a watcher that continuously build the code into the dist/.</p>
 
 <h3>
-<a id="deploying" class="anchor" href="#deploying" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploying</h3>
+<a id="deploying" class="anchor" href="#deploying" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deploying</h3>
 
-<p>In the project folder run <code>grunt dist</code> and the code will be minified and scrambled, a JsHint check will also be made.</p>
+<p>In the project folder run <code>gulp dist</code> and the code will be minified and scrambled, a JsHint check will also be made.</p>
 
 <p>The <strong>app/</strong> folder should never be exposed in live production, since its html/js is beeing packaged into <strong>dist/</strong></p>
 
 <h1>
-<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
 
 <p><a href="http://www.wtfpl.net/">WTFPL</a></p>
 
       <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/swetorrentking/rartracker">Rartracker</a> is maintained by <a href="https://github.com/swetorrentking">swetorrentking</a>.</span>
+        <span class="site-footer-owner"><a href="https://github.com/swetorrentking/rartracker">rartracker</a> is maintained by <a href="https://github.com/swetorrentking">swetorrentking</a>.</span>
 
         <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
