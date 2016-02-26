@@ -674,6 +674,7 @@ CREATE TABLE IF NOT EXISTS `subs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `torrentid` int(11) NOT NULL,
   `filnamn` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `quality` enum('','custom','retail') COLLATE utf8_general_ci NOT NULL,
   `datum` int(11) NOT NULL,
   `userid` int(11) NOT NULL,
   PRIMARY KEY (`id`),
