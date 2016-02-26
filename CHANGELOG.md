@@ -1,6 +1,6 @@
 # rartracker changelog
 
-# 0.2.0 (2015-02-16)
+# 0.2.0 (2016-02-26)
 
 ### New features and improvements
 
