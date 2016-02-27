@@ -30,7 +30,7 @@
 			<a ng-if="::request.comments > 0" ui-sref="requests.request({id: request.id, slug: request.slug, scrollTo: 'comments'})" ng-bind="::request.comments"></a>
 			<span ng-if="::request.comments <= 0">0</span>
 		</td>
-		<td class="vert-align hidden-sm hidden-xs"><report-button type="request", id="request.id", body="request.request" small="true"></report-button></td>
+		<td class="vert-align hidden-sm hidden-xs"><report-button type="request" id="request.id" body="request.request" small="true"></report-button></td>
 		<td class="vert-align hidden-xs">{{ ::request.added }}</td>
 		<td ng-if="vm.colUser == 'true'" class="vert-align hidden-sm hidden-xs text-left"><user user="request.user"></user></td>
 		<td ng-if="vm.colReward == 'true'" class="hidden-xs">

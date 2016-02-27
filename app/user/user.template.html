@@ -43,7 +43,7 @@
 						<tbody>
 							<tr ng-repeat="ip in vm.iplog track by ip.id">
 								<td style="text-align: left;">{{ ::ip.lastseen }} ({{ ::ip.lastseen | dateDifference }} sedan)</td>
-								<td style="text-align: left;">{{ ::ip.ip }} (<b>{{ ::ip.host}}</b>)</td>
+								<td style="text-align: left;"><a href="" ui-sref="admin-search({ip: vm.user.ip})">{{ ::ip.ip }}</a> (<b>{{ ::ip.host}}</b>)</td>
 								<td style="text-align: left;">{{ ::ip.uptime*1000 | dateDifference:0}}</td>
 							</tr>
 						</tbody>
@@ -214,7 +214,7 @@
 							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='downloaded'; reverseSort = !reverseSort">Nerladdat</a></th>
 							<th style="width: 100px;">Start/Stop/Klar</th>
 							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='agent'; reverseSort = !reverseSort">Klient</a></th>
-							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='finishedat'; reverseSort = !reverseSort">Snatchad</th>
+							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='finishedat'; reverseSort = !reverseSort">Snatchad</a></th>
 							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='seedtime'; reverseSort = !reverseSort">Seedtid</a></th>
 						</tr>
 					</thead>
@@ -296,6 +296,8 @@
 			<td colspan="2">
 				<p style="white-space: normal;" ng-bind-html="::vm.user.info | bbCode"></p>
 			</td>
+		</tr>
 	</table>
 <br />
+</div>
 </div>

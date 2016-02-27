@@ -1,5 +1,5 @@
 <div class="ellipsis">
-	<a ng-show="vm.viewingTorrent != vm.torrent.id" ui-sref='torrent({id: vm.torrent.id, name: vm.torrent.name})' ng-bind-html="vm.torrent.name | highlight:vm.searchText" style="font-weight: bold;" title="{{ vm.torrent.name }}" ng-mouseenter="vm.showPoster = true" ng-mouseleave="vm.showPoster = false"></a>
+	<a ng-show="vm.viewingTorrent != vm.torrent.id" ui-sref="torrent({id: vm.torrent.id, name: vm.torrent.name})" ng-bind-html="vm.torrent.name | highlight:vm.searchText" style="font-weight: bold;" title="{{ vm.torrent.name }}" ng-mouseenter="vm.showPoster = true" ng-mouseleave="vm.showPoster = false"></a>
 	<span ng-show="vm.viewingTorrent == vm.torrent.id" ng-bind="::vm.torrent.name" style="font-weight: bold;"></span>
 </div>
 <div class="torrentSubRow">

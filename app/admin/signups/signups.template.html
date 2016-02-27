@@ -21,7 +21,7 @@
 					<span ng-if="::signup.log_mail == 0 && signup.log_ip == 0">Inga träffar på ip/mail</span>
 					<button ng-if="::signup.log_ip > 0 && signup.level == 0" ui-sref="admin-search({ip: signup.ip})" class="btn btn-xs btn-warning">{{ ::signup.log_ip }} träff(ar) på IP</button>
 					<button ng-if="::signup.log_ip > 0 && signup.level >= 1" ui-sref="admin-search({ip: signup.ip})" class="btn btn-xs btn-danger">{{ ::signup.log_ip }} träff(ar) på IP</button>
-					<button ng-if="::signup.log_mail > 0" class="btn btn-xs btn-warning">{{ ::signup.log_mail }} träff(ar) på mail</button>
+					<button ng-if="::signup.log_mail > 0" ui-sref="admin-search({email: signup.email})" class="btn btn-xs btn-warning">{{ ::signup.log_mail }} träff(ar) på mail</button>
 				</td>
 			</tr>
 		</table>

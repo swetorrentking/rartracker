@@ -7,7 +7,7 @@
 
 			<div ng-repeat="torrent in highlightedRow.torrents" class="col-md-2 col-sm-4 col-xs-6 highlightedRow">
 				<div class="cover">
-					<a ui-sref='torrent({id: torrent.id, name: torrent.name})'>
+					<a href="" ui-sref="torrent({id: torrent.id, name: torrent.name})">
 						<img class="poster" ng-src="/img/imdb/{{ torrent.imdbid }}.jpg" alt="Poster" />
 					</a>
 				</div>

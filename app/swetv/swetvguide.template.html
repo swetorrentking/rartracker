@@ -21,7 +21,7 @@
 					<td style="background-color: #FFF;" class="text-left">
 						<div ng-repeat="torrent in ::program.torrents">
 							<span ng-init="(torrent.added | dateToUnix) > vm.lastBrowseDate ? itemNew[$parent.$index] = true : ''"></span>
-					 		<a ui-sref='torrent({id: torrent.id, name: torrent.name})' ng-bind="::torrent.name"></a>
+					 		<a href="" ui-sref="torrent({id: torrent.id, name: torrent.name})" ng-bind="::torrent.name"></a>
 					 		<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{::torrent.id}}">
 								<button class="btn btn-default btn-xs"><i class="fa fa-download"></i></button>
 							</a>

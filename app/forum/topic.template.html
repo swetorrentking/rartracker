@@ -4,7 +4,7 @@
 
 <div class="col-md-10 col-centered nopadding" ng-show="vm.posts">
 	<posts posts="vm.posts" edit-obj="vm.editObj" on-quote="vm.quotePost(post)" goto-anchor="vm.gotoAnchor(postId)" delete-post="vm.deletePost(post)" edit-post="vm.editPost(post)" abort-edit="vm.abortEdit()" save-edit="vm.saveEdit(post)"></posts>
-	<div ng-show="$parent.vm.topic.locked == 'no'" id="newPost" class="col-sm-10 col-sm-push-1" ng-show="vm.numberOfPages == vm.currentPage">
+	<div ng-show="$parent.vm.topic.locked == 'no' && vm.numberOfPages == vm.currentPage" id="newPost" class="col-sm-10 col-sm-push-1">
 		<div class="text-center">
 			<h3>Skriv inlägg</h3>
 			<div class="form-group">
@@ -30,7 +30,6 @@
 		<posts posts="[vm.post]"></posts>
 	</div>
 
-	<br />
 	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" ng-class="alert-warning" role="alert" type="danger" close="vm.closeAlert()" ng-show="vm.numberOfPages == vm.currentPage && $parent.vm.topic.locked == 'yes'">
 		Tråden är låst.
 	</div>

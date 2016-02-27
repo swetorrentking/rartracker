@@ -1,4 +1,5 @@
 <table class="table table-striped table-hover">
+<tr>
 	<td>
 		<select ng-model="vm.list.tid" ng-options="i.name for i in vm.data.tid" class="form-control">
 		</select>
@@ -19,7 +20,7 @@
 		<select ng-model="vm.list.sort" ng-options="i.name for i in vm.data.sort" class="form-control">
 		</select>
 	</td>
-	
+
 	<td>
 		<select ng-model="vm.list.genre" ng-options="i.id for i in vm.data.genre" class="form-control">
 			<option value="">-- Alla genrer --</option>
@@ -28,7 +29,7 @@
 	<td>
 		<button ng-click="vm.add()" class="btn btn-default"><i class="fa fa-plus"></i> Lägg till</button>
 	</td>
-</tr>	
+</tr>
 </table>
 <br />
 <loading-indicator hide="vm.highligtedTorrents"></loading-indicator>
@@ -39,7 +40,7 @@
 			<div class="panel-heading">{{ ::row.headline }}</div>
 			<div ng-repeat="torrent in ::row.torrents" class="col-md-2 col-sm-4 col-xs-6 highlightedRow">
 				<div class="cover">
-					<a ui-sref='torrent({id: torrent.id, name: torrent.name})'>
+					<a href="" ui-sref="torrent({id: torrent.id, name: torrent.name})">
 						<img class="poster" ng-src="/img/imdb/{{ ::torrent.imdbid }}.jpg" alt="Poster" />
 					</a>
 				</div>
@@ -55,7 +56,7 @@
 	</div>
 </div>
 <div class="text-center">
-Klicka för att återställa till fördefinierad startsida för kategori:  
+Klicka för att återställa till fördefinierad startsida för kategori:
 	<button ng-click="vm.reset(1)" class="btn btn-default">DVDR</button>
 	<button ng-click="vm.reset(2)" class="btn btn-default">720p HD</button>
 	<button ng-click="vm.reset(3)" class="btn btn-default">1080p HD</button>
