@@ -15,7 +15,7 @@
 				<td>{{ ::item.name }}</td>
 				<td>{{ ::item.description }}</td>
 				<td><b>{{ ::item.price }}p</b></td>
-				<td><button ng-click="vm.buyItem(item)" ng-class="{'disabled': vm.currentUser.bonuspoang < item.price }" class="btn btn-default btn-xs"><i class="fa fa-usd"></i> Köp</button></td>
+				<td><button ng-click="vm.buyItem(item)" ng-disabled="vm.currentUser.bonuspoang < item.price" class="btn btn-default btn-xs"><i class="fa fa-usd"></i> Köp</button></td>
 			</tr>
 		</table>
 	</div>

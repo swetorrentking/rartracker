@@ -35,6 +35,6 @@
 </div>
 
 <br /><br />
-<button ng-class="{'disabled': $parent.vm.forum.minclasscreate > vm.currentUser.class}" ui-sref="forum.newTopic({id: vm.forumId})" class="btn btn-primary">Skapa ny tråd</button>
+<button ng-disabled="$parent.vm.forum.minclasscreate > vm.currentUser.class" ui-sref="forum.newTopic({id: vm.forumId})" class="btn btn-primary">Skapa ny tråd</button>
 <br />
 <uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>

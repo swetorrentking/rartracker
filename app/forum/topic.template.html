@@ -30,10 +30,10 @@
 		<posts posts="[vm.post]"></posts>
 	</div>
 	<br />
-	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" ng-class="alert-warning" role="alert" type="danger" close="vm.closeAlert()" ng-show="vm.numberOfPages == vm.currentPage && $parent.vm.topic.locked == 'yes'">
+	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" class="alert-warning" role="alert" type="danger" close="vm.closeAlert()" ng-show="vm.numberOfPages == vm.currentPage && $parent.vm.topic.locked == 'yes'">
 		Tråden är låst.
 	</div>
-	<topic-admin-panel  topic="$parent.$parent.vm.topic" ng-if="vm.currentUser.class >= 8"></topic-admin-panel>
+	<topic-admin-panel topic="$parent.$parent.vm.topic" ng-if="vm.currentUser.class >= 8"></topic-admin-panel>
 </div>
 
 <uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchPosts()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>

@@ -391,6 +391,7 @@
 		<div class="text-center">
 			<button ng-disabled="vm.editButtonDisabled" class="btn btn-primary" ng-click="vm.saveEditProfile()">Spara ändringar</button>
 		</div>
+		<br />
 		<uib-alert style="text-align: center;" type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
 		 	{{ vm.alert.msg }}
 		</uib-alert>

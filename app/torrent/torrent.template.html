@@ -65,7 +65,7 @@
 						{{ ::folder.filename }}
 					</div>
 					<div ng-if="vm.currentUser.class >= 8">
-						<button class="btn btn-default btn-xs" ng-click="vm.multiDelete()" ng-class="{'disabled': vm.deletingPackFiles}"><i class="fa fa-user-secret"></i> Radera dessa från sidan</button>
+						<button class="btn btn-default btn-xs" ng-click="vm.multiDelete()" ng-disabled="vm.deletingPackFiles"><i class="fa fa-user-secret"></i> Radera dessa från sidan</button>
 					</div>
 				</td>
 			</tr>
@@ -111,7 +111,7 @@
 			<tr ng-if="vm.torrent.imdbid">
 				<td class="text-right tdBold hidden-xs alignMiddle">Bevaka undertext</td>
 				<td>
-					<button ng-class="{'disabled': vm.watchingSubtitle}" class="btn btn-default btn-xs" ng-click="vm.addSubtitleWatch()"><i class="fa fa-envelope-o fa-fw"></i> PM-bevaka svensk text</button>
+					<button ng-disabled="vm.watchingSubtitle" class="btn btn-default btn-xs" ng-click="vm.addSubtitleWatch()"><i class="fa fa-envelope-o fa-fw"></i> PM-bevaka svensk text</button>
 				</td>
 			</tr>
 			<tr ng-show="vm.torrent.seeders <= 3 && (vm.torrent.added | dateDiff) < -86400000">

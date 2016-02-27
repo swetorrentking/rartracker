@@ -2,7 +2,7 @@
 	<button ui-sref="forum-unread-topics()" class="btn btn-default btn-xs">Visa olästa</button>
 	<button ui-sref="forum-search()" class="btn btn-default btn-xs">Sök</button>
 	<button ui-sref="forum-user-posts({id: vm.currentUser.id, username: vm.currentUser.username})" class="btn btn-default btn-xs">Visa mina inlägg</button>
-	<button ng-click="vm.markAllTopicsAsRead(); vm.markingTopics = true;" ng-class="{'disabled':vm.markingTopics}" class="btn btn-default btn-xs">Markera alla trådar som lästa</button>
+	<button ng-click="vm.markAllTopicsAsRead(); vm.markingTopics = true;" ng-disabled="vm.markingTopics" class="btn btn-default btn-xs">Markera alla trådar som lästa</button>
 </div>
 
 <loading-indicator hide="vm.forums"></loading-indicator>

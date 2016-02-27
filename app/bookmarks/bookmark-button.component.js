@@ -8,7 +8,7 @@
 				torrent: '=',
 				small: '@'
 			},
-			template: `<button ng-click="vm.create()" class="btn btn-default btn-xs" ng-class="{'disabled':vm.torrent.bookmarked}"><i class="fa fa-bookmark"></i><span ng-show="vm.small != 'true'"> Bokmärk</span></button>`,
+			template: `<button ng-click="vm.create()" class="btn btn-default btn-xs" ng-disabled="vm.torrent.bookmarked"><i class="fa fa-bookmark"></i><span ng-show="vm.small != 'true'"> Bokmärk</span></button>`,
 			controller: BookmarkButtonController,
 			controllerAs: 'vm'
 		});

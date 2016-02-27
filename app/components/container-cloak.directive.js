@@ -23,7 +23,7 @@
 			$element.removeClass('container-cloak');
 		};
 
-		if (document.cookie === '') {
+		if (document.cookie.indexOf('uid=') < 0) {
 			this.removeClass();
 		} else {
 			$scope.$on('userUpdated', () => {

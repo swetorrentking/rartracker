@@ -43,7 +43,7 @@
 </div>
 <div class="modal-footer">
 	<div class="button-group text-center">
-		<button class="btn btn-success" ng-class="{'disabled': submitDisabled}" ng-click="vm.confirm()">Skicka in</button>
+		<button class="btn btn-success" ng-disabled="vm.submitDisabled" ng-click="vm.confirm()">Skicka in</button>
 		<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
 	</div>
 </div>
