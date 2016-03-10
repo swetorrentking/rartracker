@@ -93,6 +93,15 @@
 					</div>
 				</td>
 			</tr>
+			<tr ng-show="[8,9,10,11,12,14].indexOf(vm.torrent.category) != -1">
+				<td class="text-right tdBold alignMiddle">Svenskt tal</td>
+				<td class="text-left">
+					<div class="btn-group">
+						<label class="btn btn-default" ng-model="vm.torrent.sweaudio" uib-btn-radio="1">Ja</label>
+						<label class="btn btn-default" ng-model="vm.torrent.sweaudio" uib-btn-radio="0">Nej</label>
+					</div>
+				</td>
+			</tr>
 			<tr>
 				<td class="text-right tdBold alignMiddle">3D</td>
 				<td class="text-left">

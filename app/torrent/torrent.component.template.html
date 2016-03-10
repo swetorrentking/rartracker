@@ -11,7 +11,9 @@
   --><span ng-if="vm.torrent.reqid > 1" class="label label-info">Request</span><!--
   --><span ng-if="vm.torrent.p2p == 1" class="label label-danger">P2P</span><!--
   --><a ng-if="vm.torrent.swesub == 1" class="noBorder" target="_self" ng-href="/subdownload.php?torrentid={{ vm.torrent.id }}"><span class="label label-success">Svensk text</span></a><span ng-if="vm.torrent.swesub == 2" class="label label-success">Svensk text</span><!--
-  --><span ng-show="::vm.specialLeech" class="label label-info">{{ ::vm.specialLeech }} ratiofritt</span>
+  --><span ng-show="vm.torrent.sweaudio == 1" class="label label-success">Svenskt tal</span><!--
+  --><span ng-show="vm.specialLeech" class="label label-info">{{ ::vm.specialLeech }} ratiofritt</span><!--
+  --><span ng-show="vm.torrent.reqid == 1" class="label label-info">Arkiv</span>
 </div>
 
 <div class="hoverPoster" ng-if="vm.showPoster && vm.torrent.imdbid2" style="background-image: url('/img/imdb/{{ ::vm.torrent.imdbid2 }}.jpg');">

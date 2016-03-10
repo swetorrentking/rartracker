@@ -10,16 +10,16 @@
 		$stateProvider
 			.state('requests', {
 				parent		: 'header',
-				url			: '',
+				url			: '/requests',
 				views		: {
 					'content@': {
 						templateUrl : '../app/requests/requests-nav.template.html',
 					}
 				},
-				redirectTo	: 'requests.archive'
+				redirectTo	: 'requests.requests'
 			})
 			.state('requests.requests', {
-				url			: '/requests?page&sort&order',
+				url			: '/?page&sort&order',
 				templateUrl : '../app/requests/requests.template.html',
 				controller  : 'RequestsController as vm',
 				resolve		: { user: authService => authService.getPromise() },

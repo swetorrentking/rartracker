@@ -101,7 +101,7 @@ class BonusShop {
 				}
 				break;
 			case 4: // gigabyte to friend
-				$receiver = $this->user->get($postdata["userId"]);
+				$receiver = $this->user->get($postdata["userId"], true);
 				if (!$receiver) {
 					throw new Exception('Användaren finns inte.');
 				}

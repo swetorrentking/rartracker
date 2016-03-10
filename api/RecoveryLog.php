@@ -31,7 +31,7 @@ class RecoveryLog implements IResource {
 			array_push($where, "recoverlog.ip LIKE " . $this->db->quote('%' . $postdata["ip"] . '%'));
 		}
 		if ($postdata["email"]) {
-			array_push($where, "recoverlog.email LIKE " . $this->db->quote('%' . $postdata["email"] . '%'));
+			array_push($where, "recoverlog.email = " . $this->db->quote($postdata["email"]));
 		}
 		if (count($where) > 0) {
 			$whereStr = " WHERE " . implode(" AND ", $where);

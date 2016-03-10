@@ -145,20 +145,6 @@
 					email: { value: '', squash: true }
 				}
 			})
-			.state('mailbox-admin', {
-				parent		: 'header',
-				url			: '/mailbox-admin?page',
-				views			: {
-					'content@': {
-						templateUrl : '../app/admin/mailbox-admin/mailbox-admin.template.html',
-						controller  : 'MailboxAdminController as vm',
-						resolve		: { user: authService => authService.getPromise() }
-					}
-				},
-				params: {
-					page: { value: '1', squash: true }
-				}
-			})
 			.state('cheatlog', {
 				parent		: 'header',
 				url			: '/cheatlog?page&userid&sort&order',

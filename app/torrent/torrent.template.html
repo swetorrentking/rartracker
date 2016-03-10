@@ -16,7 +16,7 @@
 	</div>
 
 	<div class="table-responsive noborder col-md-9 col-centered" ng-class="{'col-lg-12': vm.showPeers || vm.showSnatchLog}" ng-show="vm.torrent">
-		<table class="table table-nowrap" cellpadding="15">
+		<table class="table" cellpadding="15">
 			<tr>
 				<td class="text-right tdBold hidden-xs alignMiddle" style="width: 130px;">Denna torrent</td>
 				<td class="text-left alignMiddle">
@@ -44,6 +44,7 @@
 				<td class="text-right tdBold hidden-xs">Fylld request</td>
 				<td class="text-left">
 					"{{ ::vm.request.request }}<span ng-show="::vm.request.season > 0"> (Säsong {{ ::vm.request.season}})</span>" requestades utav <user user="::vm.request.user"></user> med <b>{{ ::vm.request.votes }}</b> röst(er) och <b>{{ ::vm.request.reward }}p</b> hittelön.
+					<button class="btn btn-default btn-xs" ui-sref="requests.request({id: vm.request.id, slug: vm.request.slug })">Visa request</button>
 				</td>
 			</tr>
 			<tr ng-show="vm.relatedTorrents.length > 0">

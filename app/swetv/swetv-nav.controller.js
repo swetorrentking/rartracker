@@ -5,7 +5,7 @@
 		.module('app.swetv')
 		.controller('SweTvController', SweTvController);
 
-	function SweTvController($rootScope, $state, user, $stateParams) {
+	function SweTvController($rootScope, $scope, $state, user, $stateParams) {
 
 		if ($state.current.name === 'swetv.torrents') {
 			this.tvView = 1;
@@ -36,13 +36,15 @@
 			this.autoSwitchView();
 		}
 
-		$rootScope.$on('$stateChangeSuccess', (event, toState) => {
+		var listener = $rootScope.$on('$stateChangeSuccess', (event, toState) => {
 			if (toState.name == 'swetv.guide') {
 				this.tvView = 0;
 			} else {
 				this.tvView = 1;
 			}
 		});
+
+		$scope.$on('$destroy', listener);
 	}
 
 })();

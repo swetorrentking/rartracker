@@ -38,6 +38,6 @@
 			<br />
 			<button class="btn btn-default btn-xs" ng-click="vm.giveReward({request:request})">Öka hittelön</button>
 		</td>
-		<td class="vert-align hidden-xs"><button class="btn btn-default btn-xs" ui-sref="upload({requestId:request.id, requestName:request.request})">Ladda upp</button></td>
+		<td class="vert-align hidden-xs"><button class="btn btn-default btn-xs" ui-sref="upload({requestId:request.id, requestName:request.request})" ng-disabled="request.filled == 1">Ladda upp</button></td>
 	</tr>
 </table>

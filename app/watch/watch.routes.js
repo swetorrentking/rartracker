@@ -19,15 +19,26 @@
 				redirectTo	: 'watcher.torrents'
 			})
 			.state('watcher.torrents', {
-				url			: '/torrents?page',
+				url			: '/torrents?page&sort&order&cats&fc',
 				templateUrl : '../app/torrents/torrents.template.html',
-				controller  : 'WatchTorrentsController as vm',
-				resolve		: { user: authService => authService.getPromise() },
-				params		: {
-					page: {
-						value: '1',
-						squash: true
+				controller  : 'TorrentsController as vm',
+				resolve		: {
+					user: authService => authService.getPromise(),
+					settings: function () {
+						return  {
+							checkboxCategories: [],
+							pageName: 'last_bevakabrowse',
+							p2p: null,
+							section: 'all'
+						};
 					}
+				},
+				params: {
+					page: { value: '1', squash: true },
+					sort: { value: 'd', squash: true },
+					order: { value: 'desc', squash: true },
+					cats: { value: '', squash: true },
+					fc: { value: 'false', squash: true },
 				}
 			})
 			.state('watcher.mywatch', {

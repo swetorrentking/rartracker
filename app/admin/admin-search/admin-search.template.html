@@ -39,7 +39,7 @@
 	<tr ng-repeat="user in vm.users track by user.id">
 		<td><user user="::user"></user></td>
 		<td ng-bind-html="::user.uploaded/user.downloaded | ratio"></td>
-		<td ng-bind-html="user.ip | highlight:vm.search.ip"></td>
+		<td><a href="" ng-click="vm.searchForIp(user.ip);"><span ng-bind-html="user.ip | highlight:vm.search.ip"></span></a></td>
 		<td ng-bind-html="user.email | highlight:vm.search.email"></td>
 		<td>{{ ::user.added }}</td>
 		<td>{{ ::user.last_access }}</td>
@@ -61,7 +61,7 @@
 		</tr>
 		<tr ng-repeat="login in vm.loginAttempts track by login.id">
 			<td>{{ ::login.added }}</td>
-			<td ng-bind-html="login.ip | highlight:vm.search.ip"></td>
+			<td><a href="" ng-click="vm.searchForIp(login.ip);"><span ng-bind-html="login.ip | highlight:vm.search.ip"></span></a></td>
 			<td>
 				<user ng-if="::login.user.id" user="login.user"></user>
 				<span ng-if="::!login.user.id">{{ login.name }} ?</span>
@@ -85,7 +85,7 @@
 		</tr>
 		<tr ng-repeat="log in vm.iplog">
 			<td><user user="::log"></user></td>
-			<td ng-bind-html="log.ip | highlight:vm.search.ip"></td>
+			<td><a href="" ng-click="vm.searchForIp(log.ip);"><span ng-bind-html="log.ip | highlight:vm.search.ip"></span></a></td>
 			<td>{{ ::log.host }}</td>
 			<td>{{ ::log.lastseen }}</td>
 		</tr>
@@ -103,9 +103,27 @@
 		</tr>
 		<tr ng-repeat="log in vm.recoveryLog">
 			<td><user user="::log"></user></td>
-			<td ng-bind-html="log.ip | highlight:vm.search.ip"></td>
-			<td ng-bind-html="log.email | highlight:vm.search.email"></td>
+			<td><a href="" ng-click="vm.searchForIp(log.ip);"><span ng-bind-html="log.ip | highlight:vm.search.ip"></span></a></td>
+			<td ng-bind-html="log.email"></td>
 			<td>{{ ::log.date }}</td>
+		</tr>
+	</table>
+</div>
+
+<div class="col-lg-10 col-lg-push-1" ng-show="vm.emailLog.length > 0">
+	<h2 class="text-center">Email recovery logg</h2>
+	<table class="table text-left">
+		<tr>
+			<th class="text-left">Användare</th>
+			<th class="text-left">IP</th>
+			<th class="text-left">Email</th>
+			<th class="text-left">Datum</th>
+		</tr>
+		<tr ng-repeat="log in vm.emailLog">
+			<td><user user="::log"></user></td>
+			<td><a href="" ng-click="vm.searchForIp(log.ip);"><span ng-bind-html="log.ip | highlight:vm.search.ip"></span></a></td>
+			<td ng-bind-html="log.email"></td>
+			<td>{{ ::log.datum }}</td>
 		</tr>
 	</table>
 </div>

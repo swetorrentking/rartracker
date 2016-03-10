@@ -62,6 +62,11 @@ try {
 			httpResponse($user->recoverByPasskey($postdata));
 			break;
 
+		case validateRoute('GET', 'invite-validity'):
+			$invite = new Invite($db, $user);
+			httpResponse($invite->checkValidity($_GET["secret"]));
+			break;
+
 		case validateRoute('POST', 'recover/by-email'):
 			httpResponse($user->recoverByEmail($postdata));
 			break;
@@ -215,18 +220,7 @@ try {
 
 		case validateRoute('GET', 'torrents'):
 			$torrent = new Torrent($db, $user);
-			list($torrents, $total) = $torrent->search(
-				$_GET["categories"],
-				$_GET['section'],
-				$_GET["index"],
-				$_GET["limit"],
-				$_GET["sort"],
-				$_GET["order"],
-				$_GET["searchText"],
-				$_GET["hideOld"],
-				$_GET["p2p"],
-				$_GET["extendedSearch"],
-				$_GET["watchview"]);
+			list($torrents, $total) = $torrent->search($_GET);
 			if ($_GET["page"]) {
 				$user->updateLastTorrentViewAccess($_GET["page"]);
 			}
@@ -633,6 +627,10 @@ try {
 		case validateRoute('PATCH', 'users/\d+'):
 			$response = $user->update((int)$params[1], $postdata);
 			httpResponse();
+			break;
+
+		case validateRoute('GET', 'users/\d+/email-test'):
+			httpResponse($user->testEmail((int)$params[1], $_GET["email"]));
 			break;
 
 		case validateRoute('GET', 'users/\d+/torrents'):

@@ -157,7 +157,7 @@
 		</tr>
 		<tr ng-show="vm.user.class > 0">
 			<td class="text-right tdBold alignMiddle">Bonuspoäng</td>
-			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id">({{ :: vm.user.nytt_seed+user.arkiv_seed | prettysize }} uppladdat denna vecka varav {{ ::vm.user.nytt_seed | prettysize }} på nytt och {{ ::vm.user.arkiv_seed | prettysize }} på arkiv)</span></td>
+			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">({{ :: vm.user.nytt_seed+user.arkiv_seed | prettysize }} uppladdat denna vecka varav {{ ::vm.user.nytt_seed | prettysize }} på nytt och {{ ::vm.user.arkiv_seed | prettysize }} på arkiv)</span></td>
 		</tr>
 		<tr ng-show="vm.user.invitedByUser">
 			<td class="text-right tdBold alignMiddle">Inbjuden utav</td>

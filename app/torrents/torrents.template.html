@@ -1,14 +1,33 @@
-<div class="text-center center-block hidden-xs" ng-show="::!vm.hideCheckboxes" style="margin-bottom: 15px;">
+<div class="text-center center-block" style="margin-bottom: 10px;">
+	<div class="btn-group" ng-if="!vm.settings.section">
+		<label class="btn btn-default btn-xs" ng-model="vm.section" uib-btn-radio="'all'" ng-change="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()">Allt</label>
+		<label class="btn btn-default btn-xs" ng-model="vm.section" uib-btn-radio="'new'" ng-change="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()">Nytt</label>
+		<label class="btn btn-default btn-xs" ng-model="vm.section" uib-btn-radio="'archive'" ng-change="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()">Arkiv</label>
+	</div>
+	<label class="btn btn-default btn-xs" ng-model="vm.p2p" ng-if="!vm.settings.p2p" uib-btn-checkbox btn-checkbox-true="null" ng-change="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()">P2P</label>
+	<label class="btn btn-default btn-xs" ng-model="vm.swesub" ng-if="!vm.settings.swesub" uib-btn-checkbox ng-change="vm.currentPage = 1; vm.getTorrents()">Svensk text</label>
+	<label class="btn btn-default btn-xs" ng-hide="vm.sweaudio == undefined" ng-model="vm.sweaudio" ng-if="!vm.settings.sweaudio" uib-btn-checkbox ng-change="vm.currentPage = 1; vm.getTorrents()">Svenskt tal</label>
+	<label class="btn btn-default btn-xs" ng-model="vm.freeleech" ng-if="!vm.settings.freeleech" uib-btn-checkbox ng-change="vm.currentPage = 1; vm.getTorrents()">Fri leech</label>
+	<label class="btn btn-default btn-xs" ng-hide="vm.stereoscopic == undefined" ng-model="vm.stereoscopic" ng-if="!vm.settings.stereoscopic" uib-btn-checkbox ng-change="vm.currentPage = 1; vm.getTorrents()">3D</label>
+</div>
+
+<div class="text-center center-block hidden-xs" ng-hide="vm.defaultCategories.length == 1" style="margin-bottom: 15px;">
 	<categories-checkboxes user-categories="vm.checkboxCategories" limit-to-categories="vm.defaultCategories" changed="vm.currentPage = 1; vm.forceCats = true; vm.getTorrents()"></categories-checkboxes>
-	<span class="normal" ng-show="vm.showHideOldCheckbox">
-		<button class="btn btn-default btn-xs" ng-model="vm.hideOld" uib-btn-checkbox ng-change="vm.getTorrents()">Dölj gamla filmer</button>
-	</span>
 </div>
 
 <div ng-show="vm.currentUser.parkerad == 1" class="alert alert-warning" role="alert">Ditt konto är parkerat och kan därför inte visa alla sidor. Parkera upp kontot ifrån inställningarna.</div>
 
 <div class="table-responsive" ng-hide="vm.currentUser.parkerad == 1">
-	<torrents-table torrents="vm.torrents" on-filter-category="vm.filterCategory(category)" on-sort="vm.sortTorrents(sort)" last-browse-date="vm.lastBrowseDate" col-download="true" col-bookmark="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
+	<torrents-table torrents="vm.torrents" on-filter-category="vm.filterCategory(category)" on-sort="vm.sortTorrents(sort)" check-mode="vm.checkMode" last-browse-date="vm.lastBrowseDate" search-text="vm.searchText" col-download="true" col-bookmark="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
+	<button ng-show="vm.currentUser.class >= 8 && vm.torrents.length > 0" class="btn btn-default btn-xs pull-right" style="margin-top: 10px;" uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false" ng-model="vm.checkMode" ng-change="vm.loadRelated()"><i class="fa fa-user-secret"></i> Multi-radera</button>
+	<div ng-if="vm.checkMode" class="text-center">
+		<div class="clearfix"></div>
+		<br />
+		<delete-torrent model="vm.deleteVars" related-torrents="vm.relatedTorrents" show-ban="false" show-pmuploader="false"></delete-torrent>
+		<br />
+		<button ng-show="!vm.deletingMulti" ng-click="vm.multiDelete()" ng-disabled="vm.getCheckedAmount() == 0" class="btn btn-primary">Radera alla ({{ vm.getCheckedAmount() }}) markerade torrents</button>
+		<button ng-show="vm.deletingMulti" class="btn btn-primary disabled">Raderar...</button>
+	</div>
 </div>
 
 <loading-indicator hide="vm.torrents"></loading-indicator>

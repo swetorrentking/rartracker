@@ -50,9 +50,18 @@ class Invite implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Inviten finns inte.');
+			throw new Exception('Inviten finns inte.', 404);
 		}
 		return $res;
+	}
+
+	public function checkValidity($secret) {
+		$sth = $this->db->prepare('SELECT * FROM invites WHERE secret = ?');
+		$sth->bindParam(1, $secret, PDO::PARAM_STR);
+		$sth->execute();
+		if (!$sth->fetch()) {
+			throw new Exception('Inviten finns inte.', 404);
+		}
 	}
 
 	public function update($id, $postdata) {}

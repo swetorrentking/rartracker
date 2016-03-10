@@ -7,12 +7,14 @@ class User {
 	private $status = 0;
 	private $class = 8;
 	private $loggedIn = false;
-	private $gigabyteUploadedOnSignup = 25;
 	private $user;
 
 	// Min 22 chars (for bcrypt salt)
-	private $passwordSalt = "v5NLRfP4cndM3hQuf8fZuN";
-	private $cookieSalt = "pfR8LWW79GpzahwbVnmCqb";
+	const PASSWORD_SALT = "v5NLRfP4cndM3hQuf8fZuN";
+	const COOKIE_SALT = "pfR8LWW79GpzahwbVnmCqb";
+	const EMAIL_SALT = "9KGHN4eysKFbVcJAkzGSBv";
+	const HASHED_EMAILS = true;
+	const GIGABYTE_ON_SIGNUP = 25;
 
 	const CLASS_USER = 0;
 	const CLASS_SKADIS = 1;
@@ -23,7 +25,7 @@ class User {
 	const CLASS_VIP = 7;
 	const CLASS_ADMIN = 8;
 
-	public function __construct($db) {
+	public function __construct($db = null) {
 		$this->db = $db;
 	}
 
@@ -34,7 +36,6 @@ class User {
 			'id',
 			'inviteban',
 			'enabled',
-			'visagammalt',
 			'notifs',
 			'avatar',
 			'anonym',
@@ -78,7 +79,9 @@ class User {
 			'uploadban',
 			'warned',
 			'warneduntil',
-			'search_sort');
+			'search_sort',
+			'section',
+			'p2p');
 		$returnUserArray = array();
 		foreach ($this->getUser() as $key => $value) {
 			if (in_array($key, $userFields)) {
@@ -186,8 +189,9 @@ class User {
 	}
 
 	public function recoverByPasskey($postdata) {
+		$hashedEmail = $this->hashEmail($postdata["email"]);
 		$sth = $this->db->prepare("SELECT id, username, enabled, added, secret FROM users WHERE email = ? AND passkey = ?");
-		$sth->bindParam(1,	$postdata["email"],		PDO::PARAM_STR);
+		$sth->bindParam(1,	$hashedEmail,			PDO::PARAM_STR);
 		$sth->bindParam(2,	$postdata["passkey"],	PDO::PARAM_STR);
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
@@ -213,8 +217,10 @@ class User {
 		$recoverLog = new RecoveryLog($this->db);
 		$recoverLog->check($ip);
 
+		$hashedEmail = $this->hashEmail($postdata["email"]);
+
 		$sth = $this->db->prepare("SELECT id, username, enabled, email, secret FROM users WHERE email = ?");
-		$sth->bindParam(1,	$postdata["email"],		PDO::PARAM_STR);
+		$sth->bindParam(1,	$hashedEmail,	PDO::PARAM_STR);
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 
@@ -251,12 +257,12 @@ Om du vill fortsätta återställa lösenordet, följ länken:
 
 {$siteName}
 EOD;
-		mail($res["email"], Config::SITE_NAME . " password reset confirmation", $body, $headers, "-f" . Config::SITE_MAIL);
+		mail($postdata["email"], Config::SITE_NAME . " password reset confirmation", $body, $headers, "-f" . Config::SITE_MAIL);
 
 		$hostname = gethostbyaddr($ip);
 
 		$recoverLog->create(array(
-			"email" => $res["email"],
+			"email" => $hashedEmail,
 			"userid" => $res["id"],
 			"ip" => $ip,
 			"hostname" => $hostname
@@ -289,6 +295,8 @@ EOD;
 		$sth->execute();
 		$invite = $sth->fetch(PDO::FETCH_ASSOC);
 
+		$hashedEmail = $this->hashEmail($postdata["email"]);
+
 		if (!$invite) {
 			throw new Exception('Inbjudningskoden har utgått.', 412);
 		}
@@ -307,7 +315,7 @@ EOD;
 		if (!preg_match ('/^[\w.-]+@([\w.-]+\.)+[a-z]{2,6}$/is', $postdata["email"])) {
 			throw new Exception('Ogiltig e-postadress', 412);
 		}
-		if (!$this->emailIsAvailable($postdata["email"])) {
+		if (!$this->emailIsAvailable($hashedEmail)) {
 			throw new Exception('E-postadressen används redan på sidan', 409);
 		}
 		if (strlen($postdata["password"]) < 6) {
@@ -341,13 +349,13 @@ EOD;
 
 		$added = date("Y-m-d H:i:s");
 		$passhash = $this->hashPassword($postdata["password"], $added);
-		$uploaded = 1073741824 * $this->gigabyteUploadedOnSignup;
+		$uploaded = 1073741824 * User::GIGABYTE_ON_SIGNUP;
 		$leechEnd = date('Y-m-d H:i:s', time() + 86400); // 24h frree leech
 
 		$sth = $this->db->prepare("INSERT INTO users (username, passhash, email, passkey, invited_by, indexlist, added, gender, alder, leechstart, uploaded, lastreadnews, last_access, anonym) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'yes')");
 		$sth->bindParam(1,	$postdata["username"],			PDO::PARAM_STR);
 		$sth->bindParam(2,	$passhash,						PDO::PARAM_STR);
-		$sth->bindValue(3,	strtolower($postdata["email"]),	PDO::PARAM_STR);
+		$sth->bindParam(3,	$hashedEmail,					PDO::PARAM_STR);
 		$sth->bindValue(4,	md5(uniqid()),					PDO::PARAM_STR);
 		$sth->bindParam(5,	$invite["userid"],				PDO::PARAM_INT);
 		$sth->bindParam(6,	$indexlist,						PDO::PARAM_INT);
@@ -376,7 +384,7 @@ EOD;
 		$res = $sth->fetch();
 		$loginAttemptsHits = $res[0];
 
-		$sth = $this->db->query("SELECT COUNT(*) FROM emaillog WHERE email = '".$postdata["email"]."' AND userid != " . $userId);
+		$sth = $this->db->query("SELECT COUNT(*) FROM emaillog WHERE email = '".$hashedEmail."' AND userid != " . $userId);
 		$res = $sth->fetch();
 		$emailLogHits = $res[0];
 
@@ -394,7 +402,7 @@ EOD;
 
 		$signups = new Signups($this->db, $this);
 
-		$signups->create($userId, $ip, $hostname, $postdata["email"], $emailLogHits, $ipHits, $warninLevel);
+		$signups->create($userId, $ip, $hostname, $hashedEmail, $emailLogHits, $ipHits, $warninLevel);
 
 		/* Zero means persistent invite url */
 		if ($invite["userid"] != 0) {
@@ -471,7 +479,7 @@ EOD;
 
 				$userData["doljuploader"] = $userData["class"];
 
-				if ($userData["class"] >= self::CLASS_REGISSAR) {
+				if ($userData["class"] >= self::CLASS_FILMSTJARNA) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $user["id"]);
 				}
 			}
@@ -526,9 +534,9 @@ EOD;
 				}
 			}
 
-			if ($user["email"] != $userData["email"]) {
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], "Emailbyte från " . $user["email"] . " till ".$userData["email"]." av " . $this->getUsername());
-				$this->addEmailLog($user["id"], $user["email"]);
+			if ($this->hashEmail($user["email"]) != $this->hashEmail($userData["email"])) {
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], "Emailbyte från " . $this->hashEmail($user["email"]) . " till " . $this->hashEmail($userData["email"]) . " av " . $this->getUsername());
+				$this->addEmailLog($user["id"], $this->hashEmail($user["email"]));
 			}
 
 			if ($user["username"] != $userData["username"]) {
@@ -538,10 +546,10 @@ EOD;
 		}
 
 		if ($this->getClass() >= User::CLASS_ADMIN) {
-			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, visagammalt = :visagammalt, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, leechstart = :leechstart, invites = :invites, reqslots = :reqslots, forumban = :forumban, inviteban = :inviteban, uploadban = :uploadban, passkey = :passkey, warneduntil = :warneduntil, warned = :warned, username = :username, enabled = :enabled, bonuspoang = :bonuspoang, donor = :donor, downloaded = :downloaded, uploaded = :uploaded, title = :title, modcomment = :modcomment, email = :email, secret = :secret, class = :class, invited_by = :invited_by WHERE id = :userId");
+			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, leechstart = :leechstart, invites = :invites, reqslots = :reqslots, forumban = :forumban, inviteban = :inviteban, uploadban = :uploadban, passkey = :passkey, warneduntil = :warneduntil, warned = :warned, username = :username, enabled = :enabled, bonuspoang = :bonuspoang, donor = :donor, downloaded = :downloaded, uploaded = :uploaded, title = :title, modcomment = :modcomment, email = :email, secret = :secret, class = :class, invited_by = :invited_by, section = :section, p2p = :p2p WHERE id = :userId");
 
 		} else {
-			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, visagammalt = :visagammalt, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader WHERE id = :userId");
+			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, section = :section, p2p = :p2p  WHERE id = :userId");
 		}
 
 		if ($this->getClass() >= User::CLASS_ADMIN) {
@@ -562,7 +570,7 @@ EOD;
 			$sth->bindParam(":uploaded",		$userData["uploaded"],			PDO::PARAM_INT);
 			$sth->bindParam(":title",			$userData["title"],				PDO::PARAM_STR);
 			$sth->bindParam(":modcomment",		$userData["modcomment"],		PDO::PARAM_STR);
-			$sth->bindParam(":email",			$userData["email"],				PDO::PARAM_STR);
+			$sth->bindValue(":email",			$this->hashEmail($userData["email"]),	PDO::PARAM_STR);
 			$sth->bindParam(":secret",			$userData["secret"],			PDO::PARAM_STR);
 			$sth->bindParam(":class",			$userData["class"],				PDO::PARAM_STR);
 			$sth->bindParam(":invited_by",		$userData["invited_by"],		PDO::PARAM_INT);
@@ -587,12 +595,13 @@ EOD;
 		$sth->bindParam(":torrentsperpage", $userData["torrentsperpage"],	PDO::PARAM_INT);
 		$sth->bindParam(":topicsperpage",	$userData["topicsperpage"],		PDO::PARAM_INT);
 		$sth->bindParam(":postsperpage",	$userData["postsperpage"],		PDO::PARAM_INT);
-		$sth->bindParam(":visagammalt",		$userData["visagammalt"],		PDO::PARAM_INT);
 		$sth->bindParam(":passhash",		$userData["passhash"],			PDO::PARAM_STR);
 		$sth->bindParam(":design",			$userData["design"],			PDO::PARAM_INT);
 		$sth->bindParam(":css",				$userData["css"],				PDO::PARAM_STR);
 		$sth->bindParam(":search_sort",		$userData["search_sort"],		PDO::PARAM_STR);
 		$sth->bindParam(":doljuploader",	$userData["doljuploader"],		PDO::PARAM_INT);
+		$sth->bindParam(":section",			$userData["section"],			PDO::PARAM_STR);
+		$sth->bindParam(":p2p",				$userData["p2p"],				PDO::PARAM_INT);
 		$sth->bindParam(":userId",			$userId,						PDO::PARAM_INT);
 		$sth->execute();
 
@@ -613,15 +622,15 @@ EOD;
 		return $text . $modcomments;
 	}
 
-	public function get($id) {
+	public function get($id, $forcedAllInfo = false) {
 		$finalFields = array();
 		$finalFields = array_merge($finalFields, self::getDefaultFields());
 
-		if ($this->getId() == $id || $this->getClass() >= self::CLASS_ADMIN) {
+		if ($this->getId() == $id || $this->getClass() >= self::CLASS_ADMIN || $forcedAllInfo) {
 			$finalFields = array_merge($finalFields, $this->getSelfFields());
 		}
 
-		if ($this->getClass() >= self::CLASS_ADMIN) {
+		if ($this->getClass() >= self::CLASS_ADMIN || $forcedAllInfo) {
 			$finalFields = array_merge($finalFields, $this->getAdminFields());
 		}
 
@@ -646,19 +655,19 @@ EOD;
 			$arr["peersSeeder"] = null;
 		}
 
-		if ($arr["anonymratio"] == "yes" && $this->getClass() < self::CLASS_ADMIN && $this->getId() != $arr["id"]) {
+		if ($arr["anonymratio"] == "yes" && $this->getClass() < self::CLASS_ADMIN && $this->getId() != $arr["id"] && !$forcedAllInfo) {
 			$arr["downloaded"] = null;
 			$arr["downloaded_real"] = null;
 			$arr["uploaded"] = null;
 			$arr["uploadedTorrents"] = null;
 		}
 
-		if ($arr["anonymicons"] == "yes" && $this->getClass() < self::CLASS_ADMIN && $this->getId() != $arr["id"]) {
+		if ($arr["anonymicons"] == "yes" && $this->getClass() < self::CLASS_ADMIN && $this->getId() != $arr["id"] && !$forcedAllInfo) {
 			$arr["leechbonus"] = null;
 			$arr["pokal"] = null;
 		}
 
-		if ($arr["invited_by"] && $this->getId() == $arr["id"] || $this->getClass() >= self::CLASS_ADMIN) {
+		if ($arr["invited_by"] && $this->getId() == $arr["id"] || $this->getClass() >= self::CLASS_ADMIN && !$forcedAllInfo) {
 			try {
 				$arr["invitedByUser"] = $this->get($arr["invited_by"]);
 			} catch (Exception $e) {
@@ -802,6 +811,7 @@ EOD;
 		$this->loggedIn = true;
 		$this->id = (int) $arr["id"];
 		$this->ip = $arr["ip"];
+		$this->email = $arr["email"];
 		$this->username = $arr["username"];
 		$this->class = (int) $arr["class"];
 		$this->indexList = $arr["indexlist"];
@@ -904,6 +914,10 @@ EOD;
 		return $this->id;
 	}
 
+	public function getEmail() {
+		return $this->email;
+	}
+
 	public function getIp() {
 		return $this->ip;
 	}
@@ -983,16 +997,16 @@ EOD;
 	private function hashPassword($password, $added) {
 		$options = [
 			"cost" => 8,
-			"salt" => $this->passwordSalt
+			"salt" => User::PASSWORD_SALT
 		];
 		return md5(password_hash($password . $added, PASSWORD_BCRYPT, $options));
 	}
 
 	private function hashCookie($passhash, $hashWithIp) {
 		if ($hashWithIp == "true") {
-			return md5($passhash . $this->cookieSalt . $_SERVER["REMOTE_ADDR"]);
+			return md5($passhash . User::COOKIE_SALT . $_SERVER["REMOTE_ADDR"]);
 		} else {
-			return md5($passhash . $this->cookieSalt);
+			return md5($passhash . User::COOKIE_SALT);
 		}
 	}
 
@@ -1078,7 +1092,9 @@ EOD;
 			'users.isp',
 			'users.doljuploader',
 			'users.anonymratio',
-			'users.anonymicons'
+			'users.anonymicons',
+			'users.section',
+			'users.p2p'
 			);
 	}
 
@@ -1110,7 +1126,6 @@ EOD;
 			'topicsperpage',
 			'postsperpage',
 			'email',
-			'visagammalt',
 			'(SELECT COUNT(*) FROM users WHERE invited_by = uid) AS invitees',
 			'(SELECT COUNT(*) FROM comments WHERE user = uid) AS torrentComments',
 			'(SELECT COUNT(*) FROM posts WHERE userid = uid) AS forumPosts',
@@ -1412,6 +1427,10 @@ EOD;
 			throw new Exception('Du saknar rättigheter.', 401);
 		}
 
+		if ($getdata["email"]) {
+			$hashedEmail = $this->hashEmail($getdata["email"]);
+		}
+
 		$index = (int)$getdata["index"] ?: 0;
 		$limit = (int)$getdata["limit"] ?: 25;
 
@@ -1424,8 +1443,8 @@ EOD;
 		if ($getdata["ip"]) {
 			$where[] = "(ip LIKE '".$getdata["ip"]."%' OR torrentip LIKE '".$getdata["ip"]."%')";
 		}
-		if ($getdata["email"]) {
-			$where[] = "email LIKE '%".$getdata["email"]."%'";
+		if ($hashedEmail) {
+			$where[] = "email = '".$hashedEmail."'";
 		}
 
 		if (count($where) > 0) {
@@ -1440,18 +1459,60 @@ EOD;
 		$users = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 		if (strlen($getdata["ip"]) > 2) {
-			$sth = $this->db->query("SELECT iplog.ip, iplog.host, iplog.lastseen, iplog.uptime, users.username, users.id FROM iplog LEFT JOIN users ON iplog.userid = users.id WHERE iplog.ip LIKE '".$getdata["ip"]."%'");
+			$sth = $this->db->query("SELECT iplog.ip, iplog.host, iplog.lastseen, iplog.uptime, users.username, users.id, users.enabled FROM iplog LEFT JOIN users ON iplog.userid = users.id WHERE iplog.ip = '".$getdata["ip"]."'");
 			$iplog = $sth->fetchAll(PDO::FETCH_ASSOC);
 		}
 		if (strlen($getdata["ip"]) > 2 || strlen($getdata["username"]) > 1) {
 			$loginAttempts = new LoginAttempts($this->db, $this);
 			$loginAttempts = $loginAttempts->query(array("limit" => 99, "ip" => $getdata["ip"], "username" => $getdata["username"]));
 		}
-		if ($getdata["email"] || $getdata["ip"]) {
+		if ($hashedEmail || $getdata["ip"]) {
 			$recoveryLog = new RecoveryLog($this->db, $this);
-			$recoveryLog = $recoveryLog->query(array("limit" => 99, "email" => $getdata["email"], "ip" => $getdata["ip"]));
+			$recoveryLog = $recoveryLog->query(array("limit" => 99, "email" => $hashedEmail, "ip" => $getdata["ip"]));
+		}
+		if ($hashedEmail) {
+			$sth = $this->db->query("SELECT emaillog.datum, emaillog.email, users.username, users.id, users.ip, users.enabled FROM emaillog LEFT JOIN users ON emaillog.userid = users.id WHERE emaillog.email = '".$hashedEmail."'");
+			$emailLog = $sth->fetchAll(PDO::FETCH_ASSOC);
 		}
 
-		return array(array("users" => $users, "iplog" => $iplog, "loginAttempts" => $loginAttempts[0], "recoveryLog" => $recoveryLog[0]), $totalCount);
+		return array(array("users" => $users, "iplog" => $iplog, "loginAttempts" => $loginAttempts[0], "recoveryLog" => $recoveryLog[0], "emailLog" => $emailLog), $totalCount);
+	}
+
+	/* Hash email if not already hashed otherwise just return the already hashed email */
+	public function hashEmail($email) {
+		if (!User::HASHED_EMAILS) {
+			return $email;
+		}
+		if (strpos($email, '@') > 0) {
+			$options = [
+				"cost" => 8,
+				"salt" => User::EMAIL_SALT
+			];
+			return sha1(password_hash(strtolower($email), PASSWORD_BCRYPT, $options));
+		}
+		return $email;
+	}
+
+	public function testEmail($userId, $email) {
+		if ($this->getId() !== $userId && $this->getClass() < self::CLASS_ADMIN) {
+			throw new Exception('Du saknar rättigheter.', 401);
+		}
+
+		if ($this->getId() != $userId) {
+			$sth = $this->db->prepare('SELECT email from users WHERE id = ?');
+			$sth->bindValue(1, $userId, PDO::PARAM_INT);
+			$sth->execute();
+			if ($arr = $sth->fetch()) {
+				$userHashedMail = $arr[0];
+			}
+		} else {
+			$userHashedMail = $this->getEmail();
+		}
+
+		if ($userHashedMail === $this->hashEmail($email)) {
+			return true;
+		} else {
+			throw new Exception('Email matchar inte.', 404);
+		}
 	}
 }

@@ -14,7 +14,7 @@
 			controllerAs: 'vm'
 		});
 
-	function TorrentController() {
+	function TorrentController($scope) {
 
 		this.calcSpecialLeech = function () {
 			var date1 = new Date(this.torrent.added.replace(/-/g, '/'));
@@ -36,16 +36,28 @@
 			return '< 1 min';
 		};
 
-			// See if torrent is on 24h special leech
-		if (this.torrent && this.torrent.reqid === 0) {
-			var date1 = new Date(this.torrent.added.replace(/-/g, '/'));
-			var date2 = new Date();
-			var timeDiff = Math.abs(date2.getTime() - date1.getTime());
-			if (timeDiff < 86400000) {
-				this.specialLeech = this.calcSpecialLeech();
+		// See if torrent is on 24h special leech
+		this.checkSpecialLeech = function () {
+			if (this.torrent.reqid === 0) {
+				var date1 = new Date(this.torrent.added.replace(/-/g, '/'));
+				var date2 = new Date();
+				var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+				if (timeDiff < 86400000) {
+					this.specialLeech = this.calcSpecialLeech();
+				}
 			}
-		}
+		};
 
+		if (this.torrent) {
+			this.checkSpecialLeech();
+		} else {
+			var unbindWatcher = $scope.$watch('vm.torrent', (torrent) => {
+				if (torrent) {
+					this.checkSpecialLeech();
+					unbindWatcher();
+				}
+			});
+		}
 
 	}
 

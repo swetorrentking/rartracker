@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('TorrentsController', TorrentsController);
 
-	function TorrentsController($scope, $rootScope, $state, $stateParams, previousState, user, $timeout, TorrentsResource, authService, settings) {
+	function TorrentsController($scope, $rootScope, $state, $stateParams, user, $timeout, TorrentsResource, authService, settings) {
 
 		/* URL params */
 		this.sort = $stateParams.sort;
@@ -13,25 +13,36 @@
 		this.searchText = $stateParams.search;
 		this.currentPage = $stateParams.page;
 		this.extended = $stateParams.extended === 'true';
+		this.swesub = $stateParams.swesub === 'true';
+		this.freeleech = $stateParams.freeleech === 'true';
+		this.stereoscopic = settings.stereoscopic !== undefined ? null : $stateParams.stereoscopic == 'true';
+		this.sweaudio = settings.sweaudio !== undefined ? null : $stateParams.sweaudio == 'true';
 
 		/* Settings */
 		this.currentUser = user;
 		this.defaultCategories = settings.checkboxCategories;
 		this.forceCats = $stateParams.fc === 'true';
-		this.checkboxCategories = this.forceCats && $stateParams.cats.split(',').map(cat => parseInt(cat, 10)) || angular.copy(user.notifs);
+		this.checkboxCategories = this.forceCats && $stateParams.cats && $stateParams.cats.split(',').map(cat => parseInt(cat, 10)) || angular.copy(user.notifs);
 
+		/* Settings params will override */
+		this.section = settings.section ? settings.section : this.forceCats ? $stateParams.section : user.section;
+		if (settings.p2p !== undefined) {
+			this.p2p = settings.p2p;
+		} else {
+			this.p2p = this.forceCats ? $stateParams.p2p === 'true' : user.p2p === 1;
+			this.p2p = this.p2p ? null : false;
+		}
+
+		this.settings = settings;
 		this.deleteVars = {};
 		this.checkMode = false;
 		this.deletingMulti = false;
 		this.itemsPerPage = user['torrentsperpage'] > 0 ? user['torrentsperpage'] : 15;
-		this.hideOld = settings.pageName == 'last_browse' && user['visagammalt'] === 0;
 		this.lastBrowseDate = user[settings.pageName];
-		this.showHideOldCheckbox = settings.showHideOldCheckbox;
 		this.checkboxChannels = settings.checkboxChannels;
-		this.hideCheckboxes = !!settings.hideCheckboxes;
 
-		/* Change sort of torrents based on user settings in search view, but not if we went "back" from a torrent detail page */
-		if (previousState !== 'torrent' && settings.pageName === 'search' && user['search_sort'] === 'added') {
+		/* Change sort of torrents based on user settings in search view */
+		if (!this.forceCats && settings.pageName === 'search' && user['search_sort'] === 'added') {
 			this.sort = 'd';
 			this.order = 'desc';
 		}
@@ -59,22 +70,31 @@
 				search: this.searchText,
 				extended: this.extended,
 				fc: this.forceCats,
-				cats: this.checkboxCategories.join()
+				cats: this.checkboxCategories.join(),
+				p2p: this.p2p,
+				section: this.section,
+				swesub: this.swesub,
+				freeleech: this.freeleech,
+				stereoscopic: this.stereoscopic
 			}, { notify: false, location: (!this.hasLoadedFirstTime ? 'replace' : true) });
 
 			var index = this.currentPage * this.itemsPerPage - this.itemsPerPage;
 			TorrentsResource.Torrents.query({
 				'categories[]': this.checkboxCategories,
 				'index': index,
-				'hideOld': this.hideOld,
-				'p2p': settings.p2p,
-				'section': settings.section,
+				'p2p': this.p2p,
+				'section': this.section,
 				'limit': this.itemsPerPage,
 				'page': settings.pageName,
 				'sort': this.sort,
 				'order': this.order,
 				'searchText': this.searchText,
 				'extendedSearch': this.extended === true,
+				'watchview': settings.pageName === 'last_bevakabrowse',
+				'swesub': this.swesub,
+				'freeleech': this.freeleech,
+				'stereoscopic': this.stereoscopic,
+				'sweaudio': this.sweaudio
 			}, (torrents, responseHeaders) => {
 				var headers = responseHeaders();
 				this.totalItems = headers['x-total-count'];
@@ -110,6 +130,7 @@
 				this.sort = sort;
 				this.order = (sort == 'n' ? 'asc' : 'desc');
 			}
+			this.forceCats = true;
 			this.getTorrents();
 		};
 

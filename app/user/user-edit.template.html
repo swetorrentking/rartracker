@@ -15,8 +15,25 @@
 						<td style="width: 200px;" class="text-right tdBold alignMiddle">Visa endast följande kategorier</td>
 						<td class="text-left">
 							<categories-checkboxes user-categories="vm.user.notifs"></categories-checkboxes>
-
-							<button class="btn btn-default btn-xs" ng-model="vm.user.visagammalt" uib-btn-checkbox btn-checkbox-true="0" btn-checkbox-false="1">Dölj gamla filmer</button>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 200px;" class="text-right tdBold alignMiddle">Standardval sektion</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.section" uib-btn-radio="'all'">Allt</label>
+								<label class="btn btn-default" ng-model="vm.user.section" uib-btn-radio="'new'">Nytt</label>
+								<label class="btn btn-default" ng-model="vm.user.section" uib-btn-radio="'archive'">Arkiv</label>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td style="width: 200px;" class="text-right tdBold alignMiddle">Standardval för P2P</td>
+						<td class="text-left">
+							<div class="btn-group">
+								<label class="btn btn-default" ng-model="vm.user.p2p" uib-btn-radio="1">Visa</label>
+								<label class="btn btn-default" ng-model="vm.user.p2p" uib-btn-radio="0">Dölj</label>
+							</div>
 						</td>
 					</tr>
 					<tr>
@@ -203,13 +220,13 @@
 					<tr>
 						<td class="text-right tdBold alignMiddle">Email-adress</td>
 						<td class="text-left">
-							<div ng-if="vm.currentUser.class < 8">
-								<input type="text" class="form-control" ng-model="vm.user.email" disabled />
-							För att ändra mail. Skicka ett Staff-PM med mailen du vill byta till och en anledning till bytet.
+							<div class="input-group">
+								<input type="text" class="form-control" ng-model="vm.user.email" ng-disabled="vm.currentUser.class < 8" />
+								<span class="input-group-btn">
+									<hashed-email-test-button user-id="vm.user.id">Testa email</hashed-email-test-button>
+								</span>
 							</div>
-							<div ng-if="vm.currentUser.class >= 8">
-								<input type="text" class="form-control" ng-model="vm.user.email" />
-							</div>
+							<span ng-show="vm.currentUser.class < 8">För att ändra mail. Skicka ett Staff-PM med mailen du vill byta till och en anledning till bytet.</span>
 						</td>
 					</tr>
 					<tr>

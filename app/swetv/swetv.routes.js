@@ -32,7 +32,7 @@
 				}
 			})
 			.state('swetv.torrents', {
-				url			: '/torrents?page&sort&order',
+				url			: '/torrents?page&sort&order&fc&section&p2p&swesub&freeleech',
 				templateUrl : '../app/torrents/torrents.template.html',
 				controller  : 'TorrentsController as vm',
 				resolve		: {
@@ -42,19 +42,21 @@
 							checkboxCategories: [
 								categories.TV_SWE
 							],
-							hideCheckboxes: true,
-							showHideOldCheckbox: false,
 							pageName: 'last_tvbrowse',
-							p2p: null,
-							section: 'new'
+							stereoscopic: null,
+							sweaudio: null,
 						};
-					},
-					previousState: () => {}
+					}
 				},
 				params: {
 					page: { value: '1', squash: true },
 					sort: { value: 'd', squash: true },
-					order: { value: 'desc', squash: true }
+					order: { value: 'desc', squash: true },
+					fc: { value: 'false', squash: true },
+					section: { value: 'all', squash: true },
+					p2p: { value: 'true', squash: true },
+					swesub: { value: 'false', squash: true },
+					freeleech: { value: 'false', squash: true },
 				}
 			});
 

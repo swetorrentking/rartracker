@@ -36,6 +36,7 @@
 				this.loginAttempts = data.loginAttempts;
 				this.iplog = data.iplog;
 				this.recoveryLog = data.recoveryLog;
+				this.emailLog = data.emailLog;
 				if (!this.hasLoaded) {
 					this.currentPage = $stateParams.page;
 					this.hasLoaded = true;
@@ -45,6 +46,15 @@
 
 		this.doSearch = function () {
 			this.currentPage = 1;
+			this.loadUsers();
+		};
+
+		this.searchForIp = function (ip) {
+			this.search = {
+				ip: ip,
+				name: '',
+				email: ''
+			};
 			this.loadUsers();
 		};
 

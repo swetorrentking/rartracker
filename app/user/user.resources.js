@@ -20,6 +20,7 @@
 			Watch:				resourceExtension('users/:id/watching/imdb/:imdbId', { imdbId: '@imdbId', id: '@id' }),
 			WatchTop:			resourceExtension('users/:id/watching/toplist'),
 			ForumPosts:			resourceExtension('users/:id/forum-posts'),
+			EmailTest:			resourceExtension('users/:id/email-test'),
 		};
 	}
 

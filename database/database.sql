@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `bevaka` (
   `typ` tinyint(4) NOT NULL,
   `format` varchar(10) NOT NULL,
   `swesub` tinyint(4) NOT NULL,
-  `datum` int(11) NOT NULL,
+  `datum` date NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `userid` (`userid`,`imdbid`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
@@ -763,6 +763,7 @@ CREATE TABLE IF NOT EXISTS `torrents` (
   `tv_klockslag` int(11) NOT NULL,
   `pre` int(11) NOT NULL,
   `swesub` tinyint(1) NOT NULL,
+  `sweaudio` tinyint(4) NOT NULL DEFAULT '0',
   `pack` tinyint(4) NOT NULL DEFAULT '0',
   `3d` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`),
@@ -875,7 +876,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `arkiv_seed` bigint(20) NOT NULL DEFAULT '0',
   `browser` varchar(200) NOT NULL,
   `operativ` varchar(200) NOT NULL,
-  `indexlist` varchar(100) NOT NULL DEFAULT '1, 141',
+  `indexlist` varchar(100) NOT NULL DEFAULT '1, 2',
   `uploadban` enum('yes','no') NOT NULL DEFAULT 'no',
   `css` varchar(250) NOT NULL,
   `design` tinyint(4) NOT NULL DEFAULT '0',
@@ -884,8 +885,9 @@ CREATE TABLE IF NOT EXISTS `users` (
   `magnet` tinyint(1) NOT NULL,
   `lastreadnews` int(11) NOT NULL DEFAULT '0',
   `uplLastReadCommentId` int(11) NOT NULL DEFAULT '0',
-  `visagammalt` tinyint(1) NOT NULL,
   `search_sort` enum('name','added') NOT NULL DEFAULT 'name',
+  `section` enum('all','new','archive') NOT NULL DEFAULT 'all',
+  `p2p` tinyint(4) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `passkey` (`passkey`),
@@ -901,8 +903,8 @@ CREATE TABLE IF NOT EXISTS `users` (
 INSERT INTO `settings` (`arg`, `value_s`, `value_i`) VALUES
 ('peers_rekord', '', 0);
 
-INSERT INTO `users` (`id`, `username`, `old_password`, `passhash`, `secret`, `email`, `added`, `last_login`, `last_access`, `info`, `acceptpms`, `ip`, `class`, `avatar`, `uploaded`, `lastweekupload`, `downloaded`, `downloaded_real`, `title`, `country`, `notifs`, `modcomment`, `enabled`, `avatars`, `donor`, `warned`, `warneduntil`, `torrentsperpage`, `topicsperpage`, `anonym`, `postsperpage`, `anonymratio`, `anonymicons`, `reqslots`, `passkey`, `last_browse`, `last_reqbrowse`, `last_tvbrowse`, `last_seriebrowse`, `last_ovrigtbrowse`, `last_allbrowse`, `last_bevakabrowse`, `invites`, `invited_by`, `bonuspoang`, `leechbonus`, `leechstart`, `randomcheck`, `doljuploader`, `softbet`, `forumban`, `parkerad`, `uptime`, `forum_access`, `isp`, `mbitupp`, `mbitner`, `alder`, `gender`, `torrentip`, `skull`, `crown`, `pokal`, `coin`, `hearts`, `inviteban`, `muptime`, `nytt_seed`, `arkiv_seed`, `browser`, `operativ`, `indexlist`, `uploadban`, `css`, `design`, `tvvy`, `https`, `magnet`, `lastreadnews`, `uplLastReadCommentId`, `visagammalt`, `search_sort`) VALUES
-(1, 'System', '', '45d6051ba12119e8c24027d4bcb1d299', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 0, 'name');
+INSERT INTO `users` (`id`, `username`, `old_password`, `passhash`, `secret`, `email`, `added`, `last_login`, `last_access`, `info`, `acceptpms`, `ip`, `class`, `avatar`, `uploaded`, `lastweekupload`, `downloaded`, `downloaded_real`, `title`, `country`, `notifs`, `modcomment`, `enabled`, `avatars`, `donor`, `warned`, `warneduntil`, `torrentsperpage`, `topicsperpage`, `anonym`, `postsperpage`, `anonymratio`, `anonymicons`, `reqslots`, `passkey`, `last_browse`, `last_reqbrowse`, `last_tvbrowse`, `last_seriebrowse`, `last_ovrigtbrowse`, `last_allbrowse`, `last_bevakabrowse`, `invites`, `invited_by`, `bonuspoang`, `leechbonus`, `leechstart`, `randomcheck`, `doljuploader`, `softbet`, `forumban`, `parkerad`, `uptime`, `forum_access`, `isp`, `mbitupp`, `mbitner`, `alder`, `gender`, `torrentip`, `skull`, `crown`, `pokal`, `coin`, `hearts`, `inviteban`, `muptime`, `nytt_seed`, `arkiv_seed`, `browser`, `operativ`, `indexlist`, `uploadban`, `css`, `design`, `tvvy`, `https`, `magnet`, `lastreadnews`, `uplLastReadCommentId`, `search_sort`, `section`, `p2p`) VALUES
+(1, 'System', '', '45d6051ba12119e8c24027d4bcb1d299', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 'name', 'all', 0);
 
 INSERT INTO `forumheads` (`id`, `sort`, `name`, `minclassread`) VALUES
 (1, 0, 'Rartracker', 0);

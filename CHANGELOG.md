@@ -1,5 +1,23 @@
 # rartracker changelog
 
+# 0.2.1 (2016-03-10)
+
+### New features and improvements
+
+* Archive torrents section removed. "New" and "archive" torrents are now mixed
+* Filters for displaying new/archive, swesub, p2p, freeleech and default settings on user profile
+* View filled requests
+* Validate invite codes "before" registration.
+* Email hashed. (run migrate.php on existing database)
+* Watch toplists now based on recent activity
+
+### Bugfixes
+
+* Several disabled buttons were clickable
+* Date in "watch" table (bevaka) fixed (run migrate.php), and for displaying more recent toplists data
+* Buy -10 GB on friend now works
+* Watch torrent page now works
+
 # 0.2.0 (2016-02-26)
 
 ### New features and improvements

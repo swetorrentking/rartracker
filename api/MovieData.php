@@ -48,7 +48,7 @@ class MovieData {
 			$sth = $this->db->prepare('INSERT INTO imdbinfo(imdbid, title, year, rating, tagline, genres, photo, director, writer, cast, runtime, seasoncount) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
 			$sth->bindParam(1,		$res["imdbid"],			PDO::PARAM_STR);
-			$sth->bindParam(2,		$res["title"],			PDO::PARAM_STR);
+			$sth->bindValue(2,		$res["title"] ?: '',	PDO::PARAM_STR);
 			$sth->bindParam(3,		$res["year"],			PDO::PARAM_INT);
 			$sth->bindParam(4,		$res["rating"],			PDO::PARAM_INT);
 			$sth->bindParam(5,		$res["tagline"],		PDO::PARAM_STR);

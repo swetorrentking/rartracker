@@ -35,7 +35,7 @@ class Helper {
 	}
 
 	public static function preCheck($releaseName){
-		$res = @file_get_contents('https://predb.org/api/pre/'.$releaseName);
+		$res = @file_get_contents('http://predb.org/api/pre/'.$releaseName);
 		if ($res && strlen($res) > 2) {
 			return strtotime($res);
 		}

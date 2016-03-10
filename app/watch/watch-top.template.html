@@ -13,7 +13,7 @@
 			<td>{{ movie.cnt }}</td>
 			<td align="left">
 				<div class="tdTitleCol" style="width: 220px">
-					<b><a ng-href="http://anonym.to/?ttp://www.imdb.com/title/{{ ::movie.imdbid }}/" target="_blank" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ ::movie.title }}</a> ({{ ::movie.year }})</b>
+					<b><a ng-href="http://anonym.to/?http://www.imdb.com/title/{{ ::movie.imdbid }}/" target="_blank" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ ::movie.title }}</a> ({{ ::movie.year }})</b>
 					<div class="hoverPoster" ng-if="showPoster && movie.imdbid2" style="background-image: url('/img/imdb/{{ ::movie.imdbid2 }}.jpg');"></div>
 				</div>
 			</td>

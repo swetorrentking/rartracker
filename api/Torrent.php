@@ -12,7 +12,7 @@ class Torrent {
 	private $adminlog;
 	private $torrentDir = "../torrents/";
 	private $subsDir = "../subs/";
-	public static $torrentFieldsUser = array('torrents.id', 'name', 'category', 'size', 'torrents.added', 'type', 'numfiles', 'comments', 'times_completed', 'leechers', 'seeders', 'reqid', 'torrents.frileech', 'torrents.imdbid', 'p2p', 'swesub', 'pack', '3d');
+	public static $torrentFieldsUser = array('torrents.id', 'name', 'category', 'size', 'torrents.added', 'type', 'numfiles', 'comments', 'times_completed', 'leechers', 'seeders', 'reqid', 'torrents.frileech', 'torrents.imdbid', 'p2p', 'swesub', 'sweaudio', 'pack', '3d');
 
 	const DVDR_PAL = 1;
 	const DVDR_CUSTOM = 2;
@@ -42,28 +42,28 @@ class Torrent {
 		$this->subtitles = $subtitles;
 	}
 
-	public function search($categories = null, $section = null, $index = 0, $limit, $sort = null, $order = null, $searchText = '', $hideOld = false, $p2p = null, $multiSearch = false, $watch = false) {
-		$limit = (int) $limit;
+	public function search($params) {
+		$limit = (int) $params["limit"];
 		if (!$limit) {
 			$limit = 20;
 		}
 
-		$index = (int) $index;
+		$index = (int) $params["index"];
 		if (!$index) {
 			$index = 0;
 		}
 
 		$catStr = "";
-		if ($categories != null) {
+		if ($params["categories"]) {
 
-			foreach($categories as &$cat) {
+			foreach($params["categories"] as &$cat) {
 				$cat = (int) $cat;
 			}
 
-			$catStr = implode($categories, ',');
+			$catStr = implode($params["categories"], ',');
 		}
 
-		switch ($sort) {
+		switch ($params["sort"]) {
 			case 'c': $sortColumn = 'torrents.comments'; break;
 			case 's': $sortColumn = 'torrents.size'; break;
 			case 'n': $sortColumn = 'torrents.name'; break;
@@ -74,57 +74,66 @@ class Torrent {
 			default: $sortColumn = 'torrents.id';
 		}
 
-		if ($order == "asc") {
+		if ($params["order"] == "asc") {
 			$order = "ASC";
 		} else {
 			$order = "DESC";
 		}
 
 		$where = [];
-		if (strlen($searchText) > 0) {
+		if (strlen($params["searchText"]) > 0) {
 
-			$searchWords = Helper::searchTextToWordParams($searchText);
+			$searchWords = Helper::searchTextToWordParams($params["searchText"]);
 
 			if (strlen($searchWords) > 0) {
-				if ($multiSearch == "true") {
+				if ($params["extendedSearch"] == "true") {
 					$where[] = '(MATCH (search_text) AGAINST (\''.$searchWords.'\' IN BOOLEAN MODE) OR MATCH (search_text2) AGAINST (\''.$searchWords.'\' IN BOOLEAN MODE))';
 				} else {
 					$where[] = 'MATCH (search_text) AGAINST (\''.$searchWords.'\' IN BOOLEAN MODE)';
 				}
 			}
 
-		} else {
-			if ($hideOld === "true") {
-				$date = strtotime('-2 years');
-				$minYear = date("Y", $date);
-				$where[] = "(imdbinfo.year >= " . $minYear . ' OR imdbinfo.year IS NULL)';
-			}
-
-			if ($catStr != '') {
-				$where[] = 'category IN ('.$catStr.')';
-			}
-
-			if ($p2p === "true") {
-				$where[] = '(category IN (9,10,11,12,14) OR p2p = 1)';
-			} else if ($p2p === "false") {
-				$where[] = 'p2p = 0';
-			}
-
 		}
 
-		if ($section == 'new') {
+		if ($catStr != '') {
+			$where[] = 'category IN ('.$catStr.')';
+		}
+
+		if ($params["p2p"] === "true") {
+			$where[] = 'p2p = 1';
+		} else if ($params["p2p"] === "false") {
+			$where[] = 'p2p = 0';
+		}
+
+		if ($params["swesub"] == "true") {
+			$where[] = "torrents.swesub > 0";
+		}
+
+		if ($params["sweaudio"] == "true") {
+			$where[] = "sweaudio = 1";
+		}
+
+		if ($params["freeleech"] == "true") {
+			$where[] = "frileech = 1";
+		}
+
+		if ($params["stereoscopic"] == "true") {
+			$where[] = "`3d` = 1";
+		}
+
+		if ($params["section"] == 'new') {
 			$where[] = 'reqid = 0';
-		} else if ($section == 'archive') {
+		} else if ($params["section"] == 'archive') {
 			$where[] = 'reqid > 0';
 		}
 
-		if ($watch) {
+		if ($params["watchview"] === "true") {
 
-			$sth = $this->db->query("SELECT COUNT(*) FROM bevaka JOIN torrents on bevaka.imdbid = torrents.imdbid WHERE (((torrents.category IN(4,5,6,7)) AND torrents.pack = 0 AND bevaka.swesub = 1 AND torrents.swesub = 1) OR ((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 0) OR (torrents.category NOT IN (4,5,6,7))) AND FIND_IN_SET(torrents.category, bevaka.format) AND (category = 2 AND torrents.p2p = 1 OR category <> 2 AND torrents.p2p = 0) AND torrents.pack = 0 AND torrents.3d = 0 AND bevaka.userid = " . $this->user->getId());
+			$sth = $this->db->query("SELECT COUNT(*) FROM bevaka JOIN torrents on bevaka.imdbid = torrents.imdbid WHERE (((torrents.category IN(4,5,6,7)) AND torrents.pack = 0 AND bevaka.swesub = 1 AND torrents.swesub = 1) OR ((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 0) OR (torrents.category NOT IN (4,5,6,7))) AND FIND_IN_SET(torrents.category, bevaka.format) AND (category = 2 AND torrents.p2p = 1 OR category <> 2 AND torrents.p2p = 0) AND torrents.pack = 0 AND torrents.3d = 0 AND bevaka.userid = " . $this->user->getId() . (count($where) > 0 ? ' AND '.implode($where, ' AND ' ) : ''));
 			$arr = $sth->fetch();
 			$totalCount = $arr[0];
 
-			$sth = $this->db->prepare("SELECT imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, torrents.* FROM bevaka JOIN torrents on bevaka.imdbid = torrents.imdbid LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE (((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 1 AND torrents.swesub = 1) OR ((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 0) OR (torrents.category NOT IN (4,5,6,7))) AND FIND_IN_SET(torrents.category, bevaka.format) AND (category = 2 AND torrents.p2p = 1 OR category <> 2 AND torrents.p2p = 0) AND torrents.pack = 0 AND torrents.3d = 0 AND bevaka.userid = ? ORDER BY torrents.id DESC LIMIT ?, ?");
+			$sth = $this->db->prepare("SELECT imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, torrents.* FROM bevaka JOIN torrents on bevaka.imdbid = torrents.imdbid LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE (((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 1 AND torrents.swesub = 1) OR ((torrents.category IN(4,5,6,7)) AND bevaka.swesub = 0) OR (torrents.category NOT IN (4,5,6,7))) AND FIND_IN_SET(torrents.category, bevaka.format) AND (category = 2 AND torrents.p2p = 1 OR category <> 2 AND torrents.p2p = 0) AND torrents.pack = 0 AND torrents.3d = 0 AND bevaka.userid = ? " . (count($where) > 0 ? ' AND '.implode($where, ' AND ' ) : '') ." ORDER BY ".$sortColumn." ".$order." LIMIT ?, ?");
 			$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
 			$sth->bindParam(2, $index, PDO::PARAM_INT);
 			$sth->bindParam(3, $limit, PDO::PARAM_INT);
@@ -635,7 +644,7 @@ class Torrent {
 		$searchText = Helper::searchfield("$torrent[name] $imdbInfo[genres] $imdbInfo[imdbid] " . implode(" ", $packFolders));
 		$searchText2 = Helper::searchfield("$imdbInfo[director] $imdbInfo[writer] $imdbInfo[cast]");
 
-		$sth = $this->db->prepare("UPDATE torrents SET ano_owner = :anoymous, descr = :descr, category = :category, imdbid = :imdbid, swesub = :swesub, p2p = :p2p, 3d = :3d, search_text = :searchText, search_text2 = :searchText2, tv_kanalid = :tvChannel, tv_programid = :tvProgramId, tv_program = :tvProgram, tv_episode = :tvEpisode, tv_info = :tvInfo, tv_klockslag = :tvTime, reqid = :reqid WHERE id = :id");
+		$sth = $this->db->prepare("UPDATE torrents SET ano_owner = :anoymous, descr = :descr, category = :category, imdbid = :imdbid, swesub = :swesub, p2p = :p2p, 3d = :3d, search_text = :searchText, search_text2 = :searchText2, tv_kanalid = :tvChannel, tv_programid = :tvProgramId, tv_program = :tvProgram, tv_episode = :tvEpisode, tv_info = :tvInfo, tv_klockslag = :tvTime, reqid = :reqid, sweaudio = :sweaudio WHERE id = :id");
 
 		$sth->bindParam(":id",				$id,					PDO::PARAM_INT);
 		$sth->bindParam(":anoymous",		$post["ano_owner"],		PDO::PARAM_INT);
@@ -654,6 +663,7 @@ class Torrent {
 		$sth->bindParam(":tvTime",			$tvTime,				PDO::PARAM_INT);
 		$sth->bindParam(":tvProgramId",		$tvProgramId,			PDO::PARAM_INT);
 		$sth->bindParam(":reqid",			$reqid,					PDO::PARAM_INT);
+		$sth->bindParam(":sweaudio",		$post["sweaudio"],		PDO::PARAM_INT);
 
 		$sth->execute();
 
@@ -728,6 +738,7 @@ class Torrent {
 		$imdbId = $post["imdbId"];
 		$p2p = $post["p2p"];
 		$freeleech = 0;
+		$sweaudio = $post["sweaudio"] ?: 0;
 		$stereoscopic = 0;
 
 		$swesub = 0;
@@ -750,6 +761,17 @@ class Torrent {
 				Torrent::TV_1080P,
 				Torrent::MOVIE_4K))) {
 			$swesub = 2;
+		}
+
+		/* SWE TV is excepted from swe audio tag */
+		if ($post["sweaudio"] && in_array($category, array(
+				Torrent::TV_SWE,
+				Torrent::AUDIOBOOKS,
+				Torrent::EBOOKS,
+				Torrent::EPAPERS,
+				Torrent::MUSIC,
+				Torrent::SUBPACK))) {
+			$sweaudio = 0;
 		}
 
 		/* SWE-TV */
@@ -1022,7 +1044,7 @@ class Torrent {
 		$searchText = Helper::searchfield("$name $imdbInfo[genres] $imdbInfo[imdbid] " . implode(" ", $packFolders));
 		$searchText2 = Helper::searchfield("$imdbInfo[director] $imdbInfo[writer] $imdbInfo[cast]");
 
-		$sth = $this->db->prepare("INSERT INTO torrents (name, filename, search_text, search_text2, owner, visible, info_hash, size, numfiles, type, ano_owner, descr, category, added, last_action,  frileech, tv_kanalid, tv_program, tv_episode, tv_info, imdbid, tv_klockslag, tv_programid, reqid, pre, p2p, 3d, pack, swesub) VALUES (:name, :filename, :searchText, :searchText2, :owner, 'no', :infoHash, :size, :numfiles, :type, :anoymous, :descr, :category, NOW(), NOW(), :freeLeech, :tvChannel, :tvProgram, :tvEpisode, :tvInfo, :imdbid, :tvTime, :tvProgramId, :reqid, :pre, :p2p, :3d, :pack, :swesub)");
+		$sth = $this->db->prepare("INSERT INTO torrents (name, filename, search_text, search_text2, owner, visible, info_hash, size, numfiles, type, ano_owner, descr, category, added, last_action,  frileech, tv_kanalid, tv_program, tv_episode, tv_info, imdbid, tv_klockslag, tv_programid, reqid, pre, p2p, 3d, pack, swesub, sweaudio) VALUES (:name, :filename, :searchText, :searchText2, :owner, 'no', :infoHash, :size, :numfiles, :type, :anoymous, :descr, :category, NOW(), NOW(), :freeLeech, :tvChannel, :tvProgram, :tvEpisode, :tvInfo, :imdbid, :tvTime, :tvProgramId, :reqid, :pre, :p2p, :3d, :pack, :swesub, :sweaudio)");
 
 		$sth->bindParam(":name",			$name, 					PDO::PARAM_STR);
 		$sth->bindParam(":filename",		$fname,					PDO::PARAM_STR);
@@ -1050,6 +1072,7 @@ class Torrent {
 		$sth->bindParam(":3d",				$stereoscopic,			PDO::PARAM_INT);
 		$sth->bindParam(":pack",			$pack,					PDO::PARAM_INT);
 		$sth->bindParam(":swesub",			$swesub,				PDO::PARAM_INT);
+		$sth->bindParam(":sweaudio",		$sweaudio,				PDO::PARAM_INT);
 
 		$sth->execute();
 

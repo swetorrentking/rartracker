@@ -134,10 +134,12 @@ class Watching {
 	}
 
 	public function getToplist() {
-		$sth = $this->db->query("SELECT COUNT(*) AS cnt, bevaka.id, bevaka.typ, bevaka.imdbid as iamwatching, bevaka.imdbid AS imdbinfoid, imdbinfo.photo, imdbinfo.imdbid, imdbinfo.seasoncount, imdbinfo.title, imdbinfo.year, imdbinfo.imdbid AS imdbid2, (SELECT bevaka.id FROM bevaka WHERE bevaka.userid = ".$this->user->getId()." AND bevaka.imdbid = iamwatching) AS myBevakId FROM `bevaka` JOIN imdbinfo ON bevaka.imdbid = imdbinfo.id WHERE bevaka.typ = 0 GROUP BY imdbid ORDER BY cnt DESC LIMIT 50");
+		$dt = time() - 86400 * 90; // Display toplists for movies added during the last XX days
+		$sth = $this->db->query("SELECT COUNT(*) AS cnt, bevaka.id, bevaka.typ, bevaka.imdbid as iamwatching, bevaka.imdbid AS imdbinfoid, imdbinfo.photo, imdbinfo.imdbid, imdbinfo.seasoncount, imdbinfo.title, imdbinfo.year, imdbinfo.imdbid AS imdbid2, (SELECT bevaka.id FROM bevaka WHERE bevaka.userid = ".$this->user->getId()." AND bevaka.imdbid = iamwatching) AS myBevakId FROM `bevaka` JOIN imdbinfo ON bevaka.imdbid = imdbinfo.id WHERE bevaka.typ = 0 AND bevaka.datum > FROM_UNIXTIME(".$dt.") GROUP BY imdbid ORDER BY cnt DESC LIMIT 50");
 		$movies = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-		$sth = $this->db->query("SELECT COUNT(*) AS cnt, bevaka.id, bevaka.typ, bevaka.imdbid as iamwatching, bevaka.imdbid AS imdbinfoid, imdbinfo.photo, imdbinfo.imdbid, imdbinfo.seasoncount, imdbinfo.title, imdbinfo.year, imdbinfo.imdbid AS imdbid2, (SELECT bevaka.id FROM bevaka WHERE bevaka.userid = ".$this->user->getId()." AND bevaka.imdbid = iamwatching) AS myBevakId FROM `bevaka` JOIN imdbinfo ON bevaka.imdbid = imdbinfo.id WHERE bevaka.typ = 1 GROUP BY imdbid ORDER BY cnt DESC LIMIT 50");
+		$dt = time() - 86400 * 180; // Display toplists for movies added during the last XX days
+		$sth = $this->db->query("SELECT COUNT(*) AS cnt, bevaka.id, bevaka.typ, bevaka.imdbid as iamwatching, bevaka.imdbid AS imdbinfoid, imdbinfo.photo, imdbinfo.imdbid, imdbinfo.seasoncount, imdbinfo.title, imdbinfo.year, imdbinfo.imdbid AS imdbid2, (SELECT bevaka.id FROM bevaka WHERE bevaka.userid = ".$this->user->getId()." AND bevaka.imdbid = iamwatching) AS myBevakId FROM `bevaka` JOIN imdbinfo ON bevaka.imdbid = imdbinfo.id WHERE bevaka.typ = 1 AND bevaka.datum > FROM_UNIXTIME(".$dt.") GROUP BY imdbid ORDER BY cnt DESC LIMIT 50");
 		$tvseries = $sth->fetchAll(PDO::FETCH_ASSOC);
 
 		return array("movies" => $movies, "tvseries" => $tvseries);
