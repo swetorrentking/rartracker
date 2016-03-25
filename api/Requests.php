@@ -170,7 +170,7 @@ class Requests {
 			return Array("id" => $request["id"], "slug" => $slug);
 		} else {
 			$insertId = $this->db->lastInsertId();
-			$this->log->log(1, "Request ([url=/request/".$insertId ."/".$slug."][b]".$requestName."[/b][/url]) inlagd utav {{username}}", $this->user->getId(), false);
+			$this->log->log(1, "Request ([url=/requests/".$insertId ."/".$slug."][b]".$requestName."[/b][/url]) inlagd utav {{username}}", $this->user->getId(), false);
 			$this->vote($insertId, 0);
 			return Array("id" => $insertId, "name" => $requestName);
 		}
@@ -208,9 +208,9 @@ class Requests {
 	public function restore($reqId, $reason) {
 		$request = $this->get($reqId);
 		$this->db->query("UPDATE requests SET filled = 0 WHERE id = " . $reqId);
-		$this->log->log(1, "Request ([url=/request/".$reqId ."/][b]".$request["slug"]."[/b][/url]) har blivit återställd", 0, false);
+		$this->log->log(1, "Request ([url=/requests/".$reqId ."/][b]".$request["slug"]."[/b][/url]) har blivit återställd", 0, false);
 		if ($this->user->getId() != $request["user"]["id"]) {
-			$this->mailbox->sendSystemMessage($request["user"]["id"], "Request återställd", "Din request ([url=/archive/request/".$reqId ."/][b]".$request["request"]."[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{$reason}[/b]");
+			$this->mailbox->sendSystemMessage($request["user"]["id"], "Request återställd", "Din request ([url=/archive/requests/".$reqId ."/][b]".$request["request"]."[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{$reason}[/b]");
 		}
 	}
 

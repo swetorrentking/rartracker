@@ -1,6 +1,6 @@
 {
   "name": "angular-tracker",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "devDependencies": {
     "babel-preset-es2015": "^6.3.13",
     "bower": "~1.7.1",

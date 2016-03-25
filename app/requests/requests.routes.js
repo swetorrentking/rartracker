@@ -19,7 +19,7 @@
 				redirectTo	: 'requests.requests'
 			})
 			.state('requests.requests', {
-				url			: '/?page&sort&order',
+				url			: '?page&sort&order',
 				templateUrl : '../app/requests/requests.template.html',
 				controller  : 'RequestsController as vm',
 				resolve		: { user: authService => authService.getPromise() },
@@ -39,26 +39,26 @@
 				}
 			})
 			.state('requests.request', {
-				url			: '/request/:id/:slug',
+				url			: '/:id/:slug',
 				templateUrl : '../app/requests/request.template.html',
 				controller  : 'RequestController as vm',
 				params		: { scrollTo: ''},
 				resolve		: { user: authService => authService.getPromise() }
 			})
 			.state('requests.add', {
-				url			: '/requests/add',
+				url			: '/add',
 				templateUrl : '../app/requests/add-request.template.html',
 				controller  : 'AddRequestController as vm',
 				resolve		: { user: authService => authService.getPromise() }
 			})
 			.state('requests.edit', {
-				url			: '/request/:id/:slug/edit',
+				url			: '/:id/:slug/edit',
 				templateUrl : '../app/requests/edit-request.template.html',
 				controller  : 'EditRequestController as vm',
 				resolve		: { user: authService => authService.getPromise() }
 			})
 			.state('requests.my', {
-				url			: '/requests/my',
+				url			: '/my',
 				templateUrl : '../app/requests/my-requests.template.html',
 				controller  : 'MyRequestsController as vm',
 				resolve		: { user: authService => authService.getPromise() }

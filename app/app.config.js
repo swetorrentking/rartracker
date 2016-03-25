@@ -3,7 +3,7 @@
 
 	var configs = {
 		STATUS_CHECK_TIMER_LIMIT_MINUTES: 60 * 24,
-		SITE_URL: 'http://127.0.0.1:1332/',
+		SITE_URL: 'http://127.0.0.1',
 		API_BASE_URL: '/api/v1/',
 		SUGGESTIONS_FORUM_ID: 25,
 	};
@@ -43,10 +43,11 @@
 		CUSTOM_EXTERNAL:	{ id: 1, text: 'Anpassad extern CSS'},
 	};
 
-	function AppConfig($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider) {
+	function AppConfig($stateProvider, $urlRouterProvider, $locationProvider, $compileProvider, $httpProvider) {
 		$compileProvider.debugInfoEnabled(false);
 		$urlRouterProvider.otherwise('/');
 		$locationProvider.html5Mode(true);
+		$httpProvider.useApplyAsync(true);
 	}
 
 	function ResourceExtension($resource, configs) {
