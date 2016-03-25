@@ -808,7 +808,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `username` varchar(40) NOT NULL DEFAULT '',
   `old_password` varchar(40) NOT NULL DEFAULT '',
-  `passhash` varchar(32) NOT NULL DEFAULT '',
+  `passhash` varchar(60) NOT NULL DEFAULT '',
   `secret` varchar(50) NOT NULL,
   `email` varchar(80) NOT NULL DEFAULT '',
   `added` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -904,7 +904,7 @@ INSERT INTO `settings` (`arg`, `value_s`, `value_i`) VALUES
 ('peers_rekord', '', 0);
 
 INSERT INTO `users` (`id`, `username`, `old_password`, `passhash`, `secret`, `email`, `added`, `last_login`, `last_access`, `info`, `acceptpms`, `ip`, `class`, `avatar`, `uploaded`, `lastweekupload`, `downloaded`, `downloaded_real`, `title`, `country`, `notifs`, `modcomment`, `enabled`, `avatars`, `donor`, `warned`, `warneduntil`, `torrentsperpage`, `topicsperpage`, `anonym`, `postsperpage`, `anonymratio`, `anonymicons`, `reqslots`, `passkey`, `last_browse`, `last_reqbrowse`, `last_tvbrowse`, `last_seriebrowse`, `last_ovrigtbrowse`, `last_allbrowse`, `last_bevakabrowse`, `invites`, `invited_by`, `bonuspoang`, `leechbonus`, `leechstart`, `randomcheck`, `doljuploader`, `softbet`, `forumban`, `parkerad`, `uptime`, `forum_access`, `isp`, `mbitupp`, `mbitner`, `alder`, `gender`, `torrentip`, `skull`, `crown`, `pokal`, `coin`, `hearts`, `inviteban`, `muptime`, `nytt_seed`, `arkiv_seed`, `browser`, `operativ`, `indexlist`, `uploadban`, `css`, `design`, `tvvy`, `https`, `magnet`, `lastreadnews`, `uplLastReadCommentId`, `search_sort`, `section`, `p2p`) VALUES
-(1, 'System', '', '45d6051ba12119e8c24027d4bcb1d299', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 'name', 'all', 0);
+(1, 'System', '', '$2y$08$uxL463WTmJHaLvSVNlr9A.OoVevHeczC98U3QeKVB1fgh03V7O/ue', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 'name', 'all', 0);
 
 INSERT INTO `forumheads` (`id`, `sort`, `name`, `minclassread`) VALUES
 (1, 0, 'Rartracker', 0);

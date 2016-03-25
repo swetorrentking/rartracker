@@ -163,7 +163,7 @@ class User {
 		$sth->execute();
 
 		if ($arr = $sth->fetch(PDO::FETCH_ASSOC)) {
-			if ($arr["passhash"] == $this->hashPassword($password, $arr["added"])) {
+			if (password_verify($password . User::PASSWORD_SALT, $arr["passhash"])) {
 
 				if ($arr["enabled"] == "no") {
 					if ($arr["uploaded"]/$arr["downloaded"] > 0.5 && !strpos($arr["modcomment"], 'Disabled by') && !strpos($arr["modcomment"], 'Kontot inaktiverat utav')) {
@@ -190,7 +190,7 @@ class User {
 
 	public function recoverByPasskey($postdata) {
 		$hashedEmail = $this->hashEmail($postdata["email"]);
-		$sth = $this->db->prepare("SELECT id, username, enabled, added, secret FROM users WHERE email = ? AND passkey = ?");
+		$sth = $this->db->prepare("SELECT id, username, enabled, secret FROM users WHERE email = ? AND passkey = ?");
 		$sth->bindParam(1,	$hashedEmail,			PDO::PARAM_STR);
 		$sth->bindParam(2,	$postdata["passkey"],	PDO::PARAM_STR);
 		$sth->execute();
@@ -205,7 +205,7 @@ class User {
 		}
 
 		$newPassword = "temp" . rand(9, 99);
-		$passhash = $this->hashPassword($newPassword, $res["added"]);
+		$passhash = $this->hashPassword($newPassword);
 		$this->db->query("UPDATE users SET passhash = " . $this->db->quote($passhash) . " WHERE id = " . $res["id"]);
 
 		return array("username" => $res["username"], "newPassword" => $newPassword);
@@ -273,7 +273,7 @@ EOD;
 		if (strlen($secret) !== 32) {
 			throw new Exception('Ogiltig nyckel.', 401);
 		}
-		$sth = $this->db->prepare("SELECT id, username, enabled, added, email, secret FROM users WHERE secret = ?");
+		$sth = $this->db->prepare("SELECT id, username, enabled, email, secret FROM users WHERE secret = ?");
 		$sth->bindParam(1,	$secret,	PDO::PARAM_STR);
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
@@ -283,7 +283,7 @@ EOD;
 		}
 
 		$newPassword = "temp" . rand(9, 99);
-		$passhash = $this->hashPassword($newPassword, $res["added"]);
+		$passhash = $this->hashPassword($newPassword);
 		$this->db->query("UPDATE users SET secret = '', passhash = " . $this->db->quote($passhash) . " WHERE id = " . $res["id"]);
 
 		return array("username" => $res["username"], "newPassword" => $newPassword);
@@ -348,7 +348,7 @@ EOD;
 		}
 
 		$added = date("Y-m-d H:i:s");
-		$passhash = $this->hashPassword($postdata["password"], $added);
+		$passhash = $this->hashPassword($postdata["password"]);
 		$uploaded = 1073741824 * User::GIGABYTE_ON_SIGNUP;
 		$leechEnd = date('Y-m-d H:i:s', time() + 86400); // 24h frree leech
 
@@ -431,8 +431,8 @@ EOD;
 				throw new Exception('Nytt lösenord och upprepade lösenordet stämmmer inte.');
 			}
 
-			if ($this->getClass() >= self::CLASS_ADMIN || $this->hashPassword($userData["previousPassword"], $user["added"]) == $user["passhash"]) {
-				$userData["passhash"] = $this->hashPassword($userData["password"], $user["added"]);
+			if ($this->getClass() >= self::CLASS_ADMIN || password_verify($userData["previousPassword"] . User::PASSWORD_SALT, $user["passhash"])) {
+				$userData["passhash"] = $this->hashPassword($userData["password"]);
 				$changedPassword = true;
 			} else {
 				throw new Exception('Nuvarande lösenord är felaktigt.');
@@ -994,12 +994,11 @@ EOD;
 		return $this->leechStart;
 	}
 
-	private function hashPassword($password, $added) {
+	private function hashPassword($password) {
 		$options = [
-			"cost" => 8,
-			"salt" => User::PASSWORD_SALT
+			"cost" => 8
 		];
-		return md5(password_hash($password . $added, PASSWORD_BCRYPT, $options));
+		return password_hash($password . User::PASSWORD_SALT, PASSWORD_BCRYPT, $options);
 	}
 
 	private function hashCookie($passhash, $hashWithIp) {
