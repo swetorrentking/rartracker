@@ -1329,7 +1329,8 @@ function httpResponseError($code = 403, $data = null) {
 		case 504: $text = 'Gateway Time-out'; break;
 		case 505: $text = 'HTTP Version not supported'; break;
 		default:
-			case 401: $text = 'Unauthorized'; break;
+			$code = 500;
+			$text = 'Internal Server Error'; break;
 		break;
 	}
 

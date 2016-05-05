@@ -1154,7 +1154,7 @@ class Torrent {
 		$filepath = $this->torrentDir . $torrent["id"] . ".torrent";
 
 		if (!file_exists($filepath)) {
-			throw new Exception('Torrentfilen saknas.');
+			throw new Exception('Torrentfilen saknas.', 404);
 		}
 
 		if ($this->user->getHttps()) {
