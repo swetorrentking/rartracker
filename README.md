@@ -1,7 +1,7 @@
 # rartracker
 A modern front and backend bittorrent tracker written in AngularJS and PHP.
 ## Version
-0.2.1
+0.2.2
 ## Author
 the swedish torrent king
 ## Feature highlights
