@@ -140,6 +140,13 @@
 			});
 		};
 
+		this.deleteIPLog = function (iplog) {
+			UsersResource.Iplog.delete({id: $stateParams.id, iplogId: iplog.id}, () => {
+				var index = this.iplog.indexOf(iplog);
+				this.iplog.splice(index, 1);
+			});
+		};
+
 		this.loadUser();
 
 	}

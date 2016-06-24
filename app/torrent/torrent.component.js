@@ -38,7 +38,7 @@
 
 		// See if torrent is on 24h special leech
 		this.checkSpecialLeech = function () {
-			if (this.torrent.reqid === 0) {
+			if (this.torrent.section === 'new') {
 				var date1 = new Date(this.torrent.added.replace(/-/g, '/'));
 				var date2 = new Date();
 				var timeDiff = Math.abs(date2.getTime() - date1.getTime());

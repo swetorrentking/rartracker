@@ -1128,8 +1128,8 @@ EOD;
 			'(SELECT COUNT(*) FROM users WHERE invited_by = uid) AS invitees',
 			'(SELECT COUNT(*) FROM comments WHERE user = uid) AS torrentComments',
 			'(SELECT COUNT(*) FROM posts WHERE userid = uid) AS forumPosts',
-			'(SELECT COUNT(*) FROM torrents WHERE reqid < 2 AND owner = uid) AS torrents',
-			'(SELECT COUNT(*) FROM torrents WHERE reqid > 1 AND owner = uid) AS requests',
+			'(SELECT COUNT(*) FROM torrents WHERE reqid = 0 AND owner = uid) AS torrents',
+			'(SELECT COUNT(*) FROM torrents WHERE reqid > 0 AND owner = uid) AS requests',
 			'(SELECT COUNT(*) FROM peers WHERE seeder = "yes" AND userid = uid) AS peersSeeder',
 			'(SELECT COUNT(*) FROM peers WHERE seeder = "no" AND userid = uid) AS peersLeecher',
 			'anonym',
@@ -1304,6 +1304,15 @@ EOD;
 			return $customClass;
 		}
 		return $class;
+	}
+
+	public function deleteIpLog($id) {
+		if ($this->getClass() < self::CLASS_ADMIN) {
+			throw new Exception("Du saknar rättigheter.", 401);
+		}
+		$sth = $this->db->prepare("DELETE FROM iplog WHERE id = ?");
+		$sth->bindParam(1, $id, PDO::PARAM_INT);
+		$sth->execute();
 	}
 
 	public function generateUserObject($row, $anonymousRatio = false, $anonymousTorrents = false) {

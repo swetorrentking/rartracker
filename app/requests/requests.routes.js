@@ -19,7 +19,7 @@
 				redirectTo	: 'requests.requests'
 			})
 			.state('requests.requests', {
-				url			: '?page&sort&order',
+				url			: '/?page&sort&order',
 				templateUrl : '../app/requests/requests.template.html',
 				controller  : 'RequestsController as vm',
 				resolve		: { user: authService => authService.getPromise() },

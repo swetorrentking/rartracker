@@ -688,3 +688,47 @@ div.mailbox-buttons {
 .container-cloak {
 	display: none;
 }
+
+.videowrapper {
+	float: none;
+	clear: both;
+	width: 100%;
+	position: relative;
+	padding-bottom: 56.25%;
+	padding-top: 25px;
+	height: 0;
+}
+.videowrapper iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+/* Slidebox override */
+
+.carousel-control {
+	border-bottom: none !important;
+}
+
+.carousel-control.right {
+	background-image: none;
+}
+
+.carousel-control.left {
+	background-image: none;
+}
+
+.carousel-indicators li {
+	border: 1px solid #111;
+}
+
+.carousel-indicators .active {
+	background-color: #111;
+}
+
+.carousel-control:focus, .carousel-control:hover {
+	color: #111;
+	outline: none;
+}

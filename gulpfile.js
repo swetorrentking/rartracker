@@ -53,7 +53,6 @@ gulp.task('dist-html', function() {
 gulp.task('dev-js', function() {
 	return gulp.src(filePaths.JS_FILES)
 		.pipe(concat(filePaths.OUTPUT_JS_FILE))
-		.pipe(babel({ presets: ['es2015'], compact: false }))
 		.pipe(gulp.dest(filePaths.OUTPUT_DEST));
 });
 

@@ -2,11 +2,13 @@
 
 class MovieData {
 	private $db;
+	private $user;
 	private $imdbPicturesDir = "../img/imdb/";
 	private $releaseTitleMatcher = "/^(.+?)(.S[0-9]{2}|.[0-9]{4}|.US.)/";
 
-	public function __construct($db) {
+	public function __construct($db, $user = null) {
 		$this->db = $db;
+		$this->user = $user;
 	}
 
 	public function getData($id) {
@@ -49,7 +51,7 @@ class MovieData {
 
 			$sth->bindParam(1,		$res["imdbid"],			PDO::PARAM_STR);
 			$sth->bindValue(2,		$res["title"] ?: '',	PDO::PARAM_STR);
-			$sth->bindParam(3,		$res["year"],			PDO::PARAM_INT);
+			$sth->bindValue(3,		$res["year"] ?:0,		PDO::PARAM_INT);
 			$sth->bindParam(4,		$res["rating"],			PDO::PARAM_INT);
 			$sth->bindParam(5,		$res["tagline"],		PDO::PARAM_STR);
 			$sth->bindParam(6,		$res["genres"],			PDO::PARAM_STR);
@@ -282,6 +284,19 @@ class MovieData {
 			$sth = $this->db->query('SELECT id, title, year, photo, imdbid, seasoncount FROM imdbinfo WHERE MATCH (title) AGAINST (' . $this->db->quote($searchWords) . ' IN BOOLEAN MODE) ORDER BY year DESC LIMIT 8;');
 			return $sth->fetchAll(PDO::FETCH_ASSOC);
 		}
+	}
+
+	public function updateYoutube($id, $youtubeId) {
+		if ($this->user->getClass() < User::CLASS_ADMIN && strlen($youtubeId) == 0) {
+			throw new Exception("Du saknar rättigheter.", 401);
+		}
+		if ($this->user->getClass() < User::CLASS_REGISSAR) {
+			throw new Exception("Du saknar rättigheter.", 401);
+		}
+		$sth = $this->db->prepare("UPDATE imdbinfo SET youtube_id = ? WHERE id = ?");
+		$sth->bindParam(1,	$youtubeId,		PDO::PARAM_STR);
+		$sth->bindParam(2,	$id,			PDO::PARAM_INT);
+		$sth->execute();
 	}
 
 	public function updateImdbToplist () {

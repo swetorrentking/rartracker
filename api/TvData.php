@@ -8,7 +8,7 @@ class TvData {
 		$this->db = $db;
 	}
 
-	public function run() {
+	public function run($params) {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
 			throw new Exception("Must be run by server.", 401);
@@ -17,16 +17,19 @@ class TvData {
 		/* Spara ner dagens tablåer */
 
 		$res = $this->db->query('SELECT * FROM tv_kanaler WHERE visible = 1');
-
-		$dagensdatum = date('Y-m-d', time()); // hämta dagens tablåer
+		$days = 86400 * (int)$params["days"];
+		$dagensdatum = date('Y-m-d', time() + $days); // hämta dagens tablåer
 
 		while($r = $res->fetch(PDO::FETCH_ASSOC)) {
 
-			$data = json_decode(file_get_contents('http://json.xmltv.se/' . $r["xmlid"]. '_'. $dagensdatum .'.js.gz'), true);
+			$data = json_decode(gzdecode(file_get_contents('http://json.xmltv.se/' . $r["xmlid"]. '_'. $dagensdatum .'.js.gz')), true);
+			if (!$data) {
+				continue;
+			}
 			$data = $data["jsontv"];
-			
+
 			foreach ( $data["programme"] as $dat ) {
-			
+
 				$titel = $dat["title"]["sv"];
 				if(strlen($titel) < 2)
 					$titel = $dat["title"]["en"];

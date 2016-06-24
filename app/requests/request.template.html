@@ -16,7 +16,7 @@
 
 	<div ng-if="vm.currentUser.class >= 8 || vm.currentUser.id == vm.request.user.id">
 		<button class="btn btn-default btn-sm" ui-sref="requests.edit({ id: vm.request.id, slug: vm.request.slug})"><i class="fa fa-pencil"></i> Redigera</button>
-		<button class="btn btn-default btn-sm" ng-click="vm.delete()"><i class="fa fa-trash-o"></i> Radera</button>
+		<button class="btn btn-default btn-sm" ng-click="vm.delete()" ng-hide="vm.request.filled == 1"><i class="fa fa-trash-o"></i> Radera</button>
 		<br />
 	</div>
 	<h2>Röster och hittelön</h2>

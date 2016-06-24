@@ -7,7 +7,7 @@
 
 	<loading-indicator hide="vm.torrent || vm.notFoundMessage"></loading-indicator>
 
-	<movie-info movie-data="::vm.movieData"  ng-show="vm.movieData.title != null && vm.torrent.tv_programid == 0"></movie-info>
+	<movie-info movie-data="::vm.movieData" ng-show="vm.movieData.title != null && vm.torrent.tv_programid == 0" trailer="true"></movie-info>
 
 	<swetv-info torrent="::vm.torrent" tv-channel="::vm.tvChannel" ng-show="vm.torrent.tv_programid > 0"></swetv-info>
 
@@ -57,7 +57,7 @@
 			</tr>
 			<tr ng-show="vm.torrent.descr">
 				<td class="text-right tdBold hidden-xs">Information</td>
-				<td class="text-left"><pre style="max-height: 300px; text-overflow: scroll;" ng-bind-html="::vm.torrent.descr | bbCode"></pre></td>
+				<td class="text-left"><pre style="max-height: 300px; white-space: pre-wrap;" ng-bind-html="::vm.torrent.descr | bbCode"></pre></td>
 			</tr>
 			<tr ng-show="vm.packContent.length > 0">
 				<td class="text-right tdBold hidden-xs">Packinnehåll</td>

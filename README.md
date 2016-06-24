@@ -60,7 +60,7 @@ The "System" account **must remain** as a parked account and have Staff rights b
 
 ## Server settings
 ### Recommended packages
-``php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql memcached php5-curl php5-memcached``
+``php5 apache2 mariadb-server libapache2-mod-php5 php5-mysql memcached php5-curl php5-memcached``
 ### Enable rewrite module and change AllowOverride from "None" to "All" in httpd.conf in order for .htaccess to work
 ``a2enmod rewrite``
 ### Permissions

@@ -42,7 +42,7 @@ $setting['allow_old_protocols']     = true; // allow no_peer_id and original pro
 $setting['allow_global_scrape']     = false; // enable scrape-statistics for all torrents if no info_hash specified - wastes bandwidth on big trackers
 $setting['default_give_peers']      = 50; // how many peers to give to client by default
 $setting['max_give_peers']          = 150; // maximum peers client may request
-$setting['announce_interval']       = rand(3000, 3600); // 28-33 min - spread load a bit on the webserver
+$setting['announce_interval']       = rand(1800, 2400); // 30-40 min - spread load a bit on the webserver
 $setting['rate_limitation']         = true; // calculate the clients average upload-speed
 $setting['rate_limitation_warn_up'] = 2; // log a warning if exceeding this amount of MB/s
 $setting['rate_limitation_err_up']  = 60; // log a error and don't save stats for user if exceeding this amount of MB/s
@@ -81,7 +81,7 @@ if (strlen($_GET['peer_id']) < 4) {
 $info_hash_hex = bin2hex($_GET['info_hash']);
 
 if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section for announce or scrape mode
-	
+
 	$peer_id = hasheval($_GET['peer_id'], '20', 'peer_id');
 	$seeder  = ($_GET['left'] == 0) ? 'yes' : 'no';
 	// required values - we want numbers only
@@ -96,14 +96,14 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			err('Invalid key: ' . $var . '.');
 		}
 	}
-	
+
 	if ($_GET['port'] > 0xffff || $_GET['port'] < 1) {
 		err('Invalid port number.');
 	}
-	
+
 	$ip = getip();
-	
-	
+
+
 	// optional values - we want numbers only
 	$intoptvars = array(
 		'numwant',
@@ -116,7 +116,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 	}
 
-	
+
 	if (isset($_GET['event'])) {
 		if (ctype_alpha($_GET['event']) === false) {
 			// event was sent, but it contains invalid information
@@ -140,7 +140,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 	}
 	// all values should now have checked out ok
 
-	$sth = $db->prepare("SELECT id, downloaded, uploaded, to_go, seeder, ip, UNIX_TIMESTAMP(last_action), torrent, frileech, connectable, userid, nytt, user, leechbonus, torrentsize, UNIX_TIMESTAMP(added) FROM peers WHERE info_hash = ? AND port = ? AND ip = ?");
+	$sth = $db->prepare("SELECT id, downloaded, uploaded, to_go, seeder, ip, UNIX_TIMESTAMP(last_action), torrent, frileech, connectable, userid, section, user, leechbonus, torrentsize, UNIX_TIMESTAMP(added) FROM peers WHERE info_hash = ? AND port = ? AND ip = ?");
 	$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
 	$sth->bindParam(2, $_GET['port'],	PDO::PARAM_INT);
 	$sth->bindParam(3, $ip,				PDO::PARAM_STR);
@@ -154,7 +154,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		if ($_GET['event'] == 'stopped') {
 			err('Client sent stop, but peer not found!');
 		}
-		
+
 		/* HÄMTA USER INFO - START */
 		$sth = $db->prepare("SELECT id, username, class, UNIX_TIMESTAMP(leechstart) as leechstart, mbitupp, mbitner, leechbonus FROM users WHERE passkey = ? AND enabled = 'yes'");
 		$sth->bindParam(1, $passkey,	PDO::PARAM_STR);
@@ -168,22 +168,22 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 
 		/* HÄMTA USER INFO - SLUT */
 
-		
+
 		/* HÄMTA TORRENT INFO - START*/
 
-		$sth = $db->prepare("SELECT id, leechers, seeders, frileech, reqid, size, added FROM torrents WHERE info_hash = ?");
+		$sth = $db->prepare("SELECT id, leechers, seeders, frileech, section, size, added FROM torrents WHERE info_hash = ?");
 		$sth->bindParam(1, $info_hash_hex,	PDO::PARAM_STR);
 		$sth->execute();
 
 		if ($sth->rowCount() != 1) { // could not find the requested torrent in the database
 			err('Torrent does not exist on this tracker.');
 		}
-		list($t_id, $t_leechers, $t_seeders, $t_frileech, $t_reqid, $t_size, $t_added) = $sth->fetch();
+		list($t_id, $t_leechers, $t_seeders, $t_frileech, $t_section, $t_size, $t_added) = $sth->fetch();
 		/* HÄMTA TORRENT INFO - SLUT */
-		
+
 		// retunera 0/1 om port öppen
 		$ansl = connectable($ip, (int)$_GET['port']);
-		
+
 		// Om användaren har fri leech blir Peer bli leech.
 		$nu = time();
 		$frileech = 0;
@@ -244,7 +244,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 
 		$compact = pack('Nn', ip2long($ip), $_GET['port']);
 
-		$sth = $db->prepare("INSERT INTO peers (torrent, userid, peer_id, ip, compact, port, uploaded, uploadoffset, downloaded, downloadoffset, to_go, seeder, started, last_action, agent, connectable, info_hash, frileech, user, mbitupp, mbitner, nytt, leechbonus, torrentsize, added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$sth = $db->prepare("INSERT INTO peers (torrent, userid, peer_id, ip, compact, port, uploaded, uploadoffset, downloaded, downloadoffset, to_go, seeder, started, last_action, agent, connectable, info_hash, frileech, user, mbitupp, mbitner, section, leechbonus, torrentsize, added) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$sth->bindParam(1, $t_id,							PDO::PARAM_INT);
 		$sth->bindParam(2, $u_id,							PDO::PARAM_INT);
 		$sth->bindParam(3, $peer_id,						PDO::PARAM_STR);
@@ -264,13 +264,13 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		$sth->bindParam(17, $u_class,						PDO::PARAM_INT);
 		$sth->bindParam(18, $u_mbitupp,						PDO::PARAM_INT);
 		$sth->bindParam(19, $u_mbitner,						PDO::PARAM_INT);
-		$sth->bindParam(20, $t_reqid,						PDO::PARAM_INT);
+		$sth->bindParam(20, $t_section,						PDO::PARAM_INT);
 		$sth->bindParam(21, $u_leechbonus,					PDO::PARAM_INT);
 		$sth->bindParam(22, $t_size,						PDO::PARAM_INT);
 		$sth->bindParam(23, $t_added,						PDO::PARAM_STR);
 		$sth->execute();
 
-		
+
 		if ($seeder == 'yes') {
 			$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET last_action = NOW(), seeders = seeders + 1 WHERE id = ?");
 			$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
@@ -282,13 +282,13 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 
 		give_peers();
-		
-		
+
+
 	} elseif ($sth->rowCount() == 1) {
 
 		// peer found - update stats, check if peer is stopping, else send peer list
-		list($peerid, $downloaded, $uploaded, $left, $seeder_db, $ip_db, $last_access, $t_id, $t_fri, $ansl, $u_id, $t_reqid, $u_class, $u_leechbonus, $t_size, $t_added) = $sth->fetch();
-		
+		list($peerid, $downloaded, $uploaded, $left, $seeder_db, $ip_db, $last_access, $t_id, $t_fri, $ansl, $u_id, $t_section, $u_class, $u_leechbonus, $t_size, $t_added) = $sth->fetch();
+
 
 		// calculate download and upload speed based on difference in amounts since last time reported in
 		if ($setting['rate_limitation'] === true) {
@@ -296,7 +296,7 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			if ($duration > 0) {
 				$downspeed = round(($_GET['downloaded'] - $downloaded) / $duration);
 				$upspeed   = round(($_GET['uploaded'] - $uploaded) / $duration);
-				
+
 				$host  = dns_timeout($ip);
 				$cheatLevel = 0;
 				if ($host != 0) {
@@ -305,17 +305,17 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 					elseif (strpos($host, 'skanova') > -1 && $upspeed > 307200)
 						$cheatLevel = 1;
 				}
-				
+
 				if (($userAgent == 'uTorrent/161B(483)' || $userAgent == 'ABC/ABC-3.1.0') && $upspeed > 105200)
 					$cheatLevel = 1;
-				
+
 				if ($upspeed > (1024000 * $setting['rate_limitation_err_up'])) { // check for excessive speeds
 					//$setting['upload_multiplier'] = 0;
 					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $userAgent, $ip, 0, $_GET['port'], $upspeed, $ansl);
 				} elseif ($upspeed > (1024000 * $setting['rate_limitation_warn_up']) || $cheatLevel) {
 					log_cheater($u_id, $t_id, $_GET['downloaded'] - $downloaded, $_GET['uploaded'] - $uploaded, $duration, $userAgent, $ip, $cheatLevel, $_GET['port'], $upspeed, $ansl);
 				}
-				
+
 				/* If there are no leechers (or this is the only leecher), and this client claims to be uploading, it may be a cheater - log!
 				if($seeder == "yes" && $event != 'completed') {
 				$minleech = 0;
@@ -331,50 +331,50 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 				debuglog('announce: user ' . $u_id . ' client hammering - up: ' . number_format($up) . ', down: ' . number_format($down));
 			}
 		}
-		
+
 		// only update if there has been a change, and it is a increase :)
 		if ($setting['register_stats'] === true && (($_GET['downloaded'] > $downloaded) || ($_GET['uploaded'] > $uploaded))) {
-			
-			$add_up = $_GET['uploaded'] - $uploaded;
 
+			$add_up = $_GET['uploaded'] - $uploaded;
 			$add_up_real = $add_up;
-			
+
+			$nytt_upp = 0;
 			$arkivupp = 0;
-			if ($t_reqid != 0)
-				$arkivupp = $add_up;
-			else if ($t_reqid == 0) {
+			if ($t_section === 'new') {
 				$nytt_upp = $add_up;
+			} else {
+				$arkivupp = $add_up;
 			}
-			
+
 			if ($t_fri == 0) {
 				$add_down = ($_GET['downloaded'] - $downloaded) * $setting['download_multiplier'];
 			} else {
 				$add_down = 0; // om torrenten är fri leech
 			}
-			
+
 			if ($u_class == 0) {
 				$add_down = $add_down / 2;
 			}
 
-			if (time() - $t_added < 86400 && $t_reqid == 0 && $t_fri == 0) {
+			if (time() - $t_added < 86400 && $t_section === 'new' && $t_fri == 0) {
 				$add_down = 0;
 				$add_up_real = 0;
 			}
-			
+
 			// Leechbonusen
 			$procent   = (100 - $u_leechbonus) / 100;
 			$add_down  = $add_down * $procent;
 			$add_down2 = ($_GET['downloaded'] - $downloaded); // Real download
-			
+
 			if ($setting['log_debug']) {
 				debuglog('announce: updating user stats - up/down: ' . $add_up . '/' . $add_down);
 			}
-			
+
 			if ($u_class > 7)
 				$dip = 'Dolt IP';
 			else
 				$dip = $ip;
-			
+
 			/* FRI LEECH PÅSLAGET */
 			//$add_down = 0;
 
@@ -428,14 +428,14 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			$sth->execute();
 
 			/* END snatch update */
-			
-			
+
+
 			// peer has closed - remove the peer and exit, no updates to do or peers to send to client
 			if ($event == 'stopped') {
 				$sth = $db->prepare("DELETE FROM peers WHERE id = ?");
 				$sth->bindParam(1, $peerid,	PDO::PARAM_INT);
 				$sth->execute();
-				
+
 				if ($seeder_db == 'yes') {
 					$sth = $db->prepare("UPDATE LOW_PRIORITY torrents SET seeders = seeders - 1 WHERE id = ?");
 					$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
@@ -445,13 +445,13 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 					$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
 					$sth->execute();
 				}
-				
+
 				die();
 			}
 
 		}
 
-		// $finishedat = 
+		// $finishedat =
 
 		$finishedAt = "";
 		if ($event == 'completed' && $seeder == 'yes' && $seeder_db == 'no') {
@@ -472,11 +472,11 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 			$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
 			$sth->execute();
 		}
-		
+
 		// give the client some peers to play with
 		give_peers();
 
-		
+
 	} else {
 		// we hit multiple? but that's UNPOSSIBLE! ;)
 		if ($setting['log_debug']) {
@@ -484,15 +484,15 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 		}
 		err('Got multiple targets in peer table!');
 	}
-	
+
 	if ($setting['time_me'] && $setting['log_debug']) {
 		debuglog('announce: ' . function_timer($start, gettimeofday(), 1) . ' us)');
 	}
-	
+
 	die();
 
 } else if (strpos($keys['3'], 'scrape') !== false) { // do-scrape code
-	
+
 	// compression - saves few bytes?
 	if ($setting['gzip']) {
 		ini_set('zlib.output_compression_level', 1);
@@ -520,14 +520,14 @@ if (strpos($keys[3], 'announce') !== false) { // jump into appropriate section f
 	if ($setting['time_me'] && $setting['log_debug']) {
 		debuglog('scrape: ' . function_timer($start, gettimeofday(), 1) . ' us)');
 	}
-	
+
 	die();
 } else {
 	err('Unknown action.');
 }
 
 function give_peers()
-{	
+{
 	global $db, $setting, $t_id;
 	$sth = $db->prepare("SELECT compact, ip, port, peer_id FROM peers WHERE torrent = ? ORDER BY RAND() LIMIT 150");
 	$sth->bindParam(1, $t_id,	PDO::PARAM_INT);
@@ -564,15 +564,15 @@ function give_peers()
 		while ($peer = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$resp .= 'd2:ip' . strlen($peer['ip']) . ':' . $peer['ip'] . '7:peer id20:' . $peer['peer_id'] . '4:porti' . $peer['port'] . 'ee';
 		}
-		
+
 		// retunera peers
 		echo $resp . 'ee';
 		if ($setting['log_debug']) {
 			debuglog('announce: gave ' . $sth->rowCount() . ' using original protocol');
 		}
-		
+
 	}
-	
+
 }
 
 function hasheval($str, $len, $name = false) // try to get a $len-byte string, err out if not possible, give $name if possible
@@ -606,7 +606,7 @@ function function_timer($start, $end, $div = 1, $format = 1) // $start gettimeof
 function err($txt, $err = '')
 {
 	global $start, $setting;
-	
+
 	echo ('d14:failure reason' . strlen($txt) . ':' . $txt . 'e');
 	if ($setting['log_errors']) {
 		debuglog($txt . '; ' . mysql_error() . $err);
@@ -633,7 +633,7 @@ function getip()
 			$ip = getenv('REMOTE_ADDR');
 		}
 	}
-	
+
 	return $ip;
 }
 
@@ -680,7 +680,7 @@ function validip($ip)
 			'-1'
 		) // '255.255.255.0','255.255.255.255'
 	);
-	
+
 	foreach ($reserved_ips as $r) { // $r[0] = min, $r[1] = max
 		if (($ip >= $r[0]) && ($ip <= $r[1])) {
 			return false;
@@ -692,7 +692,7 @@ function validip($ip)
 function logError($type, $message, $file, $line, $context)
 {
 	global $setting;
-	
+
 	$errors = array(
 		1 => 'E_ERROR',
 		2 => 'E_WARNING',
@@ -717,7 +717,7 @@ function logError($type, $message, $file, $line, $context)
 function log_cheater($u_id, $t_id, $download, $upload, $duration, $agent, $ip, $adsl, $port, $upspeed, $ansl)
 {
 	global $db;
-	// Kolla efter dubbla klienter    
+	// Kolla efter dubbla klienter
 	$agdiff = 0;
 
 	$sth = $db->prepare("SELECT COUNT(id) FROM peers WHERE userid = ? AND ip = ? GROUP BY port");
@@ -779,7 +779,7 @@ function roundbytes($bytes)
 
 function connectable($ip, $port)
 {
-	
+
 	$sockres = @fsockopen($ip, $port, $errno, $errstr, 1);
 	if (!$sockres)
 		return 0;
@@ -792,11 +792,11 @@ function connectable($ip, $port)
 function dns_timeout($ip)
 {
 	$out = gethostbyaddr($ip);
-	
+
 	if (strlen($out) > 2) {
-		
+
 		return $out;
-		
+
 	} else {
 		return 0;
 	}

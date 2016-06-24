@@ -13,7 +13,8 @@
 		this.tvDates = uploadService.getSweTvDates();
 
 		this.settings = {
-			reqid: user.class >= userClasses.UPLOADER.id ? 0 : 1,
+			reqid: 0,
+			section: user.class >= userClasses.UPLOADER.id && !$stateParams.requestId ? 'new' : 'archive',
 			anonymousUpload: user['anonym'] === 'yes' ? 1 : 0,
 			category: 1,
 			p2p: 0,
@@ -152,6 +153,7 @@
 				url: '/api/v1/torrents/upload',
 				data: {
 					reqid:				this.settings.reqid,
+					section:			this.settings.section,
 					category:			this.settings.category,
 					anonymousUpload:	this.settings.anonymousUpload,
 					file:				this.settings.file,

@@ -70,12 +70,12 @@ class Bonus {
 
 			}
 
-			$torrb = $this->db->query("SELECT owner, reqid, id, UNIX_TIMESTAMP(added) as added1, category FROM torrents WHERE added > '$datum' AND owner = $ros[id] AND reqid <> 1;");
+			$torrb = $this->db->query("SELECT owner, reqid, section, id, UNIX_TIMESTAMP(added) as added1, category FROM torrents WHERE added > '$datum' AND owner = $ros[id];");
 			$torrantal = 0;
 			$torrantal = $torrb->rowCount();
 			while($torr = $torrb->fetch(PDO::FETCH_ASSOC)) {
 
-				if ($torr["reqid"] > 1) {
+				if ($torr["reqid"] > 0) {
 
 					$req = $this->db->query("SELECT UNIX_TIMESTAMP(requests.added) as added2, (SELECT SUM(krydda) FROM reqvotes WHERE reqid = requests.id) AS krydda FROM requests WHERE id = $torr[reqid]");
 
@@ -86,17 +86,15 @@ class Bonus {
 					$hitte+=2;
 					$requestReward += $reg["krydda"] + $hitte;
 
-				} else {
-					if ($torr["reqid"] == 0) {
+				} else if($torr["section"] == 'new') {
 
-				 	 	if ($torr["category"] > Torrent::MOVIE_1080P || $torr["category"] == Torrent::BLURAY) {
-				 	 		$torrp += 5;
-				 	 	}
-				 	 	else {
-				 	 		$torrp += 10;
-				 	 	}
+			 	 	if ($torr["category"] > Torrent::MOVIE_1080P || $torr["category"] == Torrent::BLURAY) {
+			 	 		$torrp += 5;
+			 	 	}
+			 	 	else {
+			 	 		$torrp += 10;
+			 	 	}
 
-				 	 }
 				}
 
 			}

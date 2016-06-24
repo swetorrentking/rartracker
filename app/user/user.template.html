@@ -38,6 +38,7 @@
 								<th style="width: 250px; text-align: left;">Senast sedd</th>
 								<th style="text-align: left;">IP/Hostname</th>
 								<th style="text-align: left; width: 125px;">Användning</th>
+								<th style="text-align: center; width: 80px;" ng-if="vm.currentUser.class >= 8">Radera</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -45,6 +46,7 @@
 								<td style="text-align: left;">{{ ::ip.lastseen }} ({{ ::ip.lastseen | dateDifference }} sedan)</td>
 								<td style="text-align: left;"><a href="" ui-sref="admin-search({ip: vm.user.ip})">{{ ::ip.ip }}</a> (<b>{{ ::ip.host}}</b>)</td>
 								<td style="text-align: left;">{{ ::ip.uptime*1000 | dateDifference:0}}</td>
+								<td style="text-align: center;" ng-if="vm.currentUser.class >= 8"><button class="btn btn-default btn-xs" ng-click="vm.deleteIPLog(ip);"><i class="fa fa-trash-o"></i></button></td>
 							</tr>
 						</tbody>
 					</table>
@@ -157,7 +159,7 @@
 		</tr>
 		<tr ng-show="vm.user.class > 0">
 			<td class="text-right tdBold alignMiddle">Bonuspoäng</td>
-			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">({{ :: vm.user.nytt_seed+user.arkiv_seed | prettysize }} uppladdat denna vecka varav {{ ::vm.user.nytt_seed | prettysize }} på nytt och {{ ::vm.user.arkiv_seed | prettysize }} på arkiv)</span></td>
+			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">({{ :: vm.user.nytt_seed+vm.user.arkiv_seed | prettysize }} uppladdat denna vecka varav {{ ::vm.user.nytt_seed | prettysize }} på nytt och {{ ::vm.user.arkiv_seed | prettysize }} på arkiv)</span></td>
 		</tr>
 		<tr ng-show="vm.user.invitedByUser">
 			<td class="text-right tdBold alignMiddle">Inbjuden utav</td>

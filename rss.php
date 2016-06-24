@@ -71,9 +71,9 @@ if ($cats) {
 }
 
 if ($s == 1) {
-	$where[] = 'reqid = 0';
+	$where[] = "section = 'new'";
 } else if($s == 2)
-	$where[] = 'reqid > 0';
+	$where[] = "section = 'archive'";
 else if ($s == 3) {
 	$bookmark = true;
 }

@@ -15,6 +15,7 @@
 			'app.watcher',
 			'app.swetv',
 			'app.suggestions',
+			'app.torrentLists',
 		]);
 
 	angular

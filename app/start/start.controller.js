@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('StartController', StartController);
 
-	function StartController(StartTorrentsResource, NewsResource, StatisticsResource, PollsResource) {
+	function StartController(StartTorrentsResource, NewsResource, StatisticsResource, PollsResource, TorrentListsResource) {
 
 		this.pollAnswer = '';
 
@@ -23,6 +23,11 @@
 			StatisticsResource.get({id: 'start'}, (data) => {
 				this.stats = data;
 			});
+
+			TorrentListsResource.Popular.query().$promise
+				.then((torrentLists) => {
+					this.torrentLists = torrentLists;
+				});
 		};
 
 		this.vote = function () {

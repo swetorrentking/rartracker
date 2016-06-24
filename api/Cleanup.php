@@ -130,11 +130,12 @@ class Cleanup {
 
 		/* Remove free leech from new torrents */
 		$dt = time() - $self->max_free_leech_days * 86400;
-		$this->db->query("UPDATE torrents SET frileech = 0 WHERE reqid = 0 AND added < FROM_UNIXTIME($dt) AND size < 16106127360");
+		$this->db->query("UPDATE torrents SET frileech = 0 WHERE section = 'new' AND added < FROM_UNIXTIME($dt) AND size < 16106127360");
 
 
 		/* Bad ratio warning */
 		$limit = $limit*1024*1024*1024;
+		$siteName = Config::NAME;
 		$msg = <<<EOD
 			[b]*** VIKTIGT MEDDELANDE ***[/b]
 
@@ -144,7 +145,7 @@ class Cleanup {
 
 			* En privat torrentsida bygger på ett givande och tagande. Låt alla torrents du laddat ner ligga kvar i din klient och på datorn så länge du kan.
 			* Be en vän använda sina bonuspoäng för att bättra på din ratio
-			* Du kan donera en slant till {Config::NAME} vilket samtidigt ökar din ratio. [url=/donate]Donera[/url]
+			* Du kan donera en slant till {$siteName} vilket samtidigt ökar din ratio. [url=/donate]Donera[/url]
 
 			Lycka till!
 EOD;
@@ -176,15 +177,15 @@ EOD;
 
 		/* Move torrents from New to Archive */
 		$dt = time() - $this->move_to_archive_after_days * 86400;
-		$res = $this->db->query("SELECT id FROM torrents WHERE added < FROM_UNIXTIME({$dt}) AND reqid = 0");
+		$res = $this->db->query("SELECT id FROM torrents WHERE added < FROM_UNIXTIME({$dt}) AND section = 'new'");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-			$this->db->query("UPDATE torrents SET reqid = 1 WHERE id =  ". $arr["id"]);
-			$this->db->query("UPDATE peers SET nytt = 1 WHERE torrent = ". $arr["id"]);
+			$this->db->query("UPDATE torrents SET section = 'archive' WHERE id =  ". $arr["id"]);
+			$this->db->query("UPDATE peers SET section = 'new' WHERE torrent = ". $arr["id"]);
 		}
 
 		/* Delete inactive torrents */
 		$dt = time() - $this->delete_inactive_torrents_after_days * 86400;
-		$res = $this->db->query("SELECT id, name, reqid FROM torrents WHERE last_action < FROM_UNIXTIME({$dt}) AND seeders = 0 AND leechers = 0 AND reqid > 0");
+		$res = $this->db->query("SELECT id, name, reqid FROM torrents WHERE last_action < FROM_UNIXTIME({$dt}) AND seeders = 0 AND leechers = 0 AND section = 'archive'");
 
 		/* Prevent deletion of "all" torrents if site has been offline or similiar */
 		if ($res->rowCount() < 100) {

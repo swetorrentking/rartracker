@@ -5,6 +5,7 @@
   "spec-char-escape": true,
   "id-unique": true,
   "src-not-empty": true,
+  "tag-self-close": true,
   "title-require": true,
   "attr-no-duplication": true,
   "tag-pair": true

@@ -109,23 +109,23 @@ class Statistics {
 		$numCat7Torrents = $this->get_row_count("torrents", "WHERE category = 7");
 		$numCat8Torrents = $this->get_row_count("torrents", "WHERE category = 8");
 
-		$numCat1NewTorrents = $this->get_row_count("torrents", "WHERE category = 1 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat2NewTorrents = $this->get_row_count("torrents", "WHERE category = 2 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat3NewTorrents = $this->get_row_count("torrents", "WHERE category = 3 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat4NewTorrents = $this->get_row_count("torrents", "WHERE category = 4 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat5NewTorrents = $this->get_row_count("torrents", "WHERE category = 5 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat6NewTorrents = $this->get_row_count("torrents", "WHERE category = 6 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat7NewTorrents = $this->get_row_count("torrents", "WHERE category = 7 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat8NewTorrents = $this->get_row_count("torrents", "WHERE category = 8 AND reqid = 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat1NewTorrents = $this->get_row_count("torrents", "WHERE category = 1 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat2NewTorrents = $this->get_row_count("torrents", "WHERE category = 2 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat3NewTorrents = $this->get_row_count("torrents", "WHERE category = 3 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat4NewTorrents = $this->get_row_count("torrents", "WHERE category = 4 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat5NewTorrents = $this->get_row_count("torrents", "WHERE category = 5 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat6NewTorrents = $this->get_row_count("torrents", "WHERE category = 6 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat7NewTorrents = $this->get_row_count("torrents", "WHERE category = 7 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat8NewTorrents = $this->get_row_count("torrents", "WHERE category = 8 AND section = 'new' AND added > '$yesterdayDate' AND added < '$todaysDate'");
 
-		$numCat1NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 1 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat2NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 2 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat3NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 3 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat4NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 4 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat5NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 5 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat6NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 6 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat7NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 7 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
-		$numCat8NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 8 AND reqid > 0 AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat1NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 1 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat2NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 2 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat3NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 3 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat4NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 4 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat5NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 5 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat6NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 6 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat7NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 7 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
+		$numCat8NewArchiveTorrents = $this->get_row_count("torrents", "WHERE category = 8 AND section = 'archive' AND added > '$yesterdayDate' AND added < '$todaysDate'");
 
 		$numNewUsers = $this->get_row_count("users", "WHERE enabled = 'yes' AND added > '$yesterdayDate' AND added < '$todaysDate'");
 		$numForumPosts = $this->get_row_count("posts", "WHERE added > '$yesterdayDate' AND added < '$todaysDate'");

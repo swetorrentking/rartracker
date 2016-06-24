@@ -1,0 +1,28 @@
+<table class="table table-striped table-hover table-nowrap" ng-show="vm.torrentLists.length">
+	<tr>
+		<th style="width: 200px;">&nbsp;</th>
+		<th class="text-left">&nbsp;</th>
+		<th class="hidden-xs" style="width: 50px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'votes'})">Rösta</a></th>
+		<th class="text-left" ng-if="vm.colBookmark == 'true'" style="width: 75px;">Bokmärk</th>
+		<th class="hidden-sm hidden-xs" style="width: 150px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'added'})">Skapad</a></th>
+		<th class="text-left hidden-sm hidden-xs" style="width: 200px;">Skapare</th>
+		<th style="width: 80px;" ng-if="vm.colDelete == 'true'"><i class="fa fa-trash-o"></i></th>
+	</tr>
+	<tr ng-repeat="torrentList in vm.torrentLists track by torrentList.id">
+		<td style="width: 100px;">
+			<div ng-if="::torrentList.imdbid2" style="background-image: url(/img/imdb/{{ ::torrentList.imdbid2 }}.jpg); width: 200px; height: 150px; background-size: 200px; background-position: 0px -30px;"></div>
+			<div ng-if="::!torrentList.imdbid2" style="width: 200px; height: 150px; background-size: 200px;"><i class="fa fa-list" style="font-size: 160px; color: #e0e0e0;"></i></div>
+		</td>
+		<td class="text-left">
+			<a href="" ui-sref="torrent-lists.torrent-list({ id: torrentList.id, slug: torrentList.slug})" style="font-size: 20px; font-weight: bold;">{{ ::torrentList.name }}</a>
+			<p ng-if="::torrentList.description" style="font-style: italic; margin-top: 20px; max-width: 500px; font-size: 14px;" ng-bind-html="::torrentList.description | nltobr"></p>
+		</td>
+		<td class="vert-align hidden-xs"><button class="btn btn-default btn-sm" ng-click="vm.vote(torrentList)" ng-disabled="torrentList.type === 'unlisted' || vm.currentUser.id == torrentList.user.id">{{ torrentList.votes }}</button></td>
+		<td class="vert-align" ng-if="vm.colBookmark == 'true'"><torrent-list-bookmark-button torrent-list="torrentList" small="true"></torrent-list-bookmark-button></td>
+		<td class="vert-align hidden-sm hidden-xs">{{ ::torrentList.added }}</td>
+		<td class="vert-align hidden-sm hidden-xs text-left"><user user="::torrentList.user"></user></td>
+		<td class="vert-align" ng-if="vm.colDelete == 'true'" style="width: 50px;">
+			<button ng-click="vm.onDelete({torrentList:torrentList})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+		</td>
+	</tr>
+</table>

@@ -1,0 +1,70 @@
+<h1>{{ vm.listModel.id ? 'Redigerar' : 'Skapa ny' }} torrentlista</h1>
+
+<div class="col-md-9 col-centered">
+	<form role="form" ng-submit="vm.listModel.id ? vm.updateList() : vm.createList()">
+		<table class="table table-striped" cellpadding="15">
+			<tr>
+				<td style="width: 150px;" class="text-right tdBold alignMiddle">Namn</td>
+				<td class="text-left">
+					<input class="form-control" placeholder="Namn" ng-model="vm.listModel.name" required />
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold">Beskrivning <i>(valfritt)</i></td>
+				<td class="text-left">
+					<textarea class="form-control" ng-model="vm.listModel.description" placeholder="Beskrivning" rows="5"></textarea>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">Synlighet</td>
+				<td class="text-left">
+					<div class="btn-group">
+						<label class="btn btn-default" ng-model="vm.listModel.type" uib-btn-radio="'unlisted'"><i class="fa fa-eye-slash" aria-hidden="true"></i> Olistad</label>
+						<label class="btn btn-default" ng-model="vm.listModel.type" uib-btn-radio="'public'"><i class="fa fa-eye" aria-hidden="true"></i> Publik</label>
+					</div>&nbsp;
+					<p ng-show="vm.listModel.type == 'unlisted'" style="display: inline-block;"><i>Endast du själv och de du länkar listan till kan hitta den.</i></p>
+					<p ng-show="vm.listModel.type == 'public'" style="display: inline-block;"><i>Listan syns under listor och alla kan rösta på den att hamna på startsidan.</i></p>
+				</td>
+			</tr>
+			<tr>
+				<td class="text-right tdBold alignMiddle">IMDb-länk <i>(valfritt)</i></td>
+				<td class="text-left">
+					<div class="input-group">
+						<input type="text" class="form-control" ng-model="vm.listModel.imdbUrl" placeholder="http://" ng-change="vm.fetchImdbInfo()"/>
+						<span class="input-group-btn">
+							<input type="text" class="form-control" style="width: 270px;" ng-model="vm.listModel.imdbInfo" readonly />
+						</span>
+						<span class="input-group-btn" ng-show="vm.listModel.imdbid">
+							&nbsp; <button type="button" ng-click="vm.removeImdb()" style="margin-left: 4px;" class="btn btn-default btn-xs">Ta bort IMDB</button>
+						</span>
+					</div>
+				</td>
+			</tr>
+		</table>
+		<br />
+		<h2 class="text-center">Listans innehåll:</h2>
+
+		<div class="text-center">
+			<button class="btn btn-default" type="button" ng-click="vm.addTorrents()"><i class="fa fa-plus"></i> Lägg till torrents</button>
+		</div>
+		<br />
+
+		<div ng-show="vm.listModel.torrents_data.length == 0" class="alert alert-warning" role="alert">Här var det tomt. Lägg till lite torrents!</div>
+		<div class="table-responsive" ng-show="vm.listModel.torrents_data.length">
+			<torrents-table torrents="vm.listModel.torrents_data" on-delete="vm.removeTorrent(torrent);" col-date="true" col-size="true" col-seeders="true" col-leechers="true" col-delete="true"></torrents-table>
+		</div>
+
+		<br />
+
+		<div class="text-center">
+			<button type="submit" class="btn btn-primary">{{ vm.listModel.id ? 'Spara ändringar' : 'Skapa lista' }}</button>
+		</div>
+
+		<br />
+
+		<uib-alert type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
+		 	{{ vm.alert.msg }}
+		</uib-alert>
+
+	</form>
+</div>

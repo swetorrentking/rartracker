@@ -62,7 +62,7 @@
 				<span ng-if="torrent.leechers <= 0">0</span>
 			</td>
 			<td class="vert-align hidden-xs" ng-if="vm.colDelete == 'true'" style="width: 50px;">
-				<button ng-click="vm.onDelete({torrent:torrent})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+				<button type="button" ng-click="vm.onDelete({torrent:torrent})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
 			</td>
 			<td class="vert-align" ng-if="vm.checkMode">
 				<button class="btn btn-default btn-xs" uib-btn-checkbox btn-checkbox-true="'yes'" btn-checkbox-false="'no'" ng-model="torrent.selected"><i class="fa fa-check"></i></button>

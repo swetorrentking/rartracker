@@ -3,12 +3,12 @@
 <div ng-show="vm.highligtedTorrents">
 	<div ng-repeat="highlightedRow in ::vm.highligtedTorrents" style="clear: left;">
 		<div class="panel panel-green">
-			<div class="panel-heading">{{ highlightedRow.headline }}</div>
+			<div class="panel-heading">{{ ::highlightedRow.headline }}</div>
 
-			<div ng-repeat="torrent in highlightedRow.torrents" class="col-md-2 col-sm-4 col-xs-6 highlightedRow">
+			<div ng-repeat="torrent in ::highlightedRow.torrents" class="col-md-2 col-sm-4 col-xs-6 highlightedRow">
 				<div class="cover">
 					<a href="" ui-sref="torrent({id: torrent.id, name: torrent.name})">
-						<img class="poster" ng-src="/img/imdb/{{ torrent.imdbid }}.jpg" alt="Poster" />
+						<img class="poster" ng-src="/img/imdb/{{ ::torrent.imdbid }}.jpg" alt="Poster" />
 					</a>
 				</div>
 			</div>
@@ -16,6 +16,21 @@
 		</div>
 	</div>
 	<button ui-sref="start-edit" class="btn btn-default btn-xs center-block"><i class="fa fa-cog"></i> Anpassa startsidan</button>
+
+	<br />
+
+	<div class="panel panel-green" ng-show="::vm.torrentLists.length">
+		<div class="panel-heading">Populära listor</div>
+
+		<uib-carousel active="0" interval="5000" no-transition="false">
+			<uib-slide ng-repeat="torrentList in ::vm.torrentLists track by torrentList.id" index="$index">
+				<div style="height: 280px; margin: 10px;">
+					<torrent-list-info torrent-list="::torrentList"></torrent-list-info>
+				</div>
+			</uib-slide>
+		</uib-carousel>
+		<br style="clear: both;" />
+	</div>
 
 	<br />
 

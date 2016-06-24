@@ -13,8 +13,25 @@
 		</td>
 		<td style="border: 0px; padding: 5px;" ng-show="vm.movieData.photo">
 			<a target="_blank" ng-href="http://anonym.to/?http://www.imdb.com/title/{{ vm.movieData.imdbid }}/">
-				<img alt="Imdb poster" style="width: 175px; height: 259px;" src="/img/imdb/{{ vm.movieData.imdbid }}.jpg">
+				<img alt="Imdb poster" style="width: 175px; height: 259px;" ng-src="/img/imdb/{{ vm.movieData.imdbid }}.jpg">
 			</a>
 		</td>
 	</tr>
 </table>
+<div ng-if="vm.trailer == 'true' && vm.movieData.youtube_id" style="margin-top: 10px;">
+	<div class="videowrapper" ng-if="vm.showTrailer" style="margin-bottom: 10px;">
+		<iframe ng-src="{{ vm.getIFrameSrc() }}"></iframe>
+	</div>
+	<button class="btn btn-default" ng-click="vm.showTrailer = !vm.showTrailer"><i class="fa fa-film" aria-hidden="true"></i> {{ vm.showTrailer ? 'Göm' : 'Visa' }} trailer</button>
+	<button class="btn btn-default" ng-if="vm.currentUser.class >= 8" ng-click="vm.removeTrailer()"><i class="fa fa-trash" aria-hidden="true"></i></button>
+	<br />
+</div>
+<div ng-if="vm.trailer == 'true' && vm.currentUser.class >= 3 && !vm.movieData.youtube_id">
+	<button class="btn btn-default btn-xs" ng-click="vm.showTrailerUpload = !vm.showTrailerUpload"><i class="fa fa-plus" aria-hidden="true"></i> Lägg till Youtube-trailer</button>
+</div>
+<div ng-if="vm.showTrailerUpload">
+	<div class="input-group" style="margin:auto;width: 500px;">
+		<span class="input-group-addon" id="basic-addon2">Youtube-länk</span>
+		<input type="text" class="form-control" ng-model="vm.youtubeUrl" ng-change="vm.saveYoutubeTrailer()" placeholder="https://www.youtube.com/watch?v=XXXXX" />
+	</div>
+</div>

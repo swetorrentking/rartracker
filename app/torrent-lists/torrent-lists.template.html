@@ -1,0 +1,13 @@
+<div class="text-center">
+	<h1>Torrentlistor</h1>
+
+	<loading-indicator hide="vm.torrentLists"></loading-indicator>
+
+	<torrent-lists torrent-lists="vm.torrentLists" on-sort="vm.onSort(sort)" col-bookmark="true"></torrent-lists>
+
+	<br />
+
+	<div class="text-center" ng-show="vm.torrentLists">
+		<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadLists()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	</div>
+</div>

@@ -4,7 +4,7 @@ class Suggestions {
 	private $db;
 	private $user;
 	private $forum;
-	private $suggestionForumId = 4;
+	private $suggestionForumId = 25;
 
 	public function __construct($db = null, $user = null, $forum = null) {
 		$this->db = $db;

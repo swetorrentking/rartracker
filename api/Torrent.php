@@ -12,7 +12,7 @@ class Torrent {
 	private $adminlog;
 	private $torrentDir = "../torrents/";
 	private $subsDir = "../subs/";
-	public static $torrentFieldsUser = array('torrents.id', 'name', 'category', 'size', 'torrents.added', 'type', 'numfiles', 'comments', 'times_completed', 'leechers', 'seeders', 'reqid', 'torrents.frileech', 'torrents.imdbid', 'p2p', 'swesub', 'sweaudio', 'pack', '3d');
+	public static $torrentFieldsUser = array('torrents.id', 'name', 'category', 'size', 'torrents.added', 'type', 'numfiles', 'comments', 'times_completed', 'leechers', 'seeders', 'reqid', 'torrents.section', 'torrents.frileech', 'torrents.imdbid', 'p2p', 'swesub', 'sweaudio', 'pack', '3d');
 
 	const DVDR_PAL = 1;
 	const DVDR_CUSTOM = 2;
@@ -122,9 +122,9 @@ class Torrent {
 		}
 
 		if ($params["section"] == 'new') {
-			$where[] = 'reqid = 0';
+			$where[] = "section = 'new'";
 		} else if ($params["section"] == 'archive') {
-			$where[] = 'reqid > 0';
+			$where[] = "section = 'archive'";
 		}
 
 		if ($params["watchview"] === "true") {
@@ -188,7 +188,6 @@ class Torrent {
 		$sth = $this->db->prepare('SELECT filename FROM packfiles WHERE torrent = ? ORDER BY filename ASC');
 		$sth->bindParam(1, $torrentId, PDO::PARAM_INT);
 		$sth->execute();
-
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 
@@ -200,20 +199,24 @@ class Torrent {
 	}
 
 	public function getRelated($movieId, $decludeId) {
-		$sth = $this->db->prepare('SELECT imdbinfo.genres, imdbinfo.imdbid AS imdbid2, imdbinfo.rating, torrents.*, users.username FROM torrents LEFT JOIN users ON torrents.owner = users.id LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE torrents.id != ? AND torrents.imdbid = ? ORDER BY torrents.name ASC');
+		$sth = $this->db->prepare('SELECT imdbinfo.genres, imdbinfo.imdbid AS imdbid2, imdbinfo.rating, '.implode(self::$torrentFieldsUser, ', ').' FROM torrents LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE torrents.id != ? AND torrents.imdbid = ? ORDER BY torrents.name ASC');
 		$sth->bindParam(1, $decludeId, PDO::PARAM_INT);
 		$sth->bindParam(2, $movieId, PDO::PARAM_INT);
 		$sth->execute();
+		return $sth->fetchAll(PDO::FETCH_ASSOC);
+	}
 
+	public function getByIdList($idList) {
+		$sth = $this->db->prepare('SELECT imdbinfo.genres, imdbinfo.imdbid AS imdbid2, imdbinfo.rating, '.implode(self::$torrentFieldsUser, ', ').' FROM torrents LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE FIND_IN_SET(torrents.id, ?) ORDER BY torrents.name ASC');
+		$sth->bindParam(1, $idList, PDO::PARAM_STR);
+		$sth->execute();
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 
 	public function getFiles($torrentId) {
 		$sth = $this->db->prepare('SELECT filename, size FROM files WHERE torrent = ? ORDER BY filename ASC');
 		$sth->bindParam(1, $torrentId, PDO::PARAM_INT);
-
 		$sth->execute();
-
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 
@@ -302,11 +305,11 @@ class Torrent {
 		}
 
 		if ($newOrArchive == 0) {
-			$wherea[] = 'reqid = 0';
+			$wherea[] = "section = 'new'";
 			$sectionString = '';
 			$year = 'AND i.year >= 2011';
 		} else {
-			$wherea[] = 'reqid > 0';
+			$wherea[] = "section = 'archive'";
 			$sectionString = ' från arkivet ';
 			$year = '';
 		}
@@ -339,7 +342,7 @@ class Torrent {
 	}
 
 	public function getSweTvGuideTorrents($dateStart, $dateEnd) {
-		$sth = $this->db->prepare('SELECT added, DATE(added) AS dateShort, frileech, tv_klockslag, tv_program, tv_episode, tv_info, tv_programid, tv_kanaler.pic FROM `torrents` JOIN tv_kanaler ON tv_kanaler.id = torrents.tv_kanalid WHERE category = 8 AND tv_klockslag >= ? AND tv_klockslag <= ? AND tv_programid > 0 AND torrents.reqid = 0 GROUP BY tv_programid, tv_program ORDER BY tv_klockslag ASC');
+		$sth = $this->db->prepare('SELECT added, DATE(added) AS dateShort, frileech, tv_klockslag, tv_program, tv_episode, tv_info, tv_programid, tv_kanaler.pic FROM `torrents` JOIN tv_kanaler ON tv_kanaler.id = torrents.tv_kanalid WHERE category = 8 AND tv_klockslag >= ? AND tv_klockslag <= ? AND tv_programid > 0 AND torrents.section = \'new\' GROUP BY tv_programid, tv_program ORDER BY tv_klockslag ASC');
 		$sth->bindParam(1, $dateStart, PDO::PARAM_INT);
 		$sth->bindParam(2, $dateEnd, PDO::PARAM_INT);
 		$sth->execute();
@@ -436,7 +439,7 @@ class Torrent {
 			$sth->execute();
 		}
 
-		if ($torrent["reqid"] > 1) {
+		if ($torrent["reqid"] > 0) {
 			if ($restoreRequest) {
 				$this->requests->restore($torrent["reqid"], $reason);
 			} else {
@@ -605,12 +608,6 @@ class Torrent {
 			}, $packFolders);
 		}
 
-		// Request-id should not be updatable ( id over 2 )
-		$reqid = $torrent["reqid"];
-		if ($torrent["reqid"] <= 2) {
-			$reqid = $post["reqid"];
-		}
-
 		/* SWE-TV */
 		$tvProgramId = $post["tv_programid"] ?: 0;
 		$tvChannel = $post["tv_kanalid"] ?: 0;
@@ -644,7 +641,7 @@ class Torrent {
 		$searchText = Helper::searchfield("$torrent[name] $imdbInfo[genres] $imdbInfo[imdbid] " . implode(" ", $packFolders));
 		$searchText2 = Helper::searchfield("$imdbInfo[director] $imdbInfo[writer] $imdbInfo[cast]");
 
-		$sth = $this->db->prepare("UPDATE torrents SET ano_owner = :anoymous, descr = :descr, category = :category, imdbid = :imdbid, swesub = :swesub, p2p = :p2p, 3d = :3d, search_text = :searchText, search_text2 = :searchText2, tv_kanalid = :tvChannel, tv_programid = :tvProgramId, tv_program = :tvProgram, tv_episode = :tvEpisode, tv_info = :tvInfo, tv_klockslag = :tvTime, reqid = :reqid, sweaudio = :sweaudio WHERE id = :id");
+		$sth = $this->db->prepare("UPDATE torrents SET ano_owner = :anoymous, descr = :descr, category = :category, imdbid = :imdbid, swesub = :swesub, p2p = :p2p, 3d = :3d, search_text = :searchText, search_text2 = :searchText2, tv_kanalid = :tvChannel, tv_programid = :tvProgramId, tv_program = :tvProgram, tv_episode = :tvEpisode, tv_info = :tvInfo, tv_klockslag = :tvTime, section = :section, sweaudio = :sweaudio WHERE id = :id");
 
 		$sth->bindParam(":id",				$id,					PDO::PARAM_INT);
 		$sth->bindParam(":anoymous",		$post["ano_owner"],		PDO::PARAM_INT);
@@ -662,7 +659,7 @@ class Torrent {
 		$sth->bindParam(":tvInfo",			$tvInfo,				PDO::PARAM_STR);
 		$sth->bindParam(":tvTime",			$tvTime,				PDO::PARAM_INT);
 		$sth->bindParam(":tvProgramId",		$tvProgramId,			PDO::PARAM_INT);
-		$sth->bindParam(":reqid",			$reqid,					PDO::PARAM_INT);
+		$sth->bindParam(":section",			$post["section"],		PDO::PARAM_STR);
 		$sth->bindParam(":sweaudio",		$post["sweaudio"],		PDO::PARAM_INT);
 
 		$sth->execute();
@@ -700,7 +697,7 @@ class Torrent {
 			throw new Exception('Ogiltig kategori.');
 		}
 
-		if (!preg_match("/^\d+$/", $post["reqid"])) {
+		if ($post["section"] !== 'new' && $post["section"] !== 'archive') {
 			throw new Exception('Ogiltig sektion.');
 		}
 
@@ -716,11 +713,11 @@ class Torrent {
 			throw new Exception('Filen verkar vara tom.');
 		}
 
-		if ($post["category"] == Torrent::TV_SWE && $post["reqid"] == 0 && ($post["channel"] == 0 || $post["program"] == 0)){
+		if ($post["category"] == Torrent::TV_SWE && $post["section"] == 'new' && ($post["channel"] == 0 || $post["program"] == 0)){
 			throw new Exception('Du måste välja kanal och program för ny Svensk TV.');
 		}
 
-		if ($post["reqid"] > 2) {
+		if ($post["reqid"] > 0) {
 			$request = $this->requests->get($post["reqid"]);
 			if ($this->user->getId() == $request["user"]["id"]) {
 				throw new Exception("Du får inte fylla din egna request", 400);
@@ -732,6 +729,7 @@ class Torrent {
 
 		$name = preg_replace("/\.torrent$/", '', $uploaded_file["name"]);
 		$category = $post["category"];
+		$section = $post["section"];
 		$reqid = $post["reqid"];
 		$anonymousUpload = $post["anonymousUpload"];
 		$nfo = $post["nfo"];
@@ -805,7 +803,7 @@ class Torrent {
 		}
 
 
-		if ($this->user->getClass() < User::CLASS_UPLOADER && $reqid == 0) {
+		if ($this->user->getClass() < User::CLASS_UPLOADER && $section == 'new') {
 			throw new Exception('Bara uppladdare kan ladda upp på nytt.');
 		}
 
@@ -968,12 +966,12 @@ class Torrent {
 				$pre = time() - 100;
 			}
 			/* Use pre-time to determine New or Archive section */
-			if ($reqid == 1 && $pre > time() - 604800) {
-				$reqid = 0;
+			if ($section == 'archive' && $pre > time() - 604800) {
+				$section = 'new';
 				$this->adminlog->create("[b]".$this->user->getUsername()."[/b] laddade upp [i]'".$name."'[/i] på Arkiv men PRE-tid säger under 7 dagar, auto-flyttar till Nytt.");
-			} else if ($reqid == 0 && time() - $pre > 604800) {
+			} else if ($section == 'new' && time() - $pre > 604800) {
 				$this->adminlog->create("[b]".$this->user->getUsername()."[/b] laddade upp [i]'".$name."'[/i] på Nytt men PRE-tid säger över 7 dagar, auto-flyttar till Arkiv.");
-				$reqid = 1;
+				$section = 'archive';
 			}
 		}
 
@@ -1044,7 +1042,7 @@ class Torrent {
 		$searchText = Helper::searchfield("$name $imdbInfo[genres] $imdbInfo[imdbid] " . implode(" ", $packFolders));
 		$searchText2 = Helper::searchfield("$imdbInfo[director] $imdbInfo[writer] $imdbInfo[cast]");
 
-		$sth = $this->db->prepare("INSERT INTO torrents (name, filename, search_text, search_text2, owner, visible, info_hash, size, numfiles, type, ano_owner, descr, category, added, last_action,  frileech, tv_kanalid, tv_program, tv_episode, tv_info, imdbid, tv_klockslag, tv_programid, reqid, pre, p2p, 3d, pack, swesub, sweaudio) VALUES (:name, :filename, :searchText, :searchText2, :owner, 'no', :infoHash, :size, :numfiles, :type, :anoymous, :descr, :category, NOW(), NOW(), :freeLeech, :tvChannel, :tvProgram, :tvEpisode, :tvInfo, :imdbid, :tvTime, :tvProgramId, :reqid, :pre, :p2p, :3d, :pack, :swesub, :sweaudio)");
+		$sth = $this->db->prepare("INSERT INTO torrents (name, filename, search_text, search_text2, owner, visible, info_hash, size, numfiles, type, ano_owner, descr, category, added, last_action,  frileech, tv_kanalid, tv_program, tv_episode, tv_info, imdbid, tv_klockslag, tv_programid, reqid, section, pre, p2p, 3d, pack, swesub, sweaudio) VALUES (:name, :filename, :searchText, :searchText2, :owner, 'no', :infoHash, :size, :numfiles, :type, :anoymous, :descr, :category, NOW(), NOW(), :freeLeech, :tvChannel, :tvProgram, :tvEpisode, :tvInfo, :imdbid, :tvTime, :tvProgramId, :reqid, :section, :pre, :p2p, :3d, :pack, :swesub, :sweaudio)");
 
 		$sth->bindParam(":name",			$name, 					PDO::PARAM_STR);
 		$sth->bindParam(":filename",		$fname,					PDO::PARAM_STR);
@@ -1067,6 +1065,7 @@ class Torrent {
 		$sth->bindParam(":tvProgramId",		$tvProgramId,			PDO::PARAM_INT);
 		$sth->bindParam(":imdbid",			$imdbId,				PDO::PARAM_INT);
 		$sth->bindParam(":reqid",			$reqid,					PDO::PARAM_INT);
+		$sth->bindParam(":section",			$section,				PDO::PARAM_STR);
 		$sth->bindParam(":pre",				$pre,					PDO::PARAM_INT);
 		$sth->bindParam(":p2p",				$p2p,					PDO::PARAM_INT);
 		$sth->bindParam(":3d",				$stereoscopic,			PDO::PARAM_INT);
@@ -1105,7 +1104,7 @@ class Torrent {
 
 		$this->user->initTorrentComments();
 
-		if ($reqid > 2) {
+		if ($reqid > 0) {
 			$this->requests->fill($reqid);
 
   			$votes = $this->requests->getVotes($reqid);
@@ -1132,7 +1131,7 @@ class Torrent {
 		}
 
 		/* Give uploaders more free leech when uploading torrent */
-		if ($reqid == 0 && $p2p == 0 && $pack == 0) {
+		if ($section == 'new' && $p2p == 0 && $pack == 0) {
 			$leechStart = strtotime($this->user->getLeechStart());
 			$newLeech = round(($totallen/1024/1024) * 0.02);
 			if ($leechStart > time()) {

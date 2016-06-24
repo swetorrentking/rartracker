@@ -75,9 +75,9 @@ try {
 			httpResponse($user->gotRecoverByEmail($_GET["secret"]));
 			break;
 
-		case validateRoute('GET', 'find-torrents'):
+		case validateRoute('POST', 'find-torrents'):
 			$torrentsFinder = new TorrentsFinder($db);
-			httpResponse($torrentsFinder->getTorrents($_GET));
+			httpResponse($torrentsFinder->getTorrents($_POST));
 			break;
 
 		case validateRoute('GET', 'run-cleanup'):
@@ -99,7 +99,7 @@ try {
 
 		case validateRoute('GET', 'fetch-tvdata'):
 			$tvData = new TvData($db);
-			$tvData->run();
+			$tvData->run($_GET);
 			httpResponse();
 			break;
 
@@ -292,7 +292,7 @@ try {
 			}
 			$subtitles = $subtitles->fetch($myTorrent["id"]);
 
-			if ($myTorrent["reqid"] > 1) {
+			if ($myTorrent["reqid"] > 0) {
 				$request = $requests->get($myTorrent["reqid"]);
 			}
 
@@ -522,6 +522,11 @@ try {
 			httpResponse($movieData->updateImdbInfo($params[1]));
 			break;
 
+		case validateRoute('PATCH', 'moviedata/\d+/youtube'):
+			$movieData = new MovieData($db, $user);
+			httpResponse($movieData->updateYoutube($params[1], $postdata["youtube_id"]));
+			break;
+
 		case validateRoute('GET', 'moviedata/search'):
 			$movieData = new MovieData($db);
 			httpResponse($movieData->search($_GET["search"]));
@@ -675,6 +680,11 @@ try {
 
 		case validateRoute('GET', 'users/\d+/iplog'):
 			$iplog = $user->getIpLog($params[1] ?: 0, (int)$_GET["limit"] ?: 10);
+			httpResponse($iplog);
+			break;
+
+		case validateRoute('DELETE', 'users/\d+/iplog/\d+'):
+			$iplog = $user->deleteIpLog((int)$params[3]);
 			httpResponse($iplog);
 			break;
 
@@ -1249,6 +1259,85 @@ try {
 			$nonscene->delete($params[1]);
 			httpResponse();
 			break;
+
+		case validateRoute('GET', 'torrent-lists'):
+			$torrentLists = new TorrentLists($db, $user);
+			list($torrentLists, $total) = $torrentLists->query(
+				(int)$_GET["index"],
+				(int)$_GET["limit"],
+				$_GET
+			);
+			httpResponse($torrentLists, $total);
+			break;
+
+		case validateRoute('GET', 'users/\d+/torrent-lists'):
+			$torrentLists = new TorrentLists($db, $user);
+			$torrentLists = $torrentLists->queryUserLists((int)$params[1]);
+			httpResponse($torrentLists);
+			break;
+
+		case validateRoute('GET', 'torrent-lists/\d+'):
+			$torrent = new Torrent($db, $user);
+			$torrentLists = new TorrentLists($db, $user, null, null, $torrent);
+			$response = $torrentLists->get($params[1]);
+			httpResponse($response);
+			break;
+
+		case validateRoute('GET', 'torrent-lists/popular'):
+			$torrentLists = new TorrentLists($db, $user);
+			$response = $torrentLists->queryPopularLists($params[1]);
+			httpResponse($response);
+			break;
+
+		case validateRoute('POST', 'torrent-lists/\d+/votes'):
+			$torrentLists = new TorrentLists($db, $user);
+			$response = $torrentLists->vote($params[1]);
+			httpResponse($response);
+			break;
+
+		case validateRoute('GET', 'torrent-lists/my'):
+			$torrentLists = new TorrentLists($db, $user);
+			httpResponse($torrentLists->getMyRequests());
+			break;
+
+		case validateRoute('POST', 'torrent-lists'):
+			$logs = new Logs($db, $user);
+			$torrentLists = new TorrentLists($db, $user, $logs);
+			httpResponse($torrentLists->createOrUpdate($postdata));
+			break;
+
+		case validateRoute('PATCH', 'torrent-lists/\d+'):
+			$torrentLists = new TorrentLists($db, $user);
+			httpResponse($torrentLists->createOrUpdate($postdata, (int)$params[1]));
+			break;
+
+		case validateRoute('DELETE', 'torrent-lists/\d+'):
+			$logs = new Logs($db, $user);
+			$mailbox = new Mailbox($db, $user);
+			$torrentLists = new TorrentLists($db, $user, $logs, $mailbox);
+			httpResponse($torrentLists->delete($params[1], $_GET["reason"]));
+			break;
+
+		case validateRoute('POST', 'torrent-lists/\d+/votes'):
+			$torrentLists = new TorrentLists($db, $user);
+			$response = $torrentLists->vote($params[1]);
+			httpResponse($response);
+			break;
+
+		case validateRoute('GET', 'torrent-list-bookmarks'):
+			$bookmarks = new TorrentListBookmarks($db, $user);
+			httpResponse($bookmarks->query(null));
+			break;
+
+		case validateRoute('POST', 'torrent-list-bookmarks'):
+			$bookmarks = new TorrentListBookmarks($db, $user);
+			httpResponse($bookmarks->create($postdata));
+			break;
+
+		case validateRoute('DELETE', 'torrent-list-bookmarks/\d+'):
+			$bookmarks = new TorrentListBookmarks($db, $user);
+			httpResponse($bookmarks->delete((int)$params[1]));
+			break;
 	}
 
 	httpResponseError(404, 'Resource not found');
@@ -1329,8 +1418,8 @@ function httpResponseError($code = 403, $data = null) {
 		case 504: $text = 'Gateway Time-out'; break;
 		case 505: $text = 'HTTP Version not supported'; break;
 		default:
-			$code = 500;
-			$text = 'Internal Server Error'; break;
+			$code = 401;
+			$text = 'Unauthorized'; break;
 		break;
 	}
 

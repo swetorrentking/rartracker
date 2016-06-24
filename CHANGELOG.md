@@ -1,5 +1,24 @@
 # rartracker changelog
 
+# 0.2.2 (2016-06-24)
+
+### New features and improvements
+
+* Youtube trailers
+* Torrent lists
+* Admin can delete IP log entries
+
+### Bugfixes
+
+* Requests lists now save sorted state
+* Swesub form
+* Requests can now be in new section due to new/archive separation instead of using reqid
+* Weekly earned bonus points calculated correctly on profile view
+* Wide NFO files are now wrapped
+* Swetv data source fetch working again
+* Increased topic length
+* Related torrents leaked uploader user id
+
 # 0.2.1 (2016-03-10)
 
 ### New features and improvements

@@ -1,8 +1,8 @@
 <div ng-show="vm.currentUser.uploadban == 'yes'" class="alert alert-warning" role="alert">Du är bannad ifrån att kunna ladda upp torrents.</div>
 
 <div class="text-center" ng-show="vm.currentUser.uploadban == 'no'">
-	<h2 ng-if="vm.settings.reqid < 3">Ladda upp torrent</h2>
-	<h2 ng-if="vm.settings.reqid > 3">Ladda upp request: {{ vm.settings.request }}</h2>
+	<h2 ng-if="vm.settings.reqid == 0">Ladda upp torrent</h2>
+	<h2 ng-if="vm.settings.reqid > 0">Ladda upp request: {{ vm.settings.request }}</h2>
 
 	<div class="col-md-9 col-centered">
 	<form role="form" ng-submit="vm.uploadFile()" enctype="multipart/form-data">
@@ -75,12 +75,12 @@
 					</div>
 				</td>
 			</tr>
-			<tr ng-show="vm.currentUser.class >= 6 && vm.settings.reqid < 3">
+			<tr ng-show="vm.currentUser.class >= 6">
 				<td class="text-right tdBold alignMiddle">Avdelning</td>
 				<td class="text-left">
 					<div class="btn-group">
-						<label class="btn btn-default" ng-model="vm.settings.reqid" uib-btn-radio="0">Nytt</label>
-						<label class="btn btn-default" ng-model="vm.settings.reqid" uib-btn-radio="1">Arkiv (äldre än 7 dagar)</label>
+						<label class="btn btn-default" ng-model="vm.settings.section" uib-btn-radio="'new'">Nytt</label>
+						<label class="btn btn-default" ng-model="vm.settings.section" uib-btn-radio="'archive'">Arkiv (äldre än 7 dagar)</label>
 					</div>
 				</td>
 			</tr>
