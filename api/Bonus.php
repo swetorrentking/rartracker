@@ -18,7 +18,7 @@ class Bonus {
 	public function run() {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
 		$totusers = 0;
@@ -49,10 +49,10 @@ class Bonus {
 			$requestReward = 0;
 			if ($ros["arkiv_seed"] <= 0) {
 				$bonusp = 0;
-				$bonus_nytt = up2gb($ros["nytt_seed"]);
+				$bonusNew = up2gb($ros["nytt_seed"]);
 			}	else {
 				$bonusp = up2gb($ros["arkiv_seed"]);
-				$bonus_nytt = up2gb($ros["nytt_seed"]);
+				$bonusNew = up2gb($ros["nytt_seed"]);
 			}
 
 			$bonusu = $bonusp;
@@ -99,35 +99,35 @@ class Bonus {
 
 			}
 
-			$slutbonus = $bonusp + $torrp + $subp + $requestReward;
-			if ($slutbonus > 0 || $bonus_nytt > 0 || $subp > 0) {
+			$finalBonus = $bonusp + $torrp + $subp + $requestReward;
+			if ($finalBonus > 0 || $bonusNew > 0 || $subp > 0) {
 				$totusers++;
-				$totbonus += $slutbonus;
+				$totbonus += $finalBonus;
 
-				$msg = "Bonusutdelning. ";
-				if ($bonusp>0 || $bonus_nytt > 0) {
-					$msg .= $bonusp."p för ".($bonusu+$bonus_nytt)."GB uppladdat, ".$bonusu."GB på arkiv, ".$bonus_nytt."GB på nytt. ";
+				$msg = L::get("BONUS_PAYOUT") . " ";
+				if ($bonusp>0 || $bonusNew > 0) {
+					$msg .= L::get("BONUS_PAYOUT_ROW", [$bonusp, $bonusu+$bonusNew, $bonusu, $bonusNew]);
 				}
 
 				if ($torrantal > 0) {
-					$msg .= $torrp."p för $torrantal st uppladdad".($torrantal == 1 ? '' : 'e')." nya torrents. ";
+					$msg .= L::get("BONUS_PAYOUT_TORRENTS", [$torrp, $torrantal]);
 				}
 
 				if ($requestReward > 0) {
-					$msg .= $requestReward."p för hittelön på uppladdade requests. ";
+					$msg .= L::get("BONUS_PAYOUT_REQUESTS", [$requestReward]);
 				}
 
 				if ($subp > 0) {
-					$msg .= $subp."p för $antalsubs st uppladdad".($antalsubs == 1 ? '' : 'e')." undertexter. ";
+					$msg .= L::get("BONUS_PAYOUT_SUBTITLES", [$subp, $antalsubs]);
 				}
 
-				$this->user->bonusLog($slutbonus, $msg, $ros["id"]);
+				$this->user->bonusLog($finalBonus, $msg, $ros["id"]);
 			}
 
 		}
 
 		$this->db->query("UPDATE users SET nytt_seed = 0, arkiv_seed = 0");
 
-		$this->log->log(0, "Bonusutdelning utförd. Totalt [b]{$totbonus}p[/b] till {$totusers} användare.", $this->user->getId());
+		$this->log->log(0, L::get("BONUS_PAYOUT_LOG", [$totbonus, $totusers]), $this->user->getId());
 	}
 }

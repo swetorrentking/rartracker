@@ -5,7 +5,7 @@
 		.module('app.admin')
 		.controller('AdminMailboxController', AdminMailboxController);
 
-	function AdminMailboxController($state, $stateParams, $filter, user, InfoDialog, ErrorDialog, AdminResource, SendMessageDialog) {
+	function AdminMailboxController($state, $translate, $stateParams, $filter, user, InfoDialog, ErrorDialog, AdminResource, SendMessageDialog) {
 
 		this.currentUser = user;
 		this.itemsPerPage = 20;
@@ -53,7 +53,7 @@
 		};
 
 		this.viewAnswer = function (message) {
-			InfoDialog('Visa StaffPM', message.answer);
+			InfoDialog($translate.instant('ADMIN.VIEW_ADMIN_PM'), message.answer);
 		};
 
 		this.getMessages();

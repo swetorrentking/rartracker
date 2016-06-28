@@ -5,7 +5,7 @@
 		.module('app.torrentLists')
 		.controller('TorrentListController', TorrentListController);
 
-	function TorrentListController($stateParams, $state, $uibModal, ErrorDialog, TorrentListsResource, authService, DeleteDialog) {
+	function TorrentListController($stateParams, $translate, $state, $uibModal, ErrorDialog, TorrentListsResource, authService, DeleteDialog) {
 
 		this.currentUser = authService.getUser();
 
@@ -17,7 +17,7 @@
 		};
 
 		this.delete = function () {
-			DeleteDialog('Radera torrentlista', 'Vill du verkligen radera listan?')
+			DeleteDialog($translate.instant('LIST.DELETE'), $translate.instant('LIST.CONFIRM_DELETE'))
 				.then(() => {
 					return TorrentListsResource.Lists.delete({id: $stateParams.id}).$promise;
 				})

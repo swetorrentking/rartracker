@@ -5,7 +5,7 @@
 		.module('app.suggestions')
 		.controller('SuggestionsController', SuggestionsController);
 
-	function SuggestionsController($uibModal, $state, $stateParams, user, ConfirmDialog, SuggestionsResource, configs) {
+	function SuggestionsController($uibModal, $state, $translate, $stateParams, user, ConfirmDialog, SuggestionsResource, configs) {
 
 		this.currentUser = user;
 		this.itemsPerPage = 50;
@@ -14,10 +14,10 @@
 
 		this.voteOptions = {
 			0: '---',
-			1: 'Färdigt',
-			2: 'Godkänt',
-			3: 'Nekat',
-			4: 'Ingen åtgärd'
+			1: $translate.instant('SUGGEST.STATUS_DONE'),
+			2: $translate.instant('SUGGEST.STATUS_ACCEPTED'),
+			3: $translate.instant('SUGGEST.STATUS_DENIED'),
+			4: $translate.instant('SUGGEST.STATUS_NO_ACTION')
 		};
 
 		this.getSuggestions = function () {
@@ -56,7 +56,7 @@
 		};
 
 		this.delete = function (suggestion) {
-			ConfirmDialog('Radera förslag', 'Vill du radera förslaget? (Forumtråden kvarstår)')
+			ConfirmDialog($translate.instant('SUGGEST.DELETE'), $translate.instant('SUGGEST.DELETE_BODY'))
 				.then(() => {
 					return SuggestionsResource.Suggest.delete({ id: suggestion.id }).$promise;
 				})

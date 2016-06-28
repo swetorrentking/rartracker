@@ -59,20 +59,20 @@ class Mailbox {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Meddelandet finns inte.');
+			throw new Exception(L::get("MESSAGE_NOT_FOUND"), 401);
 		}
 		return $res;
 	}
 
 	public function update($messageId, $postData) {
 		if ($messageId != $postData["id"]) {
-			throw new Exception('ID matchar inte.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$message = $this->get($messageId);
 
 		if ($message["receiver"] != $this->user->getId()) {
-			throw new Exception('Du har inte rättigheter till att redigera detta meddelande.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('UPDATE messages SET svarad = ?, unread = ?, last = NOW(), saved = ? WHERE id = ?');
@@ -87,7 +87,7 @@ class Mailbox {
 		$message = $this->get($id);
 
 		if ($message["receiver"] != $this->user->getId()) {
-			throw new Exception('Du har inte rättigheter till att radera detta meddelande.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('DELETE FROM messages WHERE id = ?');
@@ -98,21 +98,21 @@ class Mailbox {
 	public function create($postData) {
 
 		if (strlen($postData["body"]) < 2) {
-			throw new Exception('Meddelandet är för kort.');
+			throw new Exception(L::get("MESSAGE_TOO_SHORT"), 412);
 		}
 
 		if ($postData["receiver"] == 1) {
-			throw new Exception('Systemet kan inte ta emot meddelanden.');
+			throw new Exception(L::get("MESSAGE_NOT_ALLOWED"), 401);
 		}
 
 		if ($postData["receiver"] == $this->user->getId()) {
-			throw new Exception('Skicka inte meddelande till dig själv.');
+			throw new Exception(L::get("MESSAGE_TO_SELF"), 401);
 		}
 
 		$receiver = $this->user->get($postData["receiver"]);
 
 		if (!$receiver) {
-			throw new Exception('Hittar inte användaren.');
+			throw new Exception(L::get("USER_NOT_EXIST"));
 		}
 
 		if ($postData["systemMessage"] == true && $this->user->getClass() >= User::CLASS_ADMIN) {
@@ -121,13 +121,13 @@ class Mailbox {
 		}
 
 		if ($receiver["enabled"] == "no") {
-			throw new Exception('Du kan inte skicka till avstängd användare.');
+			throw new Exception(L::get("MESSAGE_TO_DISABLED_USER"), 401);
 		}
 
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
 
 			if ($receiver["acceptpms"] == "no") {
-				throw new Exception('Användaren tillåter inte meddelanden.');
+				throw new Exception(L::get("MESSAGE_USER_NOT_ACCEPTING"), 401);
 			} else if ($receiver["acceptpms"] == "friends") {
 				$sth = $this->db->prepare("SELECT 1 FROM friends WHERE userid = ? AND friendid = ?");
 				$sth->bindValue(1, $this->user->getId(),	PDO::PARAM_INT);
@@ -135,7 +135,7 @@ class Mailbox {
 				$sth->execute();
 				$res = $sth->fetch();
 				if (!$res) {
-					throw new Exception('Användaren tillåter endast meddelanden ifrån vänner.');
+					throw new Exception(L::get("MESSAGES_USER_ALLOW_FROM_FRIENDS"), 401);
 				}
 			}
 
@@ -144,14 +144,14 @@ class Mailbox {
 			$sth->bindValue(2, $this->user->getId(),	PDO::PARAM_INT);
 			$sth->execute();
 			if ($sth->fetch()) {
-				throw new Exception('Användaren har blockerat dig.');
+				throw new Exception(L::get("MESSAGES_USER_BLOCKED_YOU"), 401);
 			}
 		}
 
 		if ($postData["replyTo"]) {
 			$message = $this->get($postData["replyTo"]);
 			if ($message["receiver"] != $this->user->getId()) {
-				throw new Exception('Du svarar på ett meddelande som inte är ditt.');
+				throw new Exception(L::get("PERMISSION_DENIED"), 401);
 			}
 			$this->db->query("UPDATE messages SET svarad = 1 WHERE id = " . $message["id"]);
 		}

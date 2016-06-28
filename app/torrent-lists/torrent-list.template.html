@@ -7,13 +7,13 @@
 	<div style="margin-top: 20px;"></div>
 
 	<torrent-list-bookmark-button torrent-list="vm.torrentList"></torrent-list-bookmark-button>
-	<button class="btn btn-default btn-sm" ng-click="vm.vote()">{{ vm.torrentList.votes }} röster</button>
+	<button class="btn btn-default btn-sm" ng-click="vm.vote()" translate="LIST.VOTES" translate-value-x="{{ vm.torrentList.votes }}"></button>
 	<span ng-show="vm.torrentList.user.id === vm.currentUser.id || vm.currentUser.class >= 8">
-		<button class="btn btn-default btn-sm" ui-sref="torrent-lists.edit({id: vm.torrentList.id, torrentList: vm.torrentList})"><i class="fa fa-cog" aria-hidden="true"></i> Redigera</button>
-		<button class="btn btn-default btn-sm" ng-click="vm.delete()"><i class="fa fa-trash-o" aria-hidden="true"></i> Radera</button>
+		<button class="btn btn-default btn-sm" ui-sref="torrent-lists.edit({id: vm.torrentList.id, torrentList: vm.torrentList})"><i class="fa fa-cog" aria-hidden="true"></i> {{ 'BUTTONS.EDIT' | translate }}</button>
+		<button class="btn btn-default btn-sm" ng-click="vm.delete()"><i class="fa fa-trash-o" aria-hidden="true"></i> {{ 'BUTTONS.DELETE' | translate }}</button>
 	</span>
 
-	<h2>Innehåll</h2>
+	<h2 translate="LIST.LIST_CONTENT"></h2>
 
 	<div class="table-responsive">
 		<torrents-table torrents="::vm.torrentList.torrents_data" col-download="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>

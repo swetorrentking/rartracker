@@ -43,15 +43,18 @@ $category = array();
 $category[1] = "DVDR PAL";
 $category[2] = "DVDR CUSTOM";
 $category[3] = "DVDR TV";
-$category[4] = "720p Film";
-$category[5] = "1080p Film";
+$category[4] = "720p Movie";
+$category[5] = "1080p Movie";
 $category[6] = "720p TV";
 $category[7] = "1080p TV";
-$category[8] = "Svensk TV";
+$category[8] = "Swedish TV";
 $category[9] = "Audiobook";
 $category[10] = "E-book";
 $category[11] = "E-paper";
 $category[12] = "Music";
+$category[13] = "Full BluRay";
+$category[14] = "Subpack";
+$category[15] = "4K Movie";
 
 $cats = $_GET["cat"];
 

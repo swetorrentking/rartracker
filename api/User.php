@@ -16,11 +16,11 @@ class User {
 	const HASHED_EMAILS = true;
 	const GIGABYTE_ON_SIGNUP = 25;
 
-	const CLASS_USER = 0;
-	const CLASS_SKADIS = 1;
-	const CLASS_FILMSTJARNA = 2;
-	const CLASS_REGISSAR = 3;
-	const CLASS_PRODUCENT = 4;
+	const CLASS_EXTRA = 0;
+	const CLASS_ACTOR = 1;
+	const CLASS_MOVIE_STAR = 2;
+	const CLASS_DIRECTOR = 3;
+	const CLASS_PRODUCER = 4;
 	const CLASS_UPLOADER = 6;
 	const CLASS_VIP = 7;
 	const CLASS_ADMIN = 8;
@@ -81,6 +81,7 @@ class User {
 			'warneduntil',
 			'search_sort',
 			'section',
+			'language',
 			'p2p');
 		$returnUserArray = array();
 		foreach ($this->getUser() as $key => $value) {
@@ -144,13 +145,13 @@ class User {
 				if ($this->hashCookie($arr["passhash"], $arr["class"] >= User::CLASS_VIP) == $_COOKIE["pass"]) {
 					$this->setPrivateVars($arr);
 				} else {
-					throw new Exception('Cookie nyckeln matchar inte med användarkontot.', 401);
+					throw new Exception(L::get("COOKIE_MATCH_ERROR"), 401);
 				}
 			} else {
-				throw new Exception('Användarkontot finns inte eller så är det avstängt.', 401);
+				throw new Exception(L::get("USER_NOT_FOUND_ERROR"), 401);
 			}
 		} else {
-			throw new Exception('Du har ingen inloggningscookie.', 401);
+			throw new Exception(L::get("COOKIE_MISSING_ERROR"), 401);
 		}
 	}
 
@@ -166,12 +167,8 @@ class User {
 			if (password_verify($password . User::PASSWORD_SALT, $arr["passhash"])) {
 
 				if ($arr["enabled"] == "no") {
-					if ($arr["uploaded"]/$arr["downloaded"] > 0.5 && !strpos($arr["modcomment"], 'Disabled by') && !strpos($arr["modcomment"], 'Kontot inaktiverat utav')) {
-						$this->db->query("UPDATE users SET enabled = 'yes' WHERE id = " . $arr["id"]);
-					} else {
-						$loginAttempts->create(array("username" => $username, "password" => $password, "uid" => $arr["id"]));
-						throw new Exception('Användarkontot är avstängt med anledningen: ' . $arr["secret"], 401);
-					}
+					$loginAttempts->create(array("username" => $username, "password" => $password, "uid" => $arr["id"]));
+					throw new Exception(L::get("USER_DISABLED", [$arr["secret"]]), 401);
 				}
 
 				setcookie("uid", $arr["id"], time()+31556926, "/");
@@ -180,11 +177,11 @@ class User {
 				$this->setPrivateVars($arr);
 			} else {
 				$loginAttempts->create(array("username" => $username, "password" => $password, "uid" => $arr["id"]));
-				throw new Exception('Felaktiga inloggningsuppgifter.', 401);
+				throw new Exception(L::get("USER_WRONG_CREDENTIALS"), 401);
 			}
 		} else {
 			$loginAttempts->create(array("username" => $username, "password" => $password));
-			throw new Exception('Felaktiga inloggningsuppgifter.', 401);
+			throw new Exception(L::get("USER_WRONG_CREDENTIALS"), 401);
 		}
 	}
 
@@ -197,11 +194,11 @@ class User {
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$res) {
-			throw new Exception('Ingen användare i databasen matchar den email/passkey.', 401);
+			throw new Exception(L::get("USER_EMAIL_PASSKEY_NO_MATCH"), 401);
 		}
 
 		if ($res["enabled"] == "no") {
-			throw new Exception("Användarkontot är avstängt med anledning [b]".$res["secret"]."[/b].", 401);
+			throw new Exception(L::get("USER_DISABLED", [$res["secret"]]), 401);
 		}
 
 		$newPassword = "temp" . rand(9, 99);
@@ -225,11 +222,11 @@ class User {
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$res) {
-			throw new Exception('Ingen användare i databasen matchar emailadressen.', 401);
+			throw new Exception(L::get("USER_EMAIL_NO_MATCH"), 401);
 		}
 
 		if ($res["enabled"] == "no") {
-			throw new Exception("Användarkontot är avstängt med anledning [b]".$res["secret"]."[/b].", 401);
+			throw new Exception(L::get("USER_DISABLED", [$res["secret"]]), 401);
 		}
 
 		$secret = md5(uniqid());
@@ -246,17 +243,8 @@ class User {
 		$siteName = Config::SITE_NAME;
 		$siteUrl = Config::SITE_URL;
 
-		$body = <<<EOD
-Någon, förhoppningsvis du, har försökt återställa lösenordet till kontot kopplat till denna email.
+		$body = L::get("RECOVER_EMAIL", [$siteUrl, $secret, $siteName]);
 
-Om du vill fortsätta återställa lösenordet, följ länken:
-
-{$siteUrl}/recover/{$secret}
-
---
-
-{$siteName}
-EOD;
 		mail($postdata["email"], Config::SITE_NAME . " password reset confirmation", $body, $headers, "-f" . Config::SITE_MAIL);
 
 		$hostname = gethostbyaddr($ip);
@@ -271,7 +259,7 @@ EOD;
 
 	public function gotRecoverByEmail($secret) {
 		if (strlen($secret) !== 32) {
-			throw new Exception('Ogiltig nyckel.', 401);
+			throw new Exception(L::get("INVALID_RECOVERY_KEY"), 401);
 		}
 		$sth = $this->db->prepare("SELECT id, username, enabled, email, secret FROM users WHERE secret = ?");
 		$sth->bindParam(1,	$secret,	PDO::PARAM_STR);
@@ -279,7 +267,7 @@ EOD;
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$res) {
-			throw new Exception('Återställningslänken är fel eller har utgått.', 401);
+			throw new Exception(L::get("RECOVERY_URL_ERROR"), 401);
 		}
 
 		$newPassword = "temp" . rand(9, 99);
@@ -298,31 +286,34 @@ EOD;
 		$hashedEmail = $this->hashEmail($postdata["email"]);
 
 		if (!$invite) {
-			throw new Exception('Inbjudningskoden har utgått.', 412);
+			throw new Exception(L::get("INVITE_EXPIRED"), 412);
 		}
 		if (strlen($postdata["username"]) < 2 ) {
-			throw new Exception('Användarnamnet är för kort', 411);
+			throw new Exception(L::get("USER_NAME_TOO_SHORT"), 411);
 		}
 		if (strlen($postdata["username"]) > 14 ) {
-			throw new Exception('Användarnamnet är för långt', 411);
+			throw new Exception(L::get("USER_NAME_TOO_LONG"), 411);
 		}
 		if (!preg_match ('/^[a-z0-9][a-z0-9-_]+$/i', $postdata["username"]) ){
-			throw new Exception('Användarnamnet ska bestå av följande tecken: A-Z 0-9', 412);
+			throw new Exception(L::get("USER_NAME_CHARACTER_LIMITATION", ["A-Z 0-9"]), 412);
 		}
 		if (!$this->usernameIsAvailable($postdata["username"])) {
-			throw new Exception('Användarnamnet \''.$postdata["username"].'\' är upptaget', 409);
+			throw new Exception(L::get("USER_NAME_OCCUPIED", [$postdata["username"]]), 409);
 		}
 		if (!preg_match ('/^[\w.-]+@([\w.-]+\.)+[a-z]{2,6}$/is', $postdata["email"])) {
-			throw new Exception('Ogiltig e-postadress', 412);
+			throw new Exception(L::get("INVALID_EMAIL"), 412);
 		}
 		if (!$this->emailIsAvailable($hashedEmail)) {
-			throw new Exception('E-postadressen används redan på sidan', 409);
+			throw new Exception(L::get("EMAIL_OCCUPIED"), 409);
 		}
 		if (strlen($postdata["password"]) < 6) {
-			throw new Exception('Lösenordet är för kort', 411);
+			throw new Exception(L::get("PASSWORD_TOO_SHORT"), 411);
 		}
 		if ($postdata["password"] != $postdata["passwordAgain"] ) {
-			throw new Exception('Lösenorden stämmer ej överrens', 412);
+			throw new Exception(L::get("PASSWORD_NOT_MATCHING"), 412);
+		}
+		if (!in_array($postdata["language"], Config::$languages)) {
+			$postdata["language"] = Config::DEFAULT_LANGUAGE;
 		}
 
 		switch ($postdata["format"]) {
@@ -352,7 +343,7 @@ EOD;
 		$uploaded = 1073741824 * User::GIGABYTE_ON_SIGNUP;
 		$leechEnd = date('Y-m-d H:i:s', time() + 86400); // 24h frree leech
 
-		$sth = $this->db->prepare("INSERT INTO users (username, passhash, email, passkey, invited_by, indexlist, added, gender, alder, leechstart, uploaded, lastreadnews, last_access, anonym) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'yes')");
+		$sth = $this->db->prepare("INSERT INTO users (username, passhash, email, passkey, invited_by, indexlist, added, gender, alder, leechstart, uploaded, lastreadnews, last_access, anonym, language) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), 'yes', ?)");
 		$sth->bindParam(1,	$postdata["username"],			PDO::PARAM_STR);
 		$sth->bindParam(2,	$passhash,						PDO::PARAM_STR);
 		$sth->bindParam(3,	$hashedEmail,					PDO::PARAM_STR);
@@ -365,11 +356,12 @@ EOD;
 		$sth->bindParam(10,	$leechEnd,						PDO::PARAM_STR);
 		$sth->bindParam(11,	$uploaded,						PDO::PARAM_INT);
 		$sth->bindParam(12,	$lastReadNews,					PDO::PARAM_INT);
+		$sth->bindParam(13,	$postdata["language"],			PDO::PARAM_STR);
 		$sth->execute();
 		$userId = $this->db->lastInsertId();
 
 		$mailbox = new Mailbox($this->db);
-		$mailbox->sendSystemMessage($invite["userid"], "Inbjudan accepterad!", "Din inbjudan är accepterad och hen valde att registrera sig under namnet [url=/user/".$userId ."/".$postdata["username"]."][b]".$postdata["username"]."[/b][/url].");
+		$mailbox->sendSystemMessage($invite["userid"], L::get("INVITE_ACCEPTED"), L::get("INVITE_ACCEPTED_BODY", [$userId, $postdata["username"], $postdata["username"]]));
 
 		// Security checks
 
@@ -412,7 +404,7 @@ EOD;
 
 	public function update($userId, $userData) {
 		if ($this->getId() !== $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att redigera denna användaren.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT * FROM users WHERE id = ?');
@@ -421,21 +413,21 @@ EOD;
 
 		$user = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$user) {
-			throw new Exception('Användaren finns inte.', 404);
+			throw new Exception(L::get("USER_NOT_EXIST"), 404);
 		}
 
 		$changedPassword = false;
 
 		if ($userData["password"] != "") {
 			if ($userData["password"] != $userData["passwordRepeat"]) {
-				throw new Exception('Nytt lösenord och upprepade lösenordet stämmmer inte.');
+				throw new Exception(L::get("NEW_PASSWORD_NOT_MATCHING"));
 			}
 
 			if ($this->getClass() >= self::CLASS_ADMIN || password_verify($userData["previousPassword"] . User::PASSWORD_SALT, $user["passhash"])) {
-				$userData["passhash"] = $this->hashPassword($userData["password"]);
+				$userData["passhash"] = $this->hashPassword($userData["password"], $user["added"]);
 				$changedPassword = true;
 			} else {
-				throw new Exception('Nuvarande lösenord är felaktigt.');
+				throw new Exception(L::get("CURRENT_PASSWORD_WRONG"));
 			}
 		} else {
 			$userData["passhash"] = $user["passhash"];
@@ -455,37 +447,39 @@ EOD;
 
 			if ($user["enabled"] != $userData["enabled"]) {
 				if ($userData["enabled"] == "yes") {
-					$adminlogs->create("{{username}} aktiverade kontot [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Kontot aktiverat ' . $this->getUsername());
+					$adminlogs->create(L::get("ACCOUNT_ACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_ACTIVATED_LOG", [$this->getUsername()]));
 				} else {
-					$adminlogs->create("{{username}} inaktiverade kontot [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url] med anledning: [i]" . $userData["secret"] . "[/i]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Kontot inaktiverat utav ' . $this->getUsername() . ' med anledning: ' . $userData["secret"]);
+					$adminlogs->create(L::get("ACCOUNT_DEACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"], $userData["secret"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_DEACTIVATED_LOG", [$this->getUsername(), $userData["secret"]]));
 				}
 			}
 
 			if ($user["class"] != $userData["class"]) {
 				if ($user["class"] < $userData["class"]) {
-					$statusChange = "uppgraderad";
+					$statusChange = L::get("STATUS_UPGRADED");
+					$statusChangeTense = L::get("STATUS_WAS_UPGRADED");
 				} else {
-					$statusChange = "nedgraderad";
+					$statusChange = L::get("STATUS_DOWNGRADED");
+					$statusChangeTense = L::get("STATUS_WAS_DOWNGRADED");
 				}
 
 				$newClass = Helper::getUserClassById($userData["class"]);
 				$oldClass = Helper::getUserClassById($user["class"]);
 
-				$mailbox->sendSystemMessage($user["id"], ucfirst($statusChange) ." till ".$newClass."!", "Du har blivit ".$statusChange." till statusnivån [b]" . $newClass."[/b] utav en administratör.");
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], ucfirst($statusChange) .' från '.$oldClass.' till '. $newClass.' utav ' . $this->getUsername());
-				$adminlogs->create("{{username}} " . $statusChange . "e [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url] från [b]".$oldClass."[/b] till [b]".$newClass."[/b].");
+				$mailbox->sendSystemMessage($user["id"], L::get("CLASS_CHANGED_SUBJECT", [ucfirst($statusChange), $newClass]), L::get("CLASS_CHANGED_MESSAGE", [$statusChange, $newClass]));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("CLASS_CHANGED_COMMENT", [ucfirst($statusChange), $oldClass, $newClass, $this->getUsername()]));
+				$adminlogs->create(L::get("CLASS_CHANGED_ADMINLOG", [$statusChangeTense, $user["id"], $user["username"], $user["username"], $oldClass, $newClass]));
 
 				$userData["doljuploader"] = $userData["class"];
 
-				if ($userData["class"] >= self::CLASS_FILMSTJARNA) {
+				if ($userData["class"] >= self::CLASS_MOVIE_STAR) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $user["id"]);
 				}
 			}
 
 			if ($user["passkey"] != $userData["passkey"]) {
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Passkey förnyad utav ' . $this->getUsername());
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("PASSKEY_RENEWED", [$this->getUsername()]));
 			}
 
 			if ($user["warned"] != $userData["warned"]) {
@@ -493,63 +487,63 @@ EOD;
 					$days = max(1, $userData["warnDays"]);
 					$userData["warneduntil"] = date("Y-m-d H:i:s", time() + 86400 * $days);
 
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Varnad i '. $days.' dagar utav ' . $this->getUsername().' med anledning: ' . $userData["warnReason"]);
-					$adminlogs->create("{{username}} varnade [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url] i [b]".$days." dagar[/b] med anledning: [i]" . $userData["warnReason"] . "[/i]");
-					$mailbox->sendSystemMessage($user["id"], "Du är varnad!", "Du har mottagit en varning på [b]" . $days." dagar[/b] utav en administratör.\n\nAnledning: [b]" . $userData["warnReason"] . "[/b]");
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("WARNED_USERLOG", [$days, $this->getUsername(), $userData["warnReason"]]));
+					$adminlogs->create(L::get("WARNED_ADMINLOG", [$user["id"], $user["username"], $user["username"], $days, $userData["warnReason"]]));
+					$mailbox->sendSystemMessage($user["id"], L::get("WARNED_PM_SUBJECT"), L::get("WARNED_PM_BODY", [$days, $userData["warnReason"]]));
 				} else {
 					$userData["warneduntil"] = "0000-00-00 00:00:00";
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Varning borttagen utav ' . $this->getUsername());
-					$adminlogs->create("{{username}} plockade bort varningen ifrån [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$mailbox->sendSystemMessage($user["id"], "Varning borttagen", "Din varning har blivit borttagen utav en administratör.");
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("WARNING_REMOVED_USERLOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("WARNING_REMOVED_ADMINLOG", [$user["id"], $user["username"], $user["username"]]));
+					$mailbox->sendSystemMessage($user["id"], L::get("WARNING_REMOVED_PM_SUBJECT"), L::get("WARNING_REMOVED_PM_BODY"));
 				}
 			}
 
 			if ($user["uploadban"] != $userData["uploadban"]) {
 				if ($userData["uploadban"] == 1) {
-					$adminlogs->create("{{username}} uploadbannade [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Uploadbannad utav ' . $this->getUsername());
+					$adminlogs->create(L::get("UPLOADBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_ADDED_LOG", [$this->getUsername()]));
 				} else {
-					$adminlogs->create("{{username}} tog bort uploadban ifrån [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Uploadban borttagen utav ' . $this->getUsername());
+					$adminlogs->create(L::get("UPLOADBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_REMOVED_LOG", [$this->getUsername()]));
 				}
 			}
 
 			if ($user["inviteban"] != $userData["inviteban"]) {
 				if ($userData["inviteban"] == 1) {
-					$adminlogs->create("{{username}} invitebannade [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Invitebannad utav ' . $this->getUsername());
+					$adminlogs->create(L::get("INVITEBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_ADDED_LOG", [$this->getUsername()]));
 				} else {
-					$adminlogs->create("{{username}} tog bort inviteban ifrån [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Inviteban borttagen utav ' . $this->getUsername());
+					$adminlogs->create(L::get("INVITEBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_REMOVED_LOG", [$this->getUsername()]));
 				}
 			}
 
 			if ($user["forumban"] != $userData["forumban"]) {
 				if ($userData["forumban"] == 1) {
-					$adminlogs->create("{{username}} forumbannade [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Forumbannad utav ' . $this->getUsername());
+					$adminlogs->create(L::get("FORUMBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_BANNED_BY", [$this->getUsername()]));
 				} else {
-					$adminlogs->create("{{username}} tog bort forumban ifrån [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url]");
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], 'Forumban borttagen utav ' . $this->getUsername());
+					$adminlogs->create(L::get("FORUMBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_UNBANNED_BY", [$this->getUsername()]));
 				}
 			}
 
 			if ($this->hashEmail($user["email"]) != $this->hashEmail($userData["email"])) {
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], "Emailbyte från " . $this->hashEmail($user["email"]) . " till " . $this->hashEmail($userData["email"]) . " av " . $this->getUsername());
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("EMAIL_CHANGE_LOG", [$this->hashEmail($user["email"]), $this->hashEmail($userData["email"]), $this->getUsername()]));
 				$this->addEmailLog($user["id"], $this->hashEmail($user["email"]));
 			}
 
 			if ($user["username"] != $userData["username"]) {
-				$adminlogs->create("{{username}} bytte nick på [url=/user/".$user["id"] ."/".$user["username"]."][b]".$user["username"]."[/b][/url] till [url=/user/".$user["id"] ."/".$userData["username"]."][b]".$userData["username"]."[/b][/url]");
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], "Nickbyte från " . $user["username"] . " till ".$userData["username"]." av " . $this->getUsername());
+				$adminlogs->create(L::get("USERNAME_CHANGE_LOG", [$user["id"], $user["username"], $user["username"], $user["id"], $userData["username"], $userData["username"]]));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("USERNAME_CHANGE_ADMIN_LOG", [$user["username"], $userData["username"], $this->getUsername()]));
 			}
 		}
 
 		if ($this->getClass() >= User::CLASS_ADMIN) {
-			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, leechstart = :leechstart, invites = :invites, reqslots = :reqslots, forumban = :forumban, inviteban = :inviteban, uploadban = :uploadban, passkey = :passkey, warneduntil = :warneduntil, warned = :warned, username = :username, enabled = :enabled, bonuspoang = :bonuspoang, donor = :donor, downloaded = :downloaded, uploaded = :uploaded, title = :title, modcomment = :modcomment, email = :email, secret = :secret, class = :class, invited_by = :invited_by, section = :section, p2p = :p2p WHERE id = :userId");
+			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, leechstart = :leechstart, invites = :invites, reqslots = :reqslots, forumban = :forumban, inviteban = :inviteban, uploadban = :uploadban, passkey = :passkey, warneduntil = :warneduntil, warned = :warned, username = :username, enabled = :enabled, bonuspoang = :bonuspoang, donor = :donor, downloaded = :downloaded, uploaded = :uploaded, title = :title, modcomment = :modcomment, email = :email, secret = :secret, class = :class, invited_by = :invited_by, section = :section, p2p = :p2p, language = :language WHERE id = :userId");
 
 		} else {
-			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, section = :section, p2p = :p2p  WHERE id = :userId");
+			$sth = $this->db->prepare("UPDATE users SET avatar = :avatar, gender = :gender, parkerad = :parkerad, alder = :alder, info = :info, mbitupp = :mbitupp, mbitner = :mbitner, isp = :isp, anonym = :anonym, anonymratio = :anonymratio, anonymicons = :anonymicons, acceptpms = :acceptpms, tvvy = :tvvy, https = :https, notifs = :notifs, avatars = :avatars, torrentsperpage = :torrentsperpage, topicsperpage = :topicsperpage, postsperpage = :postsperpage, passhash = :passhash, design = :design, css = :css, search_sort = :search_sort, doljuploader = :doljuploader, section = :section, p2p = :p2p, language = :language WHERE id = :userId");
 		}
 
 		if ($this->getClass() >= User::CLASS_ADMIN) {
@@ -602,6 +596,7 @@ EOD;
 		$sth->bindParam(":doljuploader",	$userData["doljuploader"],		PDO::PARAM_INT);
 		$sth->bindParam(":section",			$userData["section"],			PDO::PARAM_STR);
 		$sth->bindParam(":p2p",				$userData["p2p"],				PDO::PARAM_INT);
+		$sth->bindParam(":language",		$userData["language"],			PDO::PARAM_STR);
 		$sth->bindParam(":userId",			$userId,						PDO::PARAM_INT);
 		$sth->execute();
 
@@ -640,7 +635,7 @@ EOD;
 		$arr = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$arr) {
-			throw new Exception('Användaren finns inte.', 404);
+			throw new Exception(L::get("USER_NOT_EXIST"), 404);
 		}
 
 		$arr["notifs"] = $arr["notifs"] ? explode(",", $arr["notifs"]) : [];
@@ -685,7 +680,7 @@ EOD;
 		$res = $sth->fetch();
 
 		if (!$res) {
-			throw new Exception('Användaren finns inte.');
+			throw new Exception(L::get("USER_NOT_EXIST"), 404);
 		}
 
 		if ($res[0] == "yes" && $this->getClass() < self::CLASS_ADMIN && $this->getId() != $userId) {
@@ -709,7 +704,7 @@ EOD;
 
 	public function getBonusLog($userId, $limit) {
 		if ($this->getId() != $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att visa bonusloggen för denna användare.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT id, datum, msg FROM bonuslog WHERE userid = ? ORDER BY id DESC LIMIT ?');
@@ -722,7 +717,7 @@ EOD;
 
 	public function getIpLog($userId, $limit) {
 		if ($this->getId() != $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att visa ip-loggen för denna användare.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT id, ip, host, lastseen, uptime FROM iplog WHERE userid = ? ORDER BY lastseen DESC LIMIT ?');
@@ -744,7 +739,7 @@ EOD;
 
 	public function getInvitees($userId) {
 		if ($this->getId() != $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att visa invites för denna användare.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT id, username, uploaded, downloaded, enabled, last_access, class FROM users WHERE invited_by = ?');
@@ -785,7 +780,7 @@ EOD;
 
 	public function delete($id) {
 		if ($this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$user = $this->get($id);
@@ -799,7 +794,7 @@ EOD;
 		$this->db->query("DELETE FROM friends WHERE friendid = " . $id . " OR userid = " . $id);
 
 		$adminlogs = new AdminLogs($this->db, $this);
-		$adminlogs->create("{{username}} raderade kontot [b]".$user["username"]."[/b] ifrån databasen");
+		$adminlogs->create(L::get("ACCOUNT_REMOVED_LOG", [$user["username"]]));
 	}
 
 	public function loggaUt() {
@@ -826,6 +821,7 @@ EOD;
 		$this->lastAccess = strtotime($arr["last_access"]);
 		$this->leechStart = $arr["leechstart"];
 		$this->lastreadnews = $arr["lastreadnews"];
+		$this->language = $arr["language"];
 		$this->user = $arr;
 	}
 
@@ -939,7 +935,7 @@ EOD;
 	}
 
 	public function getBrowserIp() {
-		if ($this->getClass() >= self::CLASS_REGISSAR) {
+		if ($this->getClass() >= self::CLASS_DIRECTOR) {
 			return "123.123.123.123";
 		} else {
 			return $_SERVER["REMOTE_ADDR"];
@@ -972,6 +968,10 @@ EOD;
 
 	public function isUploadBanned() {
 		return ($this->user["uploadban"] == 'yes');
+	}
+
+	public function getLanguage() {
+		return $this->language;
 	}
 
 	public function getLastWatch() {
@@ -1018,8 +1018,8 @@ EOD;
 	}
 
 	public function getUsersLechbonusTop() {
-		if ($this->getClass() < User::CLASS_FILMSTJARNA) {
-			throw new Exception('Du har inte rättigheter.', 401);
+		if ($this->getClass() < User::CLASS_MOVIE_STAR) {
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$res = $this->db->query('SELECT id, username, leechbonus, anonym, anonymicons, enabled, donor, coin, crown, warned, pokal FROM users ORDER BY leechbonus DESC LIMIT 200');
@@ -1034,8 +1034,8 @@ EOD;
 	}
 
 	public function getTopSeeders() {
-		if ($this->getClass() < User::CLASS_FILMSTJARNA) {
-			throw new Exception('Du har inte rättigheter.', 401);
+		if ($this->getClass() < User::CLASS_MOVIE_STAR) {
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$arr = array();
@@ -1138,7 +1138,8 @@ EOD;
 			'design',
 			'css',
 			'invited_by',
-			'search_sort'
+			'search_sort',
+			'language'
 			);
 	}
 
@@ -1186,7 +1187,7 @@ EOD;
 		}
 
 		if (count($arr) == 4 ) {
-			throw new Exception('Du har redan fyra listor, radera en av dem för att kunna skapa en ny.');
+			throw new Exception(L::get("INDEX_LIST_LIMIT_REACHED"));
 		}
 
 		/* Check if a similiar list already exists in the database */
@@ -1218,7 +1219,7 @@ EOD;
 		/* Check if the user already has an identical list */
 		foreach($arr as $t) {
 			if ($id == $t) {
-				throw new Exception('Du har redan en exakt lika dan lista.');
+				throw new Exception(L::get("INDEX_LIST_DUPLICATE"));
 			}
 		}
 
@@ -1308,7 +1309,7 @@ EOD;
 
 	public function deleteIpLog($id) {
 		if ($this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("DELETE FROM iplog WHERE id = ?");
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
@@ -1349,7 +1350,7 @@ EOD;
 
 	public function getUserTorrents($userId, $requests = 0) {
 		if ($this->getId() != $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att visa torrents för denna användaren.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->query('SELECT imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, '.implode(Torrent::$torrentFieldsUser, ', ').' FROM torrents LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE torrents.reqid '. ($requests == 1 ? '> 1' : '< 2') . ' AND torrents.owner = '.$userId.' ORDER BY torrents.name ASC');
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -1391,7 +1392,7 @@ EOD;
 
 	public function getSnatchLog($userId) {
 		if ($this->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->query('SELECT snatch.*, snatch.id AS snatchId, torrents.id, torrents.p2p, torrents.pack, torrents.3d, torrents.swesub, torrents.category, torrents.frileech, torrents.name, imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2 FROM snatch LEFT JOIN torrents ON snatch.torrentid = torrents.id LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id  WHERE snatch.userid = '.$userId.' ORDER BY snatch.id DESC');
 
@@ -1432,7 +1433,7 @@ EOD;
 
 	public function search($getdata) {
 		if ($this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($getdata["email"]) {
@@ -1503,7 +1504,7 @@ EOD;
 
 	public function testEmail($userId, $email) {
 		if ($this->getId() !== $userId && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($this->getId() != $userId) {
@@ -1520,7 +1521,7 @@ EOD;
 		if ($userHashedMail === $this->hashEmail($email)) {
 			return true;
 		} else {
-			throw new Exception('Email matchar inte.', 404);
+			throw new Exception(L::get("EMAIL_NOT_MATCHING"), 404);
 		}
 	}
 }

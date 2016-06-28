@@ -11,14 +11,14 @@ class TvData {
 	public function run($params) {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
-		/* Spara ner dagens tablåer */
+		/* Fetch todays guide data */
 
 		$res = $this->db->query('SELECT * FROM tv_kanaler WHERE visible = 1');
 		$days = 86400 * (int)$params["days"];
-		$dagensdatum = date('Y-m-d', time() + $days); // hämta dagens tablåer
+		$dagensdatum = date('Y-m-d', time() + $days);
 
 		while($r = $res->fetch(PDO::FETCH_ASSOC)) {
 
@@ -50,11 +50,11 @@ class TvData {
 		}
 
 
-		/* Radera gamla tv-data så det inte blir för mycket i databasen */
+		/* Erase old tv-data to clear up space in database */
 
-		$dag = 86400 * 7; // Radera 7 dagar gamla
-		$veckagammal = time() - $dag;
-		$this->db->query('DELETE FROM tv_program WHERE datum < ' . $veckagammal);
+		$dag = 86400 * 7; // Erase 7 days old
+		$time = time() - $dag;
+		$this->db->query('DELETE FROM tv_program WHERE datum < ' . $time);
 
 	}
 }

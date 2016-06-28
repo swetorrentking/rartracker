@@ -14,7 +14,7 @@
 			controllerAs: 'vm'
 		});
 
-	function PollController(PollsResource, ConfirmDialog, ErrorDialog, $state, $uibModal, authService) {
+	function PollController(PollsResource, ConfirmDialog, ErrorDialog, $state, $uibModal, authService, $translate) {
 
 		this.currentUser = authService.getUser();
 
@@ -39,7 +39,7 @@
 		};
 
 		this.delete = function () {
-			ConfirmDialog('Radera omröstning', 'Vill du radera omröstningen?')
+			ConfirmDialog($translate.instant('POLL.DELETE_TITLE'), $translate.instant('POLL.DELETE_BODY'))
 				.then(() => {
 					return PollsResource.Polls.delete({id: this.poll.id}).$promise;
 				})

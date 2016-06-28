@@ -11,7 +11,7 @@ class AdminMailbox implements IResource {
 
 	public function query($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$limit = (int)$postdata["limit"] ?: 10;
@@ -73,29 +73,26 @@ class AdminMailbox implements IResource {
 
 	public function get($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare('SELECT * FROM staffmessages WHERE id = ?');
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Meddelandet finns inte.');
+			throw new Exception(L::get("MESSAGE_NOT_FOUND"), 404);
 		}
 		return $res;
 	}
 
 	public function update($id, $postData) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$message = $this->get($id);
-		if (!$message) {
-			throw new Exception('Inlägget finns inte.', 404);
-		}
 
 		if ($message["answeredby"] != 0 && $message["answeredby"] != $this->user->getId()) {
-			throw new Exception('Detta meddelandet behandlas redan av någon annan.', 401);
+			throw new Exception(L::get("MESSAGE_ALREADY_PROCESSING"), 401);
 		}
 
 		$sth = $this->db->prepare('UPDATE staffmessages SET answered = ?, answeredby = ?, answer = ?, svaradwhen = ? WHERE id = ?');
@@ -109,7 +106,7 @@ class AdminMailbox implements IResource {
 
 	public function create($postData) {
 		if (strlen($postData["body"]) < 2) {
-			throw new Exception('Meddelandet är för kort.', 412);
+			throw new Exception(L::get("MESSAGE_TOO_SHORT"), 412);
 		}
 
 		if (strlen($postData["subject"]) < 3) {

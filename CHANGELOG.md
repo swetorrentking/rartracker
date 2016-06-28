@@ -1,5 +1,11 @@
 # rartracker changelog
 
+# 0.3.0 (2016-06-29)
+
+### New features and improvements
+
+* Dynamic multi language support with English as default language, finally!
+
 # 0.2.2 (2016-06-24)
 
 ### New features and improvements

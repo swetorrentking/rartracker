@@ -4,7 +4,6 @@ class Polls {
 	private $db;
 	private $user;
 	private $forum;
-	private $pollsForumId = 3;
 
 	public function __construct($db, $user, $forum = null) {
 		$this->db = $db;
@@ -35,7 +34,7 @@ class Polls {
 		$poll = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$poll) {
-			throw new Exception('There are no polls yet.');
+			throw new Exception(L::get("POLLS_NO_POLLS"), 404);
 		}
 
 		return $this->generatePoll($poll);
@@ -95,7 +94,7 @@ class Polls {
 	public function vote($pollId, $choise) {
 
 		if ($choise < 0 || ($choise > 19 && $choise != 255)) {
-			throw new Exception('Ogiltigt val.');
+			throw new Exception(L::get("POLLS_ILLEGAL_CHOISE"), 412);
 		}
 
 		$sth = $this->db->prepare("SELECT COUNT(*) FROM `pollanswers` WHERE `userid` = ? AND `pollid` = ?");
@@ -104,7 +103,7 @@ class Polls {
 		$sth->execute();
 		$res = $sth->fetch();
 		if ($res[0] == 1) {
-			throw new Exception('Already voted.');
+			throw new Exception(L::get("POLLS_ALREADY_VOTED"), 409);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO pollanswers(pollid, userid, selection, class, alder) VALUES(?, ?, ?, ?, ?)");
@@ -118,10 +117,10 @@ class Polls {
 
 	public function create($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
-		$topic = $this->forum->addTopic($this->pollsForumId, $postdata["question"], '', $postdata["question"], true, 1);
+		$topic = $this->forum->addTopic(Config::POLLS_FORUM_ID, $postdata["question"], '', $postdata["question"], true, 1);
 
 		$sth = $this->db->prepare("INSERT INTO polls(added, question, topicid, option0, option1, option2, option3, option4, option5, option6, option7, option8, option9, option10, option11, option12, option13, option14, option15, option16, option17, option18, option19) VALUES(NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 		$sth->bindParam(1, $postdata["question"],		PDO::PARAM_STR);
@@ -151,7 +150,7 @@ class Polls {
 
 	public function update($id, $postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare("UPDATE polls SET question = ?, option0 = ?, option1 = ?, option2 = ?, option3 = ?, option4 = ?, option5 = ?, option6 = ?, option7 = ?, option8 = ?, option9 = ?, option10 = ?, option11 = ?, option12 = ?, option13 = ?, option14 = ?, option15 = ?, option16 = ?, option17 = ?, option18 = ?, option19 = ? WHERE id = ?");
@@ -182,7 +181,7 @@ class Polls {
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("DELETE FROM polls WHERE id = ?");
 		$sth->bindParam(1, $id, PDO::PARAM_INT);

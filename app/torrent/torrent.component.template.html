@@ -5,15 +5,15 @@
 <div class="torrentSubRow">
 	<span ng-if="vm.torrent.genres" class="label label-default" ng-repeat="genre in ::vm.torrent.genres | split">{{ genre }}</span><!--
   --><a ng-if="vm.torrent.rating" class="noBorder" href="http://anonym.to/?http://www.imdb.com/title/{{ ::vm.torrent.imdbid2 }}/" target="_blank"><span class="label label-warning">{{ ::vm.torrent.rating | number:1 }}</span></a><!--
-  --><span ng-if="vm.torrent.frileech == 1 && !vm.specialLeech" class="label label-warning">Fri leech</span><!--
+  --><span ng-if="vm.torrent.frileech == 1 && !vm.specialLeech" class="label label-warning" translate="TORRENTS.FREE_LEECH"></span><!--
   --><span ng-if="vm.torrent['3d'] == 1" class="label label-danger">3D</span><!--
-  --><span ng-if="vm.torrent.pack == 1" class="label label-info">Pack</span><!--
-  --><span ng-if="vm.torrent.reqid > 0" class="label label-info">Request</span><!--
+  --><span ng-if="vm.torrent.pack == 1" class="label label-info" translate="TORRENTS.PACK"></span><!--
+  --><span ng-if="vm.torrent.reqid > 0" class="label label-info" translate="REQUESTS.TITLE_SINGLE"></span><!--
   --><span ng-if="vm.torrent.p2p == 1" class="label label-danger">P2P</span><!--
-  --><a ng-if="vm.torrent.swesub == 1" class="noBorder" target="_self" ng-href="/subdownload.php?torrentid={{ vm.torrent.id }}"><span class="label label-success">Svensk text</span></a><span ng-if="vm.torrent.swesub == 2" class="label label-success">Svensk text</span><!--
-  --><span ng-show="vm.torrent.sweaudio == 1" class="label label-success">Svenskt tal</span><!--
-  --><span ng-show="vm.specialLeech" class="label label-info">{{ ::vm.specialLeech }} ratiofritt</span><!--
-  --><span ng-show="vm.torrent.section == 'archive'" class="label label-info">Arkiv</span>
+  --><a ng-if="vm.torrent.swesub == 1" class="noBorder" target="_self" ng-href="/subdownload.php?torrentid={{ vm.torrent.id }}"><span class="label label-success" translate="TORRENTS.SWE_SUBTITLES"></span></a><span ng-if="vm.torrent.swesub == 2" class="label label-success" translate="TORRENTS.SWE_SUBTITLES"></span><!--
+  --><span ng-show="vm.torrent.sweaudio == 1" class="label label-success" translate="TORRENTS.SWE_AUDIO"></span><!--
+  --><span ng-show="vm.specialLeech" class="label label-info">{{ ::vm.specialLeech }} {{ 'TORRENTS.RATIO_FREE' | translate }}</span><!--
+  --><span ng-show="vm.torrent.section == 'archive'" class="label label-info" translate="TORRENTS.ARCHIVE"></span>
 </div>
 
 <div class="hoverPoster" ng-if="vm.showPoster && vm.torrent.imdbid2" style="background-image: url('/img/imdb/{{ ::vm.torrent.imdbid2 }}.jpg');">

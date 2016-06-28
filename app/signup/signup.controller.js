@@ -5,11 +5,14 @@
 		.module('app.shared')
 		.controller('SignupController', SignupController);
 
-	function SignupController($state, $stateParams, authService, AuthResource, InviteValidityResource) {
+	function SignupController($state, $translate, $stateParams, authService, AuthResource, InviteValidityResource, languageSupport, configs) {
 
+		this.languageSupport = languageSupport;
 		this.credentials = {
 			gender: 0,
 			format: 1,
+			inviteKey: $stateParams.id,
+			language: configs.DEFAULT_LANGUAGE
 		};
 
 		this.valid = 0;
@@ -27,16 +30,7 @@
 		};
 
 		this.signup = function () {
-			AuthResource.save({
-				username: this.credentials.username,
-				email: this.credentials.email,
-				gender: this.credentials.gender,
-				age: this.credentials.age,
-				format: this.credentials.format,
-				password: this.credentials.password,
-				passwordAgain: this.credentials.passwordAgain,
-				inviteKey: $stateParams.id
-			}).$promise
+			AuthResource.save(this.credentials).$promise
 			.then(() => {
 				return AuthResource.get({
 					username: this.credentials.username,
@@ -44,14 +38,16 @@
 				}).$promise;
 			})
 			.then((data) => {
-				authService.setUser(data.user);
+				return authService.setUser(data.user);
+			})
+			.then(() => {
 				$state.go('start');
 			})
 			.catch((error) => {
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
 				} else {
-					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade.' });
+					this.addAlert({ type: 'danger', msg: $translate.instant('GENERAL.ERROR_OCCURED') });
 				}
 			});
 		};

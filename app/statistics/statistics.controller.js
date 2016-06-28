@@ -5,9 +5,21 @@
 		.module('app.shared')
 		.controller('StatisticsController', StatisticsController);
 
-	function StatisticsController(StatisticsResource, userClasses, categories, user) {
+	function StatisticsController($translate, StatisticsResource, userClasses, categories, user) {
 
 		this.currentUser = user;
+
+		this.titles = {
+			'activeUsers': $translate.instant('STATISTICS.ACTIVE_USERS'),
+			'activeClients': $translate.instant('STATISTICS.ACTIVE_CLIENTS'),
+			'sharedPerUser': $translate.instant('STATISTICS.SHARED_PER_USER'),
+			'usersFullLeechbonus': $translate.instant('STATISTICS.USERS_FULL_LEECHBONUS'),
+			'registredUsers': $translate.instant('STATISTICS.REGISTERED_USERS'),
+			'totalShared': $translate.instant('STATISTICS.TOTAL_SHARED'),
+			'numPeers': $translate.instant('STATISTICS.NUM_PEERS'),
+			'newForumPosts': $translate.instant('STATISTICS.NEW_FORUM_POSTS'),
+			'newTorrentComments': $translate.instant('STATISTICS.NEW_TORRENT_COMMENTS'),
+		};
 
 		StatisticsResource.query({}, (data) => {
 			var firstItem = data[0];
@@ -20,10 +32,10 @@
 
 			/* Users per class */
 			this.userClassesLabels = [
-				userClasses.STATIST.name,
-				userClasses.SKADIS.name,
-				userClasses.FILMSTJARNA.name,
-				userClasses.REGISSAR.name
+				userClasses.EXTRA.name,
+				userClasses.ACTOR.name,
+				userClasses.MOVIE_STAR.name,
+				userClasses.DIRECTOR.name
 			];
 			this.userClassesData = [
 				firstItem['numusersclass0'],

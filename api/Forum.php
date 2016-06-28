@@ -89,7 +89,7 @@ class Forum {
 		$forum = $this->getForum($forumId);
 
 		if ($forum["minclassread"] > $this->user->getClass()) {
-			throw new Exception('Du saknar rättigheter till denna tråd', 401);
+			throw new Exception(L::get("FORUM_THREAD_PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM topics WHERE forumid = ?');
@@ -154,10 +154,10 @@ class Forum {
 		$sth->execute();
 		$forum = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$forum) {
-			throw new Exception('Forumdelen finns inte.', 404);
+			throw new Exception(L::get("FORUM_NOT_FOUND"), 404);
 		}
 		if ($forum["minclassread"] > $this->user->getClass()) {
-			throw new Exception('Du saknar rättigheter till detta forum.', 401);
+			throw new Exception(L::get("FORUM_PERMISSION_DENIED"), 401);
 		}
 		return $forum;
 	}
@@ -168,7 +168,7 @@ class Forum {
 		$sth->execute();
 		$topic = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$topic) {
-			throw new Exception('Tråden finns inte.', 404);
+			throw new Exception(L::get("FORUM_THREAD_NOT_FOUND"), 404);
 		}
 		return $topic;
 	}
@@ -179,7 +179,7 @@ class Forum {
 		$sth->execute();
 		$post = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$post) {
-			throw new Exception('Inlägget finns inte.', 404);
+			throw new Exception(L::get("FORUM_POST_NOT_FOUND"), 404);
 		}
 		return $post;
 	}
@@ -196,7 +196,7 @@ class Forum {
 		$forum = $this->getForum($topic["forumid"]);
 
 		if ($forum["minclassread"] > $this->user->getClass()) {
-			throw new Exception('Du saknar rättigheter till denna tråd', 401);
+			throw new Exception(L::get("FORUM_THREAD_PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM posts WHERE topicid = ?');
@@ -241,7 +241,7 @@ class Forum {
 
 	public function getUserPosts($userId, $limit = 10, $index = 0) {
 		if ($this->user->getId() != $userId && $this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att visa inlägg för denna användaren', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM posts WHERE userid = ?');
@@ -286,20 +286,20 @@ class Forum {
 		$forum = $this->getForum($topic["forumid"]);
 
 		if (strlen($post["body"]) < 2) {
-			throw new Exception('Inlägget är för kort.', 400);
+			throw new Exception(L::get("FORUM_POST_TOO_SHORT"), 400);
 		}
 
 		if ($this->user->isForumBanned() == true) {
-			throw new Exception('Du är forumbannad.', 401);
+			throw new Exception(L::get("FORUM_BANNED"), 401);
 		}
 
 		if ($forum["minclasswrite"] > $this->user->getClass()) {
-			throw new Exception('Du har inte rättigheter att skriva i detta forum.', 401);
+			throw new Exception(L::get("FORUM_PERMISSION_DENIED"), 401);
 		}
 
 		$lastPost = $this->getLastPost($topicId);
 		if ($lastPost && $lastPost["userid"] == $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN && (time() - strtotime($lastPost["added"]) < 43200)) {
-			throw new Exception('Du kan inte dubbelposta. Redigera ditt tidigare inlägg istället.');
+			throw new Exception(L::get("FORUM_DOUBLE_POST"), 401);
 		}
 
 		$userId = $this->user->getId();
@@ -334,33 +334,33 @@ class Forum {
 			}
 			$pageNumber = ceil($postCount[0] / $postsPerPage ?: 15);
 
-			$this->mailbox->sendSystemMessage($post["quote"], "Citerad i tråden: \"".$topic["subject"]."\"", $this->user->getUsername() . " har svarat ditt inlägg i tråden \"".$topic["subject"]."\"\n\n[url=/forum/{$forum["id"]}/topic/{$topic["id"]}/{$topic["slug"]}?page={$pageNumber}#post{$postId}]Gå till foruminlägget »[/url]");
+			$this->mailbox->sendSystemMessage($post["quote"], L::get("FORUM_QUOTED_PM_SUBJECT", [$topic["subject"]]), L::get("FORUM_QUOTED_PM_BODY", [$this->user->getUsername(), $topic["subject"], $forum["id"], $topic["id"], $topic["slug"], $pageNumber, $postId]));
 		}
 	}
 
 	public function updatePost($forumId, $topicId, $postId, $postData) {
 		if (strlen($postData) < 2) {
-			throw new Exception('Inlägget är för kort.', 400);
+			throw new Exception(L::get("FORUM_POST_TOO_SHORT"), 400);
 		}
 
 		$post = $this->getPost($postId);
 
 		if ($post["topicid"] != $topicId) {
-			throw new Exception('Inlägg och topic matchar inte.', 400);
+			throw new Exception(L::get("FORUM_POST_TOPIC_NOT_MATCHING"), 400);
 		}
 
 		$topic =  $this->getTopic($topicId);
 		if ($topic["forumid"] != $forumId) {
-			throw new Exception('Inlägg och forum matchar inte.', 400);
+			throw new Exception(L::get("FORUM_POST_NOT_MATCHING"), 400);
 		}
 
 		if ($this->user->getId() != $post["userid"] && $this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att redigera detta inlägg.', 401);
+			throw new Exception(L::get("FORUM_EDIT_POST_PERMISSION_DENIED"), 401);
 		}
 
 		$forum = $this->getForum($topic["forumid"]);
 		if ($forum["minclasswrite"] > $this->user->getClass()) {
-			throw new Exception('Du har inte rättigheter att skriva i detta forum.', 401);
+			throw new Exception(L::get("FORUM_WRITE_PERMISSION_DENIED"), 401);
 		}
 
 		if (time() - strtotime($post["added"]) < 300) {
@@ -378,13 +378,13 @@ class Forum {
 
 	public function deletePost($forumId, $topicId, $postId) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att radera inlägg.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$post = $this->getPost($postId);
 
 		if ($post["topicid"] != $topicId) {
-			throw new Exception('Inlägg och topic matchar inte.');
+			throw new Exception(L::get("FORUM_POST_TOPIC_NOT_MATCHING"));
 		}
 
 		$sth = $this->db->prepare("SELECT id FROM posts WHERE topicid = ? ORDER BY id ASC LIMIT 1");
@@ -393,7 +393,7 @@ class Forum {
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if ($res["id"] == $postId) {
-			throw new Exception('Kan inte radera sista inlägget. Radera tråden istället.', 400);
+			throw new Exception(L::get("FORUM_CANNOT_REMOVE_LAST_POST"), 400);
 		}
 
 		$this->db->query("DELETE FROM posts WHERE id = " . $postId);
@@ -405,17 +405,17 @@ class Forum {
 
 	public function addTopic($forumId, $subject, $sub, $post, $force = false, $forceUserId = 0) {
 		if (strlen($subject) < 2) {
-			throw new Exception('Rubriken är för kort', 412);
+			throw new Exception(L::get("FORUM_TOPIC_TOO_SHORT"), 412);
 		}
 
 		if (strlen($post) < 2) {
-			throw new Exception('Inlägget är för kort', 412);
+			throw new Exception(L::get("FORUM_POST_TOO_SHORT"), 412);
 		}
 
 		$forum = $this->getForum($forumId);
 
 		if ($forum["minclasscreate"] > $this->user->getClass() && $force == false) {
-			throw new Exception('Du har inte rättigheter att skapa trådar i detta forum.', 401);
+			throw new Exception(L::get("FORUM_CREATE_PERMISSION_DENIED"), 401);
 		}
 
 		$userId = $this->user->getId();
@@ -444,7 +444,7 @@ class Forum {
 
 	public function updateTopic($topicId, $postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att redigera trådar.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$topic = $this->getTopic($topicId);
@@ -474,7 +474,7 @@ class Forum {
 		$topic = $this->getTopic($topicId);
 
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du har inte rättigheter att redigera trådar.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$this->db->query('DELETE FROM topics WHERE id = ' . $topicId);
@@ -603,7 +603,7 @@ class Forum {
 
 	public function getAllPosts($limit = 10, $index = 0) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM posts');

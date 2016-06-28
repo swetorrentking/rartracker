@@ -26,7 +26,7 @@ class Friends implements IResource {
 	public function create($postdata) {
 		$myFriend = $this->user->get($postdata["friendid"]);
 		if (!$myFriend) {
-			throw new Exception('Användaren finns inte.');
+			throw new Exception(L::get("USER_NOT_EXIST"));
 		}
 
 		$sth = $this->db->prepare('SELECT 1 FROM friends WHERE userid = ? AND friendid = ?');
@@ -34,7 +34,7 @@ class Friends implements IResource {
 		$sth->bindParam(2, $myFriend["id"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
-			throw new Exception('Användaren är redan din vän.');
+			throw new Exception(L::get("USER_ALREADY_FRIEND"));
 		}
 
 		$sth = $this->db->prepare("INSERT INTO friends(userid, friendid, kom) VALUES(?, ?, ?)");
@@ -47,7 +47,7 @@ class Friends implements IResource {
 	public function delete($id, $postdata = null) {
 		$friend = $this->get($id);
 		if ($friend["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera denna vän.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM friends WHERE id = ' . $friend["id"]);
 	}
@@ -58,7 +58,7 @@ class Friends implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Vännen finns inte.');
+			throw new Exception(L::get("USER_FRIEND_NOT_FOUND"), 404);
 		}
 		return $res;
 	}

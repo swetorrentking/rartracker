@@ -5,20 +5,20 @@
 		.module('app.shared')
 		.controller('FaqAdminDialogController', FaqAdminDialogController);
 
-	function FaqAdminDialogController($uibModalInstance, faq, faqList) {
+	function FaqAdminDialogController($uibModalInstance, $translate, faq, faqList) {
 		this.faq = faq;
 		this.hasChildren = faqList.some(faq => this.faq.id === faq.categ);
 		this.faqList = faqList.filter(faq => faq.categ === 0);
 
 		this.typeOptions = [
-			{ id: 'item', name: 'Underkategori' },
-			{ id: 'categ', name: 'Huvudkategori' }
+			{ id: 'item', name: $translate.instant('FAQ.SUB_CATEGORY') },
+			{ id: 'categ', name: $translate.instant('FAQ.MAIN_CATEGORY') }
 		];
 
 		this.options = {
-			1: '(Ingen status)',
-			2: 'Uppdaterad',
-			3: 'Ny'
+			1: $translate.instant('FAQ.STATUS_NO_STATUS'),
+			2: $translate.instant('FAQ.STATUS_UPDATED'),
+			3: $translate.instant('FAQ.STATUS_NEW')
 		};
 
 		this.create = function () {

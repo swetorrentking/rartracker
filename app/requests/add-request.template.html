@@ -1,18 +1,20 @@
-<h2>Lägg ny request</h2>
+<h2 ng-show="!vm.requestParams.id" translate="REQUESTS.ADD"></h2>
+<h2 ng-show="vm.requestParams.id" translate="REQUESTS.EDIT"></h2>
 
-<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert">Du måste vara minst 'Skådis' för att få lägga requests</div>
+<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert" translate="GENERAL.PAGE_ACCESS_LIMIT" translate-value-class="Actor"></div>
+
 <div class="col-md-9 col-centered" ng-show="vm.currentUser.class > 0">
-	<form role="form" ng-submit="vm.addRequest()">
+	<form role="form" ng-submit="vm.requestParams.id ? vm.updateRequest() : vm.addRequest()">
 		<table class="table table-striped" cellpadding="15">
 			<tr>
-				<td style="width: 150px;" class="text-right tdBold alignMiddle">Önskat format</td>
+				<td style="width: 150px;" class="text-right tdBold alignMiddle" translate="REQUESTS.WANTED_FORMAT"></td>
 				<td class="text-left">
 					<select class="form-control" ng-change="vm.changedCategory()" ng-model="vm.requestParams.category" ng-options="i.id as i.text for i in ::vm.categories">
 					</select>
 				</td>
 			</tr>
 			<tr ng-show="vm.noimdb == false">
-				<td class="text-right tdBold alignMiddle">IMDb-länk</td>
+				<td class="text-right tdBold alignMiddle" translate="TORRENTS.IMDB_URL"></td>
 				<td class="text-left">
 					<div class="input-group">
 						<input type="text" class="form-control" ng-model="vm.requestParams.imdbUrl" placeholder="http://" ng-change="vm.fetchImdbInfo()"/>
@@ -23,36 +25,37 @@
 				</td>
 			</tr>
 			<tr ng-show="vm.requestParams.seasons.length > 0 && vm.noimdb == false">
-				<td style="width: 150px;" class="text-right tdBold alignMiddle">Välj säsong</td>
+				<td style="width: 150px;" class="text-right tdBold alignMiddle" translate="REQUESTS.CHOOSE_SEASON"></td>
 				<td class="text-left">
 					<select class="form-control" ng-model="vm.requestParams.season" ng-options="i as i for i in vm.requestParams.seasons">
 					</select>
 				</td>
 			</tr>
 			<tr ng-show="vm.noimdb == true">
-				<td class="text-right tdBold alignMiddle">Namn</td>
+				<td class="text-right tdBold alignMiddle" translate="TORRENTS.NAME"></td>
 				<td class="text-left">
-					<input class="form-control" placeholder="Skriv tydligt namnet på din request" ng-model="vm.requestParams.customName" />
+					<input class="form-control" placeholder="{{ 'REQUESTS.NAME_PLACHOLDER' | translate }}" ng-model="vm.requestParams.customName" />
 				</td>
 			</tr>
 			<tr>
-				<td class="text-right tdBold alignMiddle">Kommentar</td>
+				<td class="text-right tdBold alignMiddle" translate="REQUESTS.COMMENT"></td>
 				<td class="text-left">
-					<input class="form-control" placeholder="(Valfri kommentar)" ng-model="vm.requestParams.comment" />
+					<input class="form-control" placeholder="{{ 'REQUESTS.COMMENT_PLACEHOLDER' | translate }}" ng-model="vm.requestParams.comment" />
 				</td>
 			</tr>
 		</table>
 		<br />
 
 		<div class="text-center">
-			<button type="submit" class="btn btn-primary">Lägg request</button>
+			<button type="submit" class="btn btn-primary" ng-show="!vm.requestParams.id" translate="REQUESTS.ADD"></button>
+			<button type="submit" class="btn btn-primary" ng-show="vm.requestParams.id" translate="TORRENTS.SAVE_CHANGES"></button>
 		</div>
 
 		<uib-alert type="{{ vm.alert.type }}" close="vm.closeAlert()" ng-show="vm.alert != null">
 		 	{{ vm.alert.msg }}
 		</uib-alert>
 
-		<h3 class="text-center" ng-show="vm.relatedTorrents.length > 0">Dubbelkolla så att releasen du söker inte redan finns på sidan:</h3>
+		<h3 class="text-center" ng-show="vm.relatedTorrents.length > 0" translate="REQUESTS.DOUBLE_CHECK_DUPLICATES"></h3>
 		<torrents-table torrents="vm.relatedTorrents" show-header="false" col-download="true" col-size="true" col-seeders="true" col-leechers="true" ng-show="vm.relatedTorrents.length > 0"></torrents-table>
 	</form>
 </div>

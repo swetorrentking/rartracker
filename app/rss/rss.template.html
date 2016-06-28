@@ -3,11 +3,11 @@
 		<i class="fa fa-rss-square fa-4x" style="color: #CE6000"></i>
 	</p>
 
-	<h2>Skapa personligt RSS-flöde</h2>
+	<h2 translate="RSS.CREATE"></h2>
 	<div class="col-lg-5 col-centered">
 	<table class="table table-striped">
 		<tr>
-			<td class="tdBold" style="width: 125px;">Välj kategorier</td>
+			<td class="tdBold" style="width: 125px;" translate="RSS.CHOOSE_CATEGORIES"></td>
 			<td class="text-left">
 				<div ng-repeat="cat in ::vm.settings.categories" style="margin-bottom: 2px;">
 					<button class="btn btn-default btn-xs" ng-model="cat.checked" uib-btn-checkbox ng-change="vm.update()">{{ ::cat.text }}</button>
@@ -15,12 +15,12 @@
 			</td>
 		</tr>
 		<tr>
-			<td class="tdBold alignMiddle">Sektion</td>
+			<td class="tdBold alignMiddle" translate="RSS.SECTION"></td>
 			<td>
-				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="0" ng-change="vm.update()">Nytt + Arkiv</button>
-				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="1" ng-change="vm.update()">Nytt</button>
-				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="2" ng-change="vm.update()">Arkiv</button>
-				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="3" ng-change="vm.update()">Bokmärkta torrents</button>
+				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="0" ng-change="vm.update()" translate="TORRENTS.ALL"></button>
+				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="1" ng-change="vm.update()" translate="TORRENTS.NEW"></button>
+				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="2" ng-change="vm.update()" translate="TORRENTS.ARCHIVE"></button>
+				<button class="btn btn-default btn-xs" ng-model="vm.settings.setting" uib-btn-radio="3" ng-change="vm.update()" translate="RSS.BOOKMARKED_TORRENTS"></button>
 			</td>
 		</tr>
 		<tr>
@@ -32,7 +32,7 @@
 	</table>
 	</div>
 
-	<h3>RSS-länk</h3>
+	<h3 translate="RSS.RSS_URL">RSS-länk</h3>
 
 	<input type="text" class="form-control readonly-pretty" id="rssUrl" readonly="readonly" ng-model="vm.settings.url" style="width: 630px; margin: auto; margin-top: 5px;" />
 

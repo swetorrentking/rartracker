@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('FaqController', FaqController);
 
-	function FaqController($uibModal, FaqResource, ErrorDialog, ConfirmDialog, user) {
+	function FaqController($uibModal, $translate, FaqResource, ErrorDialog, ConfirmDialog, user) {
 
 		this.currentUser = user;
 		this.adminMode = false;
@@ -21,12 +21,12 @@
 		this.deleteFaq = function (faq) {
 			if (faq.type === 'categ') {
 				if (this.faq.some(f => f.categ === faq.id)) {
-					ErrorDialog.display('Du kan inte radera en Faq-huvudkategori som har underkategorier.');
+					ErrorDialog.display($translate.instant('FAQ.DELETE_FAQ_ERROR'));
 					return;
 				}
 			}
 
-			ConfirmDialog('Radera faq', 'Vill du radera den valda FAQ-punkt?')
+			ConfirmDialog($translate.instant('FAQ.DELETE'), $translate.instant('FAQ.DELETE_CONFIRM'))
 				.then(() => {
 					FaqResource.delete(faq, () => {
 						var index = this.faq.indexOf(faq);

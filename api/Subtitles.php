@@ -46,7 +46,7 @@ class Subtitles {
 
 		$subtitle = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$subtitle) {
-			throw new Exception('Undertexten finns inte.');
+			throw new Exception(L::get("SUBTITLE_NOT_FOUND"), 404);
 		}
 		return $subtitle;
 	}
@@ -55,7 +55,7 @@ class Subtitles {
 		$subtitle = $this->get($id);
 
 		if ($this->user->getClass() < User::CLASS_ADMIN && $this->user->getId() != $subtitle["userid"]) {
-			throw new Exception('Du saknar rättigheter att radera undertexten.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 404);
 		}
 
 		$this->db->query('DELETE FROM subs WHERE id = ' . $subtitle["id"]);
@@ -72,26 +72,26 @@ class Subtitles {
 
 		if ($subtitle["userid"] != $this->user->getId()) {
 			$torrent = $this->torrent->get($subtitle["torrentid"]);
-			$subject = "Undertext har raderats";
-			$message = "Undertexten [b]".$subtitle["filnamn"]."[/b] som du laddat upp till [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url] har blivit raderad.\n\nAnledning: [b]".$reason."[/b]";
+			$subject = L::get("SUBTITLE_DELETED_PM_SUBJECT");
+			$message = L::get("SUBTITLE_DELETED_PM_BODY", [$subtitle["filnamn"], $torrent["id"], $torrent["name"], $torrent["name"], $reason]);
 			$this->mailbox->sendSystemMessage($subtitle["userid"], $subject, $message);
 			$anonymous = 0;
 		}
 
-		$this->log->log(3, "Undertexten ([b]".$subtitle["filnamn"]."[/b]) raderades utav {{username}} med anledningen: [i]".($reason?:"-")."[/i]", $this->user->getId(), $anonymous);
+		$this->log->log(3, L::get("SUBTITLE_DELETED_SITE_LOG", [$subtitle["filnamn"], ($reason?:"-")]), $this->user->getId(), $anonymous);
 	}
 
 	public function upload($file, $post) {
 		if (!preg_match("/\.(srt|zip|rar)$/", $file["name"], $match)) {
-			throw new Exception('Filen måste vara i formaten .srt/.zip/.rar');
+			throw new Exception(L::get("SUBTITLE_FILE_EXTENSION_REQUIREMENT"), 412);
 		}
 
 		if (!is_uploaded_file($file["tmp_name"])) {
-			throw new Exception('Filen kunde inte laddas upp.');
+			throw new Exception(L::get("SUBTITLE_FILE_UPLOAD_ERROR"));
 		}
 
 		if (!filesize($file["tmp_name"])) {
-			throw new Exception('Filen verkar vara tom.');
+			throw new Exception(L::get("SUBTITLE_FILE_EMPTY_ERROR"));
 		}
 
 		$sth = $this->db->prepare("SELECT COUNT(*) FROM subs WHERE filnamn = ?");
@@ -99,7 +99,7 @@ class Subtitles {
 		$sth->execute();
 		$res = $sth->fetch();
 		if ($res[0] > 0) {
-			throw new Exception('Det finns redan en undertext med samma namn.');
+			throw new Exception(L::get("SUBTITLE_CONFLICT_ERROR"), 409);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO subs(torrentid, filnamn, datum, quality, userid) VALUES(?, ?, NOW(), ?, ?)");
@@ -113,7 +113,7 @@ class Subtitles {
 
 		$torrent = $this->torrent->get($post["torrentid"]);
 		$this->db->query("UPDATE torrents SET swesub = 1 WHERE id = " . $torrent["id"]);
-		$this->log->log(1, "Undertext till ([url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]) laddades upp utav {{username}}", $this->user->getId(), true);
+		$this->log->log(1, L::get("SUBTITLE_UPLOAD_SITE_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]]), $this->user->getId(), true);
 
 		// Inform users watching for subtitles
 		$sth = $this->db->prepare("SELECT * FROM bevakasubs WHERE torrentid = ? AND userid != ?");
@@ -121,8 +121,8 @@ class Subtitles {
 		$sth->bindValue(2,	$this->user->getId(),	PDO::PARAM_INT);
 		$sth->execute();
 
-		$subject = "Undertext har laddats upp till " . $torrent["name"];
-		$message = "Undertexten [b]".$file["name"]."[/b] har laddats upp till torrenten [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url].";
+		$subject = L::get("SUBTITLE_UPLOAD_PM_SUBJECT", [$torrent["name"]]);
+		$message = L::get("SUBTITLE_UPLOAD_PM_BODY", [$file["name"], $torrent["id"], $torrent["name"], $torrent["name"]]);
 
 		while($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$this->mailbox->sendSystemMessage($row["userid"], $subject, $message);

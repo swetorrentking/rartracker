@@ -5,7 +5,7 @@
 		.module('app.requests')
 		.controller('AddRequestController', AddRequestController);
 
-	function AddRequestController($state, categories, TorrentsResource, MovieDataResource, RequestsResource, user) {
+	function AddRequestController($state, $stateParams, categories, TorrentsResource, MovieDataResource, RequestsResource, user) {
 
 		this.currentUser = user;
 		this.categories = categories;
@@ -18,14 +18,38 @@
 			categories.MUSIC.id,
 		];
 
-		this.requestParams = {
-			category: 1,
-			imdbUrl: '',
-			imdbId: 0,
-			season: 0,
-			seasons: [],
-			comment: '',
-		};
+		if ($stateParams.id) {
+			RequestsResource.Requests.get({ id: $stateParams.id }).$promise
+				.then((data) => {
+					this.requestParams = {
+						id: data.request.id,
+						category: data.request.type,
+						comment: data.request.comment,
+						season: data.request.season,
+						imdbId: data.request.imdbid,
+						customName: data.request.request,
+						imdbInfo: data.request.request,
+						seasons: []
+					};
+					for (var i = 0; i < data.movieData['seasoncount']; i++) {
+						this.requestParams.seasons.push(i+1);
+					}
+					this.loaded = true;
+					this.changedCategory();
+				})
+				.catch((error) => {
+					this.notFoundMessage = error.data;
+				});
+		} else {
+			this.requestParams = {
+				category: 1,
+				imdbUrl: '',
+				imdbId: 0,
+				season: 0,
+				seasons: [],
+				comment: '',
+			};
+		}
 
 		this.fetchRelatedTorrents = function (id) {
 			TorrentsResource.Related.query({id: id}, (torrents) => {
@@ -38,6 +62,17 @@
 			RequestsResource.Requests.save({}, this.requestParams).$promise
 				.then((response) => {
 					$state.go('requests.request', {id: response.id, slug: response.slug});
+				})
+				.catch((error) => {
+					this.addAlert({ type: 'danger', msg: error.data });
+				});
+		};
+
+		this.updateRequest = function () {
+			this.closeAlert();
+			RequestsResource.Requests.update({id: $stateParams.id}, this.requestParams).$promise
+				.then((response) => {
+					$state.go('requests.request', {id: response.id, name: response.name});
 				})
 				.catch((error) => {
 					this.addAlert({ type: 'danger', msg: error.data });

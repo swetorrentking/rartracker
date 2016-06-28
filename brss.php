@@ -37,14 +37,14 @@ $type = $_GET["vad"];
 $from = 0 + $_GET["from"];
 
 $SITENAME = Config::NAME;
-$DESCR = "Bevakning RSS Feed";
+$DESCR = "Watch RSS Feed";
 $BASEURL = Config::SITE_URL;
 $SITEMAIL = Config::SITE_MAIL;
 
 $where = '';
 if ($type == 1) {
 	$where .= ' AND bevaka.typ = 0';
-	$SITENAME .= " Film";
+	$SITENAME .= " Movies";
 } else if ($type == 2) {
 	$where .= ' AND bevaka.typ = 1';
 	$SITENAME .= " TV";

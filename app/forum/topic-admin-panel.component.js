@@ -12,7 +12,7 @@
 			controllerAs: 'vm'
 		});
 
-	function TopicAdminPanelController($state, $stateParams, ForumResource, DeleteDialog) {
+	function TopicAdminPanelController($state, $translate, $stateParams, ForumResource, DeleteDialog) {
 
 		this.$onInit = function () {
 			ForumResource.Forums.query({}, (forums) => {
@@ -35,7 +35,7 @@
 		};
 
 		this.deleteTopic = function (){
-			DeleteDialog('Radera tråd', 'Vill du radera tråden?', false)
+			DeleteDialog($translate.instant('FORUM.DELETE_THREAD'), $translate.instant('FORUM.DELETE_THREAD_CONFIRM'), false)
 				.then(() => {
 					return ForumResource.Topics.delete({
 						forumid: $stateParams.forumid,

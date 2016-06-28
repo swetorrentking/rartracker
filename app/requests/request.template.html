@@ -5,7 +5,7 @@
 <div ng-show="vm.request">
 	<movie-info movie-data="::vm.movieData" ng-show="vm.movieData.title != null"></movie-info>
 
-	<h2 style="margin-top: 0px;">Request</h2>
+	<h2 style="margin-top: 0px;" translate="REQUESTS.TITLE_SINGLE"></h2>
 
 	<div class="table-responsive col-sm-10 col-sm-push-1">
 		<requests-table requests="[vm.request]" col-user="true"></requests-table>
@@ -15,21 +15,21 @@
 	<br />
 
 	<div ng-if="vm.currentUser.class >= 8 || vm.currentUser.id == vm.request.user.id">
-		<button class="btn btn-default btn-sm" ui-sref="requests.edit({ id: vm.request.id, slug: vm.request.slug})"><i class="fa fa-pencil"></i> Redigera</button>
-		<button class="btn btn-default btn-sm" ng-click="vm.delete()" ng-hide="vm.request.filled == 1"><i class="fa fa-trash-o"></i> Radera</button>
+		<button class="btn btn-default btn-sm" ui-sref="requests.edit({ id: vm.request.id, slug: vm.request.slug})"><i class="fa fa-pencil"></i> {{ 'BUTTONS.EDIT' | translate }}</button>
+		<button class="btn btn-default btn-sm" ng-click="vm.delete()" ng-hide="vm.request.filled == 1"><i class="fa fa-trash-o"></i> {{ 'BUTTONS.DELETE' | translate }}</button>
 		<br />
 	</div>
-	<h2>Röster och hittelön</h2>
+	<h2 translate="REQUESTS.VOTES_AND_REWARDS"></h2>
 
 	<div class="table-responsive col-sm-4 col-sm-push-4">
 		<table class="table table-striped table-hover table-nowrap">
 			<tr>
-				<th class="text-left">Användare</th>
-				<th>Hittelön</th>
+				<th class="text-left" translate="TORRENTS.USER"></th>
+				<th translate="REQUESTS.REWARD"></th>
 			</tr>
 			<tr ng-repeat="vote in vm.votes">
 				<td class="text-left"><user user="vote.user"></user></td>
-				<td><b ng-show="vote.reward > 0">{{ vote.reward }}p</b><i ng-show="vote.reward == 0">Endast röst</i></td>
+				<td><b ng-show="vote.reward > 0">{{ vote.reward }}p</b><i ng-show="vote.reward == 0" translate="REQUESTS.VOTE_NO_REWARD"></i></td>
 			</tr>
 		</table>
 	</div>
@@ -38,16 +38,16 @@
 
 	<br />
 
-	<p>Totalt <b>{{ vm.request.reward }}p</b> i hittelön till den som laddar upp requesten.</p>
+	<p translate="REQUESTS.TOTAL_REWARD" translate-value-reward="{{ vm.request.reward }}"></p>
 
-	<button class="btn btn-default btn-xs" ng-click="vm.vote()">Rösta</button>
-	<button class="btn btn-default btn-xs" ng-click="vm.giveReward()">Lägg hittelön</button>
+	<button class="btn btn-default btn-xs" ng-click="vm.vote()" translate="REQUESTS.VOTE"></button>
+	<button class="btn btn-default btn-xs" ng-click="vm.giveReward()" translate="REQUESTS.ADD_REWARD"></button>
 
 	<br />
 
 	<a id="comments" name="comments" style="display: inline-block;"></a>
 	<div ng-show="vm.comments">
-		<h2>Kommentarer <i>(Alltid anonymt)</i></h2>
+		<h2 translate="REQUESTS.COMMENTS_ANONYMOUS"></h2>
 
 		<div class="col-md-10 col-md-push-1" ng-show="vm.comments">
 			<posts posts="vm.comments" delete-post="vm.deleteComment(post)" edit-obj="vm.editObj" on-quote="vm.quoteComment(post)" goto-anchor="vm.gotoPostAnchor(postId)" edit-post="vm.editPost(post)" abort-edit="vm.abortEdit()" save-edit="vm.saveEdit(post)" ng-hide="vm.comments.length == 0"></posts>
@@ -55,10 +55,10 @@
 				<div class="text-center">
 					<h3>Skriv kommentar</h3>
 					<div class="form-group col-md-8 col-md-push-2">
-						<textarea class="form-control" rows="6" id="postText" ng-model="vm.postText" placeholder="Skriv kommentar..."></textarea>
+						<textarea class="form-control" rows="6" id="postText" ng-model="vm.postText" placeholder="{{ 'COMMENTS.WRITE_PLACEHOLDER' | translate }}"></textarea>
 					</div>
 					<div class="clearfix"></div>
-					<button ng-show="vm.postStatus == 0" class="btn btn-primary" ng-click="vm.createComment()">Skriv inlägg</button>
+					<button ng-show="vm.postStatus == 0" class="btn btn-primary" ng-click="vm.createComment()" translate="COMMENTS.POST"></button>
 					<button ng-show="vm.postStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
 				</div>
 				<br />

@@ -7,16 +7,16 @@
 			<div ng-bind="vm.settings.body"></div>
 			<br />
 			<div>
-				<b>Användare:</b> <input type="text" ng-model="asyncSelected" placeholder="Användarnamn" uib-typeahead="user.username for user in vm.getUsers($viewValue)" typeahead-loading="vm.loadingUsers" class="form-control center-block" typeahead-on-select="vm.onSelected($item)" auto-focus style="width: 200px;" required />
+				<b>{{ 'TORRENTS.USER' | translate }}:</b> <input type="text" ng-model="asyncSelected" placeholder="{{ 'TORRENTS.USER' | translate }}" uib-typeahead="user.username for user in vm.getUsers($viewValue)" typeahead-loading="vm.loadingUsers" class="form-control center-block" typeahead-on-select="vm.onSelected($item)" auto-focus style="width: 200px;" required />
 			</div>
 			<div>
-			<b>Motivering:</b><input type="text" placeholder="Motivering" class="form-control" style="width: 200px; margin: auto;" ng-model="vm.settings.motivation" required />
+			<b>{{ 'USER.MOTIVATION' | translate }}:</b><input type="text" placeholder="{{ 'USER.MOTIVATION' | translate }}" class="form-control" style="width: 200px; margin: auto;" ng-model="vm.settings.motivation" required />
 			</div>
 		</div>
 		<div class="modal-footer">
 			<div class="button-group text-center">
-				<button type="submit" class="btn btn-success">Bekräfta</button>
-				<button type="button" class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+				<button type="submit" class="btn btn-success" translate="BUTTONS.CONFIRM"></button>
+				<button type="button" class="btn btn-default" ng-click="vm.cancel()" translate="BUTTONS.ABORT"></button>
 			</div>
 		</div>
 	</form>

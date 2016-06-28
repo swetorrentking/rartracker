@@ -45,32 +45,32 @@ class Cleanup {
 		$this->userClassPromotions = array(
 			array(
 				"minratio" => 1.10,
-				"className" => "Regissör",
+				"className" => Config::$userClasses[3],
 				"classId" => 3,
 				"minimumGigabyteUpload" => 1200,
 				"minimumMemberDays" => 210,
-				"perks" => "* Regissör-forumet"),
+				"perks" => L::get("CLASS_3_PERKS")),
 			array(
 				"minratio" => 1.10,
-				"className" => "Filmstjärna",
+				"className" => Config::$userClasses[2],
 				"classId" => 2,
 				"minimumGigabyteUpload" => 300,
 				"minimumMemberDays" => 105,
-				"perks" => "* Se alla topplistor\nSe avancerad statistik\nIP-loggning avstängd. Alla befintliga IP-loggar är rensade"),
+				"perks" => L::get("CLASS_2_PERKS")),
 			array(
 				"minratio" => 1.05,
-				"className" => "Skådis",
+				"className" => Config::$userClasses[1],
 				"classId" => 1,
 				"minimumGigabyteUpload" => 50,
 				"minimumMemberDays" => 14,
-				"perks" => "* Requestsystemet\n* Bonussystemet\n* Se loggen\n* Bjuda in nya användare (du har fått 2 inbjudningar)")
+				"perks" => L::get("CLASS_1_PERKS"))
 			);
 	}
 
 	public function run() {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
 		/* Delete dead peers and correct all seeders, leechers amounts */
@@ -109,7 +109,7 @@ class Cleanup {
 		}
 
 		/* Disabled inactive user accounts */
-		$reason = "Automatiskt avstängd pga inaktivitet";
+		$reason = L::get("AUTO_DISABLED_INACTIVITY");
 		$dt = time() - $this->max_inactive_user_days * 86400;
 		$maxclass = 7;
 		$res = $this->db->query("SELECT id FROM users WHERE class < $maxclass AND last_access < FROM_UNIXTIME($dt) AND parkerad = 0 AND enabled = 'yes'");
@@ -125,7 +125,7 @@ class Cleanup {
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("DELETE FROM invites WHERE id = " . $arr["id"]);
 			$this->db->query("UPDATE users SET invites = invites + 1 WHERE id = " . $arr["userid"]);
-			$this->mailbox->sendSystemMessage($arr["userid"], "Obekräftad inbjudan", "En skapad invite-länk är efter en vecka oanvänd. Den har därför annulerats och du har fått tillbaka din inbjudan.");
+			$this->mailbox->sendSystemMessage($arr["userid"], L::get("UNCONFIRMED_INVITE_PM_SUBJECT"), L::get("UNCONFIRMED_INVITE_PM_BODY"));
 		}
 
 		/* Remove free leech from new torrents */
@@ -136,35 +136,22 @@ class Cleanup {
 		/* Bad ratio warning */
 		$limit = $limit*1024*1024*1024;
 		$siteName = Config::NAME;
-		$msg = <<<EOD
-			[b]*** VIKTIGT MEDDELANDE ***[/b]
-
-			Du har automatiskt fått en varning eftersom din ratio är för låg.
-			Du har 5 dagar på dig att bättra på din ratio.
-			Om din ratio fortfarande ligger under 0.5 efter {$this->ratio_warning_length} dagar blir ditt konto automatiskt avaktiverat, annars plockas varningen bort.
-
-			* En privat torrentsida bygger på ett givande och tagande. Låt alla torrents du laddat ner ligga kvar i din klient och på datorn så länge du kan.
-			* Be en vän använda sina bonuspoäng för att bättra på din ratio
-			* Du kan donera en slant till {$siteName} vilket samtidigt ökar din ratio. [url=/donate]Donera[/url]
-
-			Lycka till!
-EOD;
 		$min_downloaded = $this->ratio_warning_minimum_gb*1024*1024*1024;
 		$warned_until = time() + $this->ratio_warning_length*86400;
 		$res = $this->db->query("SELECT id, username FROM users WHERE class = 0 AND enabled = 'yes' AND downloaded > {$min_downloaded} AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND warned = 'no'");
-		$modcomment = date("Y-m-d") . " - Automatiskt varnad för dålig ratio\n";
+		$modcomment = date("Y-m-d") . " - " . L::get("RATIO_WARNING_LOG") . "\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET warned = 'yes', warneduntil = FROM_UNIXTIME({$warned_until}), modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], "Ratiovarning!", $msg);
-			$this->adminlog->create("[url=/user/".$arr["id"] ."/".$arr["username"]."][b]".$arr["username"]."[/b][/url] har automatiskt mottagit en varning för dålig ratio.");
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("RATIO_WARNING_PM_SUBJECT"), L::get("RATIO_WARNING_PM_BODY", [$this->ratio_warning_length, $siteName]));
+			$this->adminlog->create(L::get("RATIO_WARNING_ADMIN_LOG", [$arr["id"], $arr["username"], $arr["username"]]));
 		}
 
 		/* Ban when warning expired and ratio still bad */
 		$res = $this->db->query("SELECT id, ip, username, modcomment FROM users WHERE class = 0 AND warned = 'yes' AND warneduntil < NOW() AND enabled = 'yes' AND downloaded > $limit AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND donor = 'no'");
-		$modcomment = date("Y-m-d") . " - Automatiskt avstängd pga dålig ratio trots varning\n";
+		$modcomment = date("Y-m-d") . " - " .L::get("BAD_RATIO_AUTO_DISABLED"). "\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET enabled = 'no', modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->adminlog->create("[url=/user/".$arr["id"] ."/".$arr["username"]."][b]".$arr["username"]."[/b][/url] blev automatiskt avstängd pga dålig ratio trots varning.");
+			$this->adminlog->create(L::get("BAD_RATIO_AUTO_DISABLED_ADMIN_LOG", [$arr["id"], $arr["username"], $arr["username"]]));
 		}
 
 		/* Remove expired warnings */
@@ -172,7 +159,7 @@ EOD;
 		$modcomment = date("Y-m-d") . " - Varning automatiskt borttagen\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET warned = 'no', warneduntil = '0000-00-00 00:00:00', modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], "Varning borttagen", "Din varning har automatiskt blivit borttagen!");
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("WARNING_REMOVED_PM_SUBJECT"), L::get("WARNING_AUTO_REMOVED_PM_BODY"));
 		}
 
 		/* Move torrents from New to Archive */
@@ -190,10 +177,10 @@ EOD;
 		/* Prevent deletion of "all" torrents if site has been offline or similiar */
 		if ($res->rowCount() < 100) {
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-				$this->torrent->delete($arr["id"], "Ingen aktivitet på {$this->delete_inactive_torrents_after_days} dagar.");
+				$this->torrent->delete($arr["id"], L::get("AUTO_DELETE_INACTIVE_TORRENT", [$this->delete_inactive_torrents_after_days]));
 			}
 		} else {
-			$this->adminlog->create("{{username}} försökte radera över {$res->rowCount()} torrents pga inaktivitet, men detta tillåts inte.");
+			$this->adminlog->create(L::get("AUTO_DELETE_INACTIVE_TORRENTS_PREVENTED", [$res->rowCount()]));
 		}
 
 		/* Delete new unseeded torrents
@@ -204,10 +191,10 @@ EOD;
 		/* Prevent deletion of lots of torrents if site has been offline or similiar
 		if ($res->rowCount() < 10) {
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-				$this->torrent->delete($arr["id"], "Ingen seed på över {$this->delete_unseeded_torrents_after_minutes} minuter.", 1);
+				$this->torrent->delete($arr["id"], L::get("AUTO_DELETE_UNSEEDED_TORRENTS", [$this->delete_unseeded_torrents_after_minutes]), 1);
 			}
 		} else {
-			$this->adminlog->create("{{username}} försökte radera över {$res->rowCount()} torrents pga inaktivitet, men detta tillåts inte.");
+			$this->adminlog->create(L::get("AUTO_DELETE_INACTIVE_TORRENTS_PREVENTED", [$res->rowCount()]));
 		}
 		*/
 
@@ -215,17 +202,17 @@ EOD;
 		$dt = time() - $this->delete_inactive_requests_after_days * 86400;
 		$res = $this->db->query("SELECT id FROM requests WHERE added < FROM_UNIXTIME({$dt}) AND filled = 0");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-			$this->requests->delete($arr["id"], "Request ej fylld efter {$this->delete_inactive_requests_after_days} dagar.");
+			$this->requests->delete($arr["id"], L::get("REQUEST_NOT_FILLED", [$this->delete_inactive_requests_after_days]));
 		}
 
 		/* Demote inactive Uploaders */
 		$dt = time() - $this->demote_uploaders_after_days_inactive * 86400;
 		$res = $this->db->query("SELECT users.id, users.username FROM `users` WHERE class = 6 AND (SELECT added FROM torrents WHERE owner = users.id ORDER BY `added` DESC LIMIT 1) < FROM_UNIXTIME({$dt})");
-		$modcomment = date("Y-m-d") . " - Automatiskt nedgraderad från Uppladdare på grund av inaktivitet.\n";
+		$modcomment = date("Y-m-d") . " - ".L::get("UPLOADED_AUTO_DOWNGRADED").".\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)){
 			$this->db->query("UPDATE users SET class = 1, modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->adminlog->create("[url=/user/".$arr["id"] ."/".$arr["username"]."][b]".$arr["username"]."[/b][/url] blev nedgraderad från Uppladdare på grund av inaktivitet.");
-			$this->mailbox->sendSystemMessage($arr["id"], "Nedgraderad", "Du har automatiskt blivit nedgraderad ifrån uppladdare eftersom du inte laddat upp någon ny torrent på ".$this->demote_uploaders_after_days_inactive." dagar.");
+			$this->adminlog->create(L::get("UPLOADED_AUTO_DOWNGRADED_ADMIN_LOG", [$arr["id"], $arr["username"], $arr["username"]]));
+			$this->mailbox->sendSystemMessage($arr["id"], ucfirst(L::get("STATUS_DOWNGRADED")), L::get("UPLOADED_AUTO_DOWNGRADED_PM_BODY", [$this->demote_uploaders_after_days_inactive]));
 		}
 
 		/* Delete old inbox messages */
@@ -243,7 +230,7 @@ EOD;
 			while ($arr2 = $who->fetch(PDO::FETCH_ASSOC)) {
 				if ($arr2["coin"] == 0) {
 					$this->db->query("UPDATE users SET coin = 1 WHERE id = ". $arr2["id"]);
-					$this->mailbox->sendSystemMessage($arr2["id"], "Guldpeng!", "Du har automatiskt fått statusikonen Guldpeng eftersom du bjudit in [b]".$arr["username"]."[/b] som nått minst 25% i Leechbonus. Grattis!");
+					$this->mailbox->sendSystemMessage($arr2["id"], L::get("GOLD_COIN_PM_SUBJECT"), L::get("GOLD_COIN_PM_BODY", [$arr["username"]]));
 				}
 			}
 		}
@@ -271,15 +258,15 @@ EOD;
 		foreach ($this->userClassPromotions as $class) {
 			$limit = $class["minimumGigabyteUpload"] * 1024*1024*1024;
 			$dt = time() - 86400 * $class["minimumMemberDays"];
-			$message = "Du har automatiskt blivit befodrad till [b]" . $class["className"] ."[/b], grattis!";
+			$message = L::get("AUTO_PROMOTED_PM_BODY", [$class["className"]]);
 			if ($class["perks"]) {
-				$message .= "\n\nSom " . $class["className"] ." får du tillgång till följande fördelar:\n\n". $class["perks"];
+				$message .= "\n\n". L::get("AUTO_PROMOTED_PM_PERKS", [$class["className"]]) . "\n\n". $class["perks"];
 			}
-			$modcomment = date("Y-m-d") . " - Automatiskt uppgraderad till ".$class["className"]."\n";
+			$modcomment = date("Y-m-d") . " - " . L::get("AUTO_PROMOTED_LOG", [$class["className"]]) ."\n";
 
 			$res = $this->db->query("SELECT id, class, doljuploader, title FROM users WHERE class < ".$class["classId"]." AND uploaded >= ".$limit." AND uploaded / downloaded >= ".$class["minratio"]." AND added < FROM_UNIXTIME({$dt})");
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-				$this->mailbox->sendSystemMessage($arr["id"], "Uppgraderad till " . $class["className"], $message);
+				$this->mailbox->sendSystemMessage($arr["id"], L::get("AUTO_PROMOTED_PM_SUBJECT", [$class["className"]]), $message);
 				$this->db->query("UPDATE users SET class = ".$class["classId"].", modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
 				if ($class["classId"] >= 2) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $arr["id"]);
@@ -288,11 +275,11 @@ EOD;
 		}
 
 		/* Demote users with bad ratio */
-		$modcomment = date("Y-m-d") . " - Automatiskt nedgraderad till Statist\n";
+		$modcomment = date("Y-m-d") . " - ".L::get("AUTO_DEMOTED_TO_CLASS_1")."\n";
 		$res = $this->db->query("SELECT id, class FROM users WHERE class > 0 AND class < 4 AND uploaded / downloaded < 0.90");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET class = 0, modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], "Nedgraderad till Statist", "Du har automatiskt blivit nedgraderad till [b]Statist[/b] eftersom din ratio har understigit 0.90.");
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("DEMOTED_TO_CLASS_1_PM_SUBJECT"), L::get("DEMOTED_TO_CLASS_1_PM_BODY"));
 		}
 
 		/* Update peer record */

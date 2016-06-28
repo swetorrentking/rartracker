@@ -9,34 +9,34 @@
 	</div>
 	<div class="collapse navbar-collapse" ng-class="{'in': !navCollapsed}">
 		<ul class="nav navbar-nav">
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="start" ui-sref-opts="{reload: true, inherit: false}">Start</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="movies" ui-sref-opts="{reload: true, inherit: false}">Filmer</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="tvseries" ui-sref-opts="{reload: true, inherit: false}">TV-serier</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="swetv({ autoSwitchView: true })" ui-sref-opts="{reload: true, inherit: false}">Svensk TV</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="other" ui-sref-opts="{reload: true, inherit: false}">Övrigt</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="requests" ui-sref-opts="{reload: true, inherit: false}">Requests</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="forum" ui-sref-opts="{reload: true, inherit: false}">Forum</a></li>
-			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="toplists" ui-sref-opts="{reload: true, inherit: false}">Topplistor</a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="start" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.START"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="movies" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.MOVIES"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="tvseries" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.TV_SERIES"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="swetv({ autoSwitchView: true })" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.SWE_TV"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="other" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.OTHER"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="requests" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.REQUESTS"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="forum" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.FORUMS"></a></li>
+			<li class="menu" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="toplists" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.TOPLISTS"></a></li>
 		</ul>
 		<ul class="nav navbar-nav navbar-nav-small">
-			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="alltorrents" ui-sref-opts="{reload: true, inherit: false}">Alla torrents</a></li>
-			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="upload" ui-sref-opts="{reload: true, inherit: false}">Ladda upp</a></li>
-			<li ng-if="vm.currentUser.uplLastReadCommentId > 0" class="menuSmall" ui-sref-active="active"><a href="#" ui-sref="my-torrent-comments" ui-sref-opts="{reload: true, inherit: false}" ng-click="isCollapsed = !isCollapsed">Kommentarer  <span ng-show="vm.currentUser.unreadTorrentComments > 0" class="badge"> {{ vm.currentUser.unreadTorrentComments }}</span></a></li>
-			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="watcher" ui-sref-opts="{reload: true, inherit: false}">Bevakning <span ng-show="vm.currentUser.unreadWatch > 0" class="badge"> {{ vm.currentUser.unreadWatch }}</span></a></li>
-			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="suggestions" ui-sref-opts="{reload: true, inherit: false}">Förslag</a></li>
-			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="info" ui-sref-opts="{reload: true, inherit: false}">Info/regler</a></li>
+			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="alltorrents" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.ALL_TORRENTS"></a></li>
+			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="upload" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.UPLOAD">Ladda upp</a></li>
+			<li ng-if="vm.currentUser.uplLastReadCommentId > 0" class="menuSmall" ui-sref-active="active"><a href="#" ui-sref="my-torrent-comments" ui-sref-opts="{reload: true, inherit: false}" ng-click="isCollapsed = !isCollapsed">{{ 'MENU.COMMENTS' | translate }}  <span ng-show="vm.currentUser.unreadTorrentComments > 0" class="badge"> {{ vm.currentUser.unreadTorrentComments }}</span></a></li>
+			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="watcher" ui-sref-opts="{reload: true, inherit: false}">{{ 'MENU.WATCHER' | translate }} <span ng-show="vm.currentUser.unreadWatch > 0" class="badge"> {{ vm.currentUser.unreadWatch }}</span></a></li>
+			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="suggestions" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.SUGGESTIONS"></a></li>
+			<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="info" ui-sref-opts="{reload: true, inherit: false}" translate="MENU.INFO_RULES"></a></li>
 			 <li class="menuSmall" uib-dropdown>
-			<a href="#" uib-dropdown-toggle>Mer <span class="caret"></span></a>
+			<a href="#" uib-dropdown-toggle>{{ 'MENU.VIEW_MORE' | translate }} <span class="caret"></span></a>
 				<ul class="dropdown-menu" role="menu">
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="log"><i class="fa fa-book fa-fw"></i> Logg</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="rss"><i class="fa fa-rss-square fa-fw"></i> RSS</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="bookmarks"><i class="fa fa-bookmark fa-fw"></i> Bokmärken</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="torrent-lists"><i class="fa fa-star fa-fw"></i> Torrentlistor</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" user-picker href="#"><i class="fa fa-user fa-fw"></i> Användare</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="friends"><i class="fa fa-users fa-fw"></i> Vänner</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="mailbox"><i class="fa fa-envelope-o fa-fw"></i> Brevlåda</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="statistics"><i class="fa fa-bar-chart fa-fw"></i> Statistik</a></li>
-					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="donate"><i class="fa fa-usd fa-fw"></i> Donera</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="log"><i class="fa fa-book fa-fw"></i> {{ 'MENU.LOG' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="rss"><i class="fa fa-rss-square fa-fw"></i> {{ 'MENU.RSS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="bookmarks"><i class="fa fa-bookmark fa-fw"></i> {{ 'MENU.BOOKMARKS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="torrent-lists"><i class="fa fa-star fa-fw"></i> {{ 'MENU.TORRENT_LISTS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" user-picker href="#"><i class="fa fa-user fa-fw"></i> {{ 'MENU.USERS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="friends"><i class="fa fa-users fa-fw"></i> {{ 'MENU.FRIENDS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="mailbox"><i class="fa fa-envelope-o fa-fw"></i> {{ 'MENU.MAILBOX' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="statistics"><i class="fa fa-bar-chart fa-fw"></i> {{ 'MENU.STATISTICS' | translate }}</a></li>
+					<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="donate"><i class="fa fa-usd fa-fw"></i> {{ 'MENU.DONATE' | translate }}</a></li>
 				</ul>
 			</li>
 		</ul>

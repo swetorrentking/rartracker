@@ -13,7 +13,7 @@ class Nonscene {
 
 	public function query() {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->query("SELECT * FROM nonscene ORDER BY groupname ASC");
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -21,22 +21,22 @@ class Nonscene {
 
 	public function create($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if (strlen($postdata["comment"]) < 1) {
-			throw new Exception("Kommentar för kort.", 412);
+			throw new Exception(L::get("NOSCENE_COMMENT_TOO_SHORT"), 412);
 		}
 
 		if (strlen($postdata["groupname"]) < 1) {
-			throw new Exception("Gruppnamn för kort.", 412);
+			throw new Exception(L::get("NOSCENE_GROUP_NAME_TOO_SHORT"), 412);
 		}
 
 		$sth = $this->db->prepare("SELECT * FROM nonscene WHERE groupname = ?");
 		$sth->bindParam(1, $postdata["groupname"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
-			throw new Exception("Gruppen finns redan inlagd.", 412);
+			throw new Exception(L::get("NOSCENE_GROUP_DUPLICATE"), 412);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO nonscene(groupname, comment, whitelist) VALUES(?, ?, ?)");
@@ -45,16 +45,16 @@ class Nonscene {
 		$sth->bindParam(3, $postdata["whitelist"],	PDO::PARAM_INT);
 		$sth->execute();
 
-		$this->adminlogs->create("{{username}} lade till [b]".$postdata["groupname"]."[/b] på p2p-grupplistan.");
+		$this->adminlogs->create(L::get("NOSCENE_ADDED_ADMIN_LOG", [$postdata["groupname"]]));
 	}
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$release = $this->get($id);
 		$this->db->query('DELETE FROM nonscene WHERE id = ' . $release["id"]);
-		$this->adminlogs->create("{{username}} raderade [b]".$release["groupname"]."[/b] ifrån p2p-grupplistan.");
+		$this->adminlogs->create(L::get("NOSCENE_REMOVED_ADMIN_LOG", [$release["groupname"]]));
 	}
 
 	private function get($id) {
@@ -63,7 +63,7 @@ class Nonscene {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception("Föremålet finns inte.", 404);
+			throw new Exception(L::get("ITEM_NOT_FOUND"), 404);
 		}
 		return $res;
 	}

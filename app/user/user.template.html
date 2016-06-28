@@ -8,25 +8,25 @@
 <div ng-class="{'col-lg-12': vm.showPeers || vm.showBonuslog || vm.showInvites || vm.showRequests || vm.showTorrents || vm.showSnatchLog || vm.showIpLog, 'col-lg-10': !vm.showPeers && !vm.showBonuslog && !vm.showInvites && !vm.showRequests && !vm.showTorrents && !vm.showSnatchLog && !vm.showIpLog}" class="table-responsive noborder col-centered" ng-show="vm.user">
 	<table class="table" cellpadding="15">
 		<tr>
-			<td style="width: 150px;" class="text-right tdBold alignMiddle">Blev medlem</td>
-			<td class="text-left">{{ vm.user.added }} ({{ vm.user.added | dateDifference }} sedan)</td>
+			<td style="width: 150px;" class="text-right tdBold alignMiddle" translate="USER.MEMBER_SINCE"></td>
+			<td class="text-left">{{ vm.user.added }} ({{ vm.user.added | dateDifference }} {{ 'MAILBOX.AGO' | translate }})</td>
 		</tr>
 		<tr>
-			<td class="text-right tdBold alignMiddle">Senast sedd</td>
-			<td class="text-left">{{ vm.user.last_access }} ({{ vm.user.last_access | dateDifference }} sedan)</td>
+			<td class="text-right tdBold alignMiddle" translate="FRIENDS.LAST_SEEN"></td>
+			<td class="text-left">{{ vm.user.last_access }} ({{ vm.user.last_access | dateDifference }} {{ 'MAILBOX.AGO' | translate }})</td>
 		</tr>
 		<tr ng-if="vm.user.ip">
-			<td class="text-right tdBold alignMiddle">IP</td>
+			<td class="text-right tdBold alignMiddle" translate="ADMIN.IP"></td>
 			<td class="text-left"><a href="" ui-sref="admin-search({ip: vm.user.ip})">{{ vm.user.ip }}</a></td>
 		</tr>
 		<tr ng-if="vm.currentUser.class >= 8 && vm.user.torrentip">
-			<td class="text-right tdBold alignMiddle">Torrent-IP</td>
+			<td class="text-right tdBold alignMiddle" translate="USER.TORRENT_IP"></td>
 			<td class="text-left"><a href="" ui-sref="admin-search({ip: vm.user.torrentip})">{{ vm.user.torrentip }}</a></td>
 		</tr>
 		<tr ng-if="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleIpLog()">
-					<i class="fa fa-bars"></i> Visa IP-logg
+					<i class="fa fa-bars"></i> {{ 'USER.SHOW_IP_LOG' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
@@ -35,15 +35,15 @@
 					<table class="table table-striped table-hover table-nowrap table-text-center">
 						<thead>
 							<tr>
-								<th style="width: 250px; text-align: left;">Senast sedd</th>
-								<th style="text-align: left;">IP/Hostname</th>
-								<th style="text-align: left; width: 125px;">Användning</th>
-								<th style="text-align: center; width: 80px;" ng-if="vm.currentUser.class >= 8">Radera</th>
+								<th style="width: 250px; text-align: left;" translate="FRIENDS.LAST_SEEN"></th>
+								<th style="text-align: left;" translate="ADMIN.IP_HOST"></th>
+								<th style="text-align: left; width: 125px;" translate="USER.USAGE"></th>
+								<th style="text-align: center; width: 80px;" ng-if="vm.currentUser.class >= 8" translate="BUTTONS.DELETE"></th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr ng-repeat="ip in vm.iplog track by ip.id">
-								<td style="text-align: left;">{{ ::ip.lastseen }} ({{ ::ip.lastseen | dateDifference }} sedan)</td>
+								<td style="text-align: left;">{{ ::ip.lastseen }} ({{ ::ip.lastseen | dateDifference }} {{ 'MAILBOX.AGO' | translate }})</td>
 								<td style="text-align: left;"><a href="" ui-sref="admin-search({ip: vm.user.ip})">{{ ::ip.ip }}</a> (<b>{{ ::ip.host}}</b>)</td>
 								<td style="text-align: left;">{{ ::ip.uptime*1000 | dateDifference:0}}</td>
 								<td style="text-align: center;" ng-if="vm.currentUser.class >= 8"><button class="btn btn-default btn-xs" ng-click="vm.deleteIPLog(ip);"><i class="fa fa-trash-o"></i></button></td>
@@ -53,33 +53,33 @@
 					<br />
 					<div class="block-center text-center" ng-show="vm.iplog">
 						<button class="btn btn-default btn-xs" ng-click="vm.toggleIpLog(true)">
-							<i class="fa fa-bars"></i> Läs in hela loggen
+							<i class="fa fa-bars"></i> {{ 'USER.LOAD_FULL_LOG' | translate }}
 						</button>
 					</div>
 				</div>
 			</td>
 		</tr>
 		<tr ng-show="vm.user.age">
-			<td class="text-right tdBold alignMiddle">Ålder</td>
+			<td class="text-right tdBold alignMiddle" translate="SIGNUP.AGE"></td>
 			<td class="text-left">{{ ::vm.user.age }}</td>
 		</tr>
 		<tr ng-show="vm.user.invitees">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleInvites()">
-					<i class="fa fa-bars"></i> Visa inbjudna
+					<i class="fa fa-bars"></i> {{ 'INVITE.SHOW_INVITED' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
-				{{ ::vm.user.invitees }} användare
+				<span translate="USER.X_USERS" translate-value-x="{{ ::vm.user.invitees }}"></span>
 				<div ng-show="vm.showInvites && !vm.invitees" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
 				<table class="table table-striped table-hover table-text-center table-nowrap" ng-show="vm.showInvites && vm.invitees">
 					<thead>
 						<tr>
-							<th style="text-align: left;">&nbsp;<a class="whiteLink" href="" ng-click="invitesOrderBy='username'; reverseSort = !reverseSort">Användare</a></th>
-							<th style="width: 90px;"><a class="whiteLink" href="" ng-click="invitesOrderBy='uploaded'; reverseSort = !reverseSort">Uppladdat</a></th>
-							<th style="width: 90px;"><a class="whiteLink" href="" ng-click="invitesOrderBy='downloaded'; reverseSort = !reverseSort">Nerladdat</a></th>
-							<th style="width: 90px;">Ratio</th>
-							<th style="width: 250px; text-align: left;"><a class="whiteLink" href="" ng-click="invitesOrderBy='last_access'; reverseSort = !reverseSort">Senast sedd</a></th>
+							<th style="text-align: left;">&nbsp;<a class="whiteLink" href="" ng-click="invitesOrderBy='username'; reverseSort = !reverseSort" translate="USER.NAME"></a></th>
+							<th style="width: 90px;"><a class="whiteLink" href="" ng-click="invitesOrderBy='uploaded'; reverseSort = !reverseSort" translate="TORRENTS.UPLOADED"></a></th>
+							<th style="width: 90px;"><a class="whiteLink" href="" ng-click="invitesOrderBy='downloaded'; reverseSort = !reverseSort"  translate="TORRENTS.DOWNLOADED"></a></th>
+							<th style="width: 90px;" translate="STATUS.RATIO"></th>
+							<th style="width: 250px; text-align: left;"><a class="whiteLink" href="" ng-click="invitesOrderBy='last_access'; reverseSort = !reverseSort" translate="FRIENDS.LAST_SEEN"></a></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -90,7 +90,7 @@
 							<td>{{ ::invitee.uploaded | prettysize }}</td>
 							<td>{{ ::invitee.downloaded | prettysize }}</td>
 							<td ng-bind-html="invitee.uploaded / invitee.downloaded | ratio"></td>
-							<td style="text-align: left;">{{ ::invitee.last_access }} ({{ ::invitee.last_access | dateDifference }} sedan)</td>
+							<td style="text-align: left;">{{ ::invitee.last_access }} ({{ ::invitee.last_access | dateDifference }} {{ 'MAILBOX.AGO' | translate }})</td>
 						</tr>
 					</tbody>
 				</table>
@@ -99,7 +99,7 @@
 		<tr ng-if="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleBonusLog()">
-					<i class="fa fa-bars"></i> Visa bonuslogg
+					<i class="fa fa-bars"></i> {{ 'USER.SHOW_BONUS_LOG' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
@@ -108,8 +108,8 @@
 					<table class="table table-striped table-hover table-text-center">
 						<thead>
 							<tr>
-								<th style="width: 150px;">&nbsp;Datum</th>
-								<th class="text-left">Meddelande</th>
+								<th style="width: 150px;">&nbsp;{{ 'TORRENTS.DATE' | translate}}</th>
+								<th class="text-left" translate="MAILBOX.MESSAGE"></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -122,34 +122,34 @@
 					<br />
 					<div class="block-center text-center" ng-show="vm.bonuslog">
 						<button class="btn btn-default btn-xs" ng-click="vm.toggleBonusLog(true)">
-							<i class="fa fa-bars"></i> Läs in hela loggen
+							<i class="fa fa-bars"></i> {{ 'USER.LOAD_FULL_LOG' | translate }}
 						</button>
 					</div>
 				</div>
 			</td>
 		</tr>
 		<tr ng-show="vm.user.isp || vm.user.mbitner || vm.user.mbitupp">
-			<td class="text-right tdBold alignMiddle">Bandbredd</td>
+			<td class="text-right tdBold alignMiddle" translate="USER.BANDWIDTH"></td>
 			<td class="text-left">
-				<span ng-show="vm.user.mbitner > 0">Nedströms: <b>{{ ::vm.user.mbitner }} Mbit</b></span>
-				<span ng-show="vm.user.mbitupp > 0">Uppströms: <b>{{ ::vm.user.mbitupp }} Mbit</b></span>
-				<span ng-show="::vm.user.isp">ISP: <b>{{ ::vm.user.isp }}</b></span>
+				<span ng-show="vm.user.mbitner > 0">{{ 'USER.DOWNSTREAM' | translate }}: <b>{{ ::vm.user.mbitner }} {{ 'USER.MBIT' | translate }}</b></span>
+				<span ng-show="vm.user.mbitupp > 0">{{ 'USER.UPSTREAM' | translate }}: <b>{{ ::vm.user.mbitupp }} {{ 'USER.MBIT' | translate }}</b></span>
+				<span ng-show="::vm.user.isp">{{ 'USER.ISP' | translate }}: <b>{{ ::vm.user.isp }}</b></span>
 			</td>
 		</tr>
 		<tr ng-if="vm.user.uploaded !== null">
-			<td class="text-right tdBold alignMiddle">Uppladdat</td>
+			<td class="text-right tdBold alignMiddle" translate="TORRENTS.UPLOADED"></td>
 			<td class="text-left">{{ ::vm.user.uploaded | prettysize }}</td>
 		</tr>
 		<tr ng-if="vm.user.downloaded !== null">
-			<td class="text-right tdBold alignMiddle">Nerladdat</td>
+			<td class="text-right tdBold alignMiddle" translate="TORRENTS.DOWNLOADED"></td>
 			<td class="text-left">{{ ::vm.user.downloaded | prettysize }} ({{ ::vm.user.downloaded_real | prettysize }})</td>
 		</tr>
 		<tr ng-if="vm.user.uploaded !== null">
-			<td class="text-right tdBold alignMiddle">Ratio</td>
+			<td class="text-right tdBold alignMiddle" translate="STATUS.RATIO"></td>
 			<td class="text-left" ng-bind-html="vm.user.uploaded / vm.user.downloaded | ratio"></td>
 		</tr>
 		<tr ng-hide="vm.user.leechbonus == undefined">
-			<td class="text-right tdBold alignMiddle">LeechBonus</td>
+			<td class="text-right tdBold alignMiddle" translate="LEECHBONUS.TITLE"></td>
 			<td class="text-left">
 				<div class="row">
 					<div class="col-sm-4"><uib-progressbar class="progress-striped active" value="::vm.user.leechbonus" type="warning">{{ ::vm.user.leechbonus }}%</uib-progressbar>
@@ -158,48 +158,48 @@
 			</td>
 		</tr>
 		<tr ng-show="vm.user.class > 0">
-			<td class="text-right tdBold alignMiddle">Bonuspoäng</td>
-			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">({{ :: vm.user.nytt_seed+vm.user.arkiv_seed | prettysize }} uppladdat denna vecka varav {{ ::vm.user.nytt_seed | prettysize }} på nytt och {{ ::vm.user.arkiv_seed | prettysize }} på arkiv)</span></td>
+			<td class="text-right tdBold alignMiddle" translate="STATUS.BONUS"></td>
+			<td class="text-left"><b>{{ ::vm.user.bonuspoang }}p</b> <span ng-show="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8" translate="USER.BONUS_STATUS" translate-value-uploaded="{{ :: vm.user.nytt_seed+vm.user.arkiv_seed | prettysize }}" translate-value-new="{{ ::vm.user.nytt_seed | prettysize }}" translate-value-archive="{{ ::vm.user.arkiv_seed | prettysize }}"></span></td>
 		</tr>
 		<tr ng-show="vm.user.invitedByUser">
-			<td class="text-right tdBold alignMiddle">Inbjuden utav</td>
+			<td class="text-right tdBold alignMiddle" translate="USER.INVITED_BY"></td>
 			<td class="text-left"><user user="::vm.user.invitedByUser"></user></td>
 		</tr>
 		<tr ng-show="vm.user.avatar">
-			<td class="text-right tdBold">Avatar</td>
+			<td class="text-right tdBold" translate="USER.AVATAR"></td>
 			<td class="text-left"><img ng-src="{{ ::vm.user.avatar }}" style="max-width: 150px;" /></td>
 		</tr>
 		<tr ng-show="vm.user.hearts > 0">
-			<td class="text-right tdBold">Hjärtan</td>
+			<td class="text-right tdBold" translate="USER.HEARTS"></td>
 			<td class="text-left" style="font-size: 18px; color: #E80000;"><span  ng-repeat="_ in ((_ = []) && (_.length=vm.user.hearts||0) && _) track by $index"><i class="fa fa-heart"></i> </span></td>
 		</tr>
 		<tr>
-			<td class="text-right tdBold alignMiddle">Statusnivå</td>
+			<td class="text-right tdBold alignMiddle" translate="USER.CLASS_LEVEL"></td>
 			<td class="text-left">{{ ::vm.user.class | userClass }} <span ng-if="::vm.user.title"> | {{ ::vm.user.title }}</span></td>
 		</tr>
 		<tr ng-if="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">
-			<td class="text-right tdBold alignMiddle">Torrentkommentarer</td>
+			<td class="text-right tdBold alignMiddle" translate="USER.TORRENT_COMMENTS"></td>
 			<td class="text-left"><a href="" ui-sref="user-comments({id: vm.user.id, username: vm.user.username})">{{::vm.user.torrentComments }}</a></td>
 		</tr>
 		<tr ng-if="vm.currentUser.id == vm.user.id || vm.currentUser.class >= 8">
-			<td class="text-right tdBold alignMiddle">Foruminlägg</td>
+			<td class="text-right tdBold alignMiddle" translate="ADMIN.FORUM_POSTS"></td>
 			<td class="text-left"><a href="" ui-sref="forum-user-posts({id: vm.user.id, username: vm.user.username})">{{ ::vm.user.forumPosts }}</a></td>
 		</tr>
 		<tr ng-hide="vm.currentUser.id == vm.user.id" >
-			<td class="text-right alignMiddle tdBold">Funktioner</td>
+			<td class="text-right alignMiddle tdBold" translate="USER.FUNCTIONS"></td>
 			<td class="text-left">
-				<button class="btn btn-xs btn-default" ng-click="vm.sendMessage()"><i class="fa fa-envelope-o"></i> Skicka meddelande</button>
-				<button class="btn btn-default btn-xs" ng-click="vm.buyHeart()"><i class="fa fa-heart"></i> Köp hjärta</button>
-				<button class="btn btn-default btn-xs" ng-click="vm.addFriend()"><i class="fa fa-users fa-fw"></i> Lägg till som vän</button>
-				<button class="btn btn-default btn-xs" ng-click="vm.blockUser()"><i class="fa fa-ban"></i> Blockera</button>
+				<button class="btn btn-xs btn-default" ng-click="vm.sendMessage()"><i class="fa fa-envelope-o"></i> {{ 'MAILBOX.SEND_MESSAGE' | translate }}</button>
+				<button class="btn btn-default btn-xs" ng-click="vm.buyHeart()"><i class="fa fa-heart"></i> {{ 'USER.BUY_HEART' | translate }}</button>
+				<button class="btn btn-default btn-xs" ng-click="vm.addFriend()"><i class="fa fa-users fa-fw"></i> {{ 'USER.ADD_FRIEND' | translate }}</button>
+				<button class="btn btn-default btn-xs" ng-click="vm.blockUser()"><i class="fa fa-ban"></i> {{ 'USER.BLOCK_USER' | translate }}</button>
 				<report-button type="user" id="vm.user.id" body="vm.user.username"></report-button>
-				<button ng-if="vm.currentUser.class >= 8" ui-sref="cheatlog({userid: vm.user.id})" class="btn btn-xs btn-default"><i class="fa fa-search"></i> Fusklogg</button>
+				<button ng-if="vm.currentUser.class >= 8" ui-sref="cheatlog({userid: vm.user.id})" class="btn btn-xs btn-default"><i class="fa fa-search"></i> {{ 'ADMIN.CHEAT_LOG' | translate }}</button>
 			</td>
 		</tr>
 		<tr ng-if="vm.currentUser.class >= 8">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleSnatchLog()">
-					<i class="fa fa-bars"></i> Visa snatchlista
+					<i class="fa fa-bars"></i> {{ 'TORRENTS.SHOW_SNATCH' | translate }}
 				</button>
 			</td>
 		</tr>
@@ -209,15 +209,15 @@
 				<table class="table table-striped table-hover table-nowrap text-center" ng-show="vm.showSnatchLog && vm.snatchLog">
 					<thead>
 						<tr>
-							<th class="text-left">&nbsp;Torrent</th>
-							<th style="width: 75px;">Port</th>
-							<th style="width: 160px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='ip'; reverseSort = !reverseSort">IP:Port</a></th>
-							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='uploaded'; reverseSort = !reverseSort">Uppladdat</a></th>
-							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='downloaded'; reverseSort = !reverseSort">Nerladdat</a></th>
-							<th style="width: 100px;">Start/Stop/Klar</th>
-							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='agent'; reverseSort = !reverseSort">Klient</a></th>
-							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='finishedat'; reverseSort = !reverseSort">Snatchad</a></th>
-							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='seedtime'; reverseSort = !reverseSort">Seedtid</a></th>
+							<th class="text-left">&nbsp;{{ 'TORRENTS.TORRENT' | translate }}</th>
+							<th style="width: 75px;" translate="TORRENTS.PORT"></th>
+							<th style="width: 160px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='ip'; reverseSort = !reverseSort" translate="TORRENTS.IP_PORT"></a></th>
+							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='uploaded'; reverseSort = !reverseSort" translate="TORRENTS.UPLOADED"></a></th>
+							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='downloaded'; reverseSort = !reverseSort" translate="TORRENTS.DOWNLOADED"></a></th>
+							<th style="width: 100px;" translate="TORRENTS.START_STOP_FINISHED"></th>
+							<th style="width: 100px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='agent'; reverseSort = !reverseSort" translate="TORRENTS.CLIENT"></a></th>
+							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='finishedat'; reverseSort = !reverseSort" translate="TORRENTS.SNATCHED"></a></th>
+							<th style="width: 125px;"><a class="whiteLink" href="" ng-click="snatchLogOrderBy='seedtime'; reverseSort = !reverseSort" translate="TORRENTS.SEED_TIME"></a></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -240,7 +240,7 @@
 							<td>{{ ::snatch.downloaded | prettysize }}</td>
 							<td>{{ ::snatch.timesStarted }}/{{ ::snatch.timesStopped }}/{{ ::snatch.timesCompleted }}</td>
 							<td>{{ ::snatch.agent | prettyAgent }}</td>
-							<td>{{ ::snatch.finishedat | dateDifference }} sedan</td>
+							<td>{{ ::snatch.finishedat | dateDifference }} {{ 'MAILBOX.AGO' | translate }}</td>
 							<td>{{ ::snatch.seedtime*1000 | dateDifference:0 }}</td>
 						</tr>
 					</tbody>
@@ -250,11 +250,11 @@
 		<tr ng-if="vm.user.requests > 0">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleRequests()">
-					<i class="fa fa-bars"></i> Visa requests
+					<i class="fa fa-bars"></i> {{ 'USER.SHOW_REQUESTS' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
-				{{ ::vm.user.requests }} uppladdade requests
+				<span translate="USER.UPLOADED_REQUESTS" translate-value-x="{{ ::vm.user.requests }}"></span>
 				<div ng-show="vm.showRequests && !vm.requests" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
 				<div ng-show="vm.requests && vm.showRequests">
 					<torrents-table torrents="::vm.requests" col-download="true" col-size="true" col-comments="true" col-seeders="true" col-leechers="true"></torrents-table>
@@ -264,11 +264,11 @@
 		<tr ng-if="vm.user.torrents > 0">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.toggleTorrents()">
-					<i class="fa fa-bars"></i> Visa torrents
+					<i class="fa fa-bars"></i> {{ 'USER.SHOW_TORRENTS' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
-				{{ ::vm.user.torrents }} uppladdade torrents
+				<span translate="USER.UPLOADED_TORRENTS" translate-value-x="{{ ::vm.user.torrents }}"></span>
 				<div ng-show="vm.showTorrents && !vm.torrents" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
 				<div ng-show="vm.torrents && vm.showTorrents">
 					<torrents-table torrents="::vm.torrents" col-download="true" col-size="true" col-comments="true" col-seeders="true" col-leechers="true"></torrents-table>
@@ -278,18 +278,18 @@
 		<tr ng-show="vm.user.peersSeeder || vm.user.peersLeecher">
 			<td class="text-right tdBold">
 				<button class="btn btn-default btn-xs" ng-click="vm.togglePeers()">
-					<i class="fa fa-bars"></i> Visa överföringar
+					<i class="fa fa-bars"></i> {{ 'TORRENTS.SHOW_TRANSFERS' | translate }}
 				</button>
 			</td>
 			<td class="text-left">
-				Seedar {{ ::vm.user.peersSeeder }} st, leechar {{ ::vm.user.peersLeecher }} st = {{ ::vm.user.peersSeeder + vm.user.peersLeecher }} peers totalt
+				<span translate="USER.PEER_ACTIVITY" translate-value-seeding="{{ ::vm.user.peersSeeder }}" translate-value-leeching="{{ ::vm.user.peersLeecher }}" translate-value-total="{{ ::vm.user.peersSeeder + vm.user.peersLeecher }}"></span>
 				<div ng-show="vm.showPeers && !vm.seeding" class="fa-spinner fa-spin fa-3x fa-fw spinner"></div>
 				<div ng-show="vm.seeding && vm.showPeers">
 					<br />
-					<b>Seedar:</b>
+					<b>{{ 'USER.SEEDING' | translate }}:</b>
 					<user-peers peers="vm.seeding"></user-peers>
 					<br />
-					<b>Leechar:</b>
+					<b>{{ 'USER.LEECHING' | translate }}:</b>
 					<user-peers peers="vm.leeching" ng-show="vm.leeching && vm.showPeers"></user-peers>
 				</div>
 			</td>

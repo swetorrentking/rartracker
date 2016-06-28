@@ -1,14 +1,14 @@
 <table class="table table-condensed table-responsive table-striped table-hover table-nowrap table-text-center">
 	<thead>
 		<tr>
-			<th style="width: 57px;"><a class="whiteLink" href="" ng-click="peersOrder='category'; reverseSort = !reverseSort">Typ</a></th>
-			<th class="text-left"><a class="whiteLink" href="" ng-click="peersOrder='name'; reverseSort = !reverseSort">Torrent</a></th>
-			<th class="hidden-sm hidden-xs" style="width: 80px;">Port</th>
-			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='size'; reverseSort = !reverseSort">Storlek</a></th>
+			<th style="width: 57px;"><a class="whiteLink" href="" ng-click="peersOrder='category'; reverseSort = !reverseSort" translate="FAQ.TYPE"></a></th>
+			<th class="text-left"><a class="whiteLink" href="" ng-click="peersOrder='name'; reverseSort = !reverseSort" translate="TORRENTS.TORRENT"></a></th>
+			<th class="hidden-sm hidden-xs" style="width: 80px;" translate="TORRENTS.PORT"></th>
+			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='size'; reverseSort = !reverseSort" translate="TORRENTS.SIZE"></a></th>
 			<th class="hidden-sm hidden-xs" style="width: 50px;"><a class="whiteLink" href="" ng-click="peersOrder='seeders'; reverseSort = !reverseSort"><i class="fa fa-arrow-up"></i></a></th>
 			<th class="hidden-sm hidden-xs" style="width: 50px;"><a class="whiteLink" href="" ng-click="peersOrder='leechers'; reverseSort = !reverseSort"><i class="fa fa-arrow-down"></i></a></th>
-			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='uploaded'; reverseSort = !reverseSort">Uppl.</a></th>
-			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='downloaded'; reverseSort = !reverseSort">Nerl.</a></th>
+			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='uploaded'; reverseSort = !reverseSort"><i class="fa fa-arrow-up"></i></a></th>
+			<th class="hidden-sm hidden-xs" style="width: 80px;"><a class="whiteLink" href="" ng-click="peersOrder='downloaded'; reverseSort = !reverseSort"><i class="fa fa-arrow-down"></i></a></th>
 		</tr>
 	</thead>
 	<tbody ng-show="::$ctrl.peers">

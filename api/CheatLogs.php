@@ -11,7 +11,7 @@ class CheatLogs {
 
 	public function query($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$limit = (int)$postdata["limit"] ?: 25;

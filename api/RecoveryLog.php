@@ -20,7 +20,7 @@ class RecoveryLog implements IResource {
 
 	public function query($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$limit = (int)$postdata["limit"] ?: 25;
 		$index = (int)$postdata["index"] ?: 0;
@@ -59,7 +59,7 @@ class RecoveryLog implements IResource {
 		$sth->execute();
 		$arr = $sth->fetch();
 		if ($arr[0] > 5) {
-			throw new Exception("Du har gjort för många recovery-försök på samma dag.", 401);
+			throw new Exception(L::get("RECOVERY_LIMIT_EXCEEDED"), 401);
 		}
 	}
 

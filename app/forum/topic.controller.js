@@ -5,7 +5,7 @@
 		.module('app.forums')
 		.controller('TopicController', TopicController);
 
-	function TopicController($scope, $timeout, user, ForumResource, $stateParams, ErrorDialog, DeleteDialog, $state, $uibModal, authService, $anchorScroll, $location) {
+	function TopicController($scope, $timeout, $translate, user, ForumResource, $stateParams, ErrorDialog, DeleteDialog, $state, $uibModal, authService, $anchorScroll, $location) {
 
 		var firstload = true;
 		this.postStatus = 0;
@@ -81,7 +81,7 @@
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
 				} else {
-					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+					this.addAlert({ type: 'danger', msg: $translate.instant('GENERAL.ERROR_OCCURED') });
 				}
 			});
 		};
@@ -143,7 +143,7 @@
 		};
 
 		this.deletePost = function (post){
-			DeleteDialog('Radera inlägg', 'Vill du radera foruminlägget?', false)
+			DeleteDialog($translate.instant('FORUM.DELETE_POST'), $translate.instant('FORUM.DELETE_POST_CONFIRM'), false)
 				.then(() => {
 					return ForumResource.Posts.delete({
 						forumid: $stateParams.forumid,

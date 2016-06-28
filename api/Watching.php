@@ -11,7 +11,7 @@ class Watching {
 
 	public function query($userId, $imdbId = null) {
 		if ($userId != $this->user->getId() && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($imdbId) {
@@ -47,12 +47,12 @@ class Watching {
 
 	public function create($userId, $post) {
 		if ($userId != $this->user->getId() && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$watch = $this->get($userId, $post["imdbinfoid"]);
 		if ($watch) {
-			throw new Exception('Det finns redan en bevakning, redigera den istället.', 409);
+			throw new Exception(L::get("WATCHER_CONFLICT"), 409);
 		}
 
 		$swesub = $post["swesub"] == 1 ? 1 : 0;
@@ -83,10 +83,10 @@ class Watching {
 
 	public function update($userId, $watchId, $post) {
 		if ($userId != $this->user->getId() && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		if ($watchId != $post["id"]) {
-			throw new Exception('ID-nummer matchar inte.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$swesub = $post["swesub"] == 1 ? 1 : 0;
@@ -116,7 +116,7 @@ class Watching {
 
 	public function delete($userId, $watchId) {
 		if ($userId != $this->user->getId() && $this->getClass() < self::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('DELETE FROM bevaka WHERE id = ? AND userid = ?');

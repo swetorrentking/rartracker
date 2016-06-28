@@ -16,7 +16,8 @@
 			controllerAs: 'vm'
 		});
 
-	function DeleteTorrentDirectiveController(authService) {
+	function DeleteTorrentDirectiveController($translate, authService) {
+		this.betterVersionExistsString = $translate.instant('TORRENTS.BETTER_VERSION_EXISTS');
 		this.$onInit = () => {
 			if (!this.model){
 				this.model = {};

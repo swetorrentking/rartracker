@@ -6,21 +6,22 @@
 		.component('donatedBar', {
 			template: `
 				<div ui-sref="donate" class="hidden-xs" style="position: absolute; top: 10px; right: 20px; cursor:pointer; color: #FFF;">
-					Finanser:
+					{{ 'GENERAL.PETTY_CASH' | translate }}:
 					<div style="width: 102px; height: 20px; border: 1px solid; color: #FFF;">
-						<div style="background-color: {{ vm.donatedProgressColor }}; width: {{ vm.donatedProgress }}px; height: 18px;">
+						<div style="background-color: {{ $ctrl.donatedProgressColor }}; width: {{ $ctrl.donatedProgress }}px; height: 18px;">
 							<div style="width: 100px; height: 20px; line-height: 19px; text-align: center;">
-								<b>&nbsp;{{ vm.amount }}</b> SEK
+								<b>&nbsp;{{ $ctrl.amount }}</b> {{ $ctrl.currency }}
 							</div>
 						</div>
 					</div>
 				</div>
 			`,
-			controller: DonatedBarController,
-			controllerAs: 'vm'
+			controller: DonatedBarController
 		});
 
-	function DonatedBarController($scope, authService) {
+	function DonatedBarController($scope, authService, configs) {
+
+		this.currency = configs.DONATIONS_CURRENCY;
 
 		this.setDonatedProgress = function (amount) {
 			var savedBuffer = 1300;

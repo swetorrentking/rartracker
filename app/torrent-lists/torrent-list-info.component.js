@@ -19,7 +19,7 @@
 
 							<p style="font-style: italic; max-width: 500px; font-size: 14px;" ng-bind-html="::$ctrl.torrentList.description | nltobr"></p>
 
-							Skapad utav <user user="::$ctrl.torrentList.user"></user>
+							{{ 'LIST.CREATED_BY' | translate }} <user user="::$ctrl.torrentList.user"></user>
 						</td>
 					</tr>
 				</table>

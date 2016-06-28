@@ -1,5 +1,5 @@
 <div class="text-center">
-	<h1>Torrentlistor</h1>
+	<h1 translate="LIST.TITLE"></h1>
 
 	<loading-indicator hide="vm.torrentLists"></loading-indicator>
 
@@ -8,6 +8,6 @@
 	<br />
 
 	<div class="text-center" ng-show="vm.torrentLists">
-		<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadLists()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+		<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadLists()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 	</div>
 </div>

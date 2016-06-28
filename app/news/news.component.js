@@ -13,7 +13,7 @@
 			controllerAs: 'vm'
 		});
 
-	function NewsDirectiveController(NewsResource, authService, ConfirmDialog, ErrorDialog, $state, $uibModal) {
+	function NewsDirectiveController(NewsResource, authService, ConfirmDialog, ErrorDialog, $state, $uibModal, $translate) {
 
 		this.$onInit = function () {
 			this.currentUser = authService.getUser();
@@ -47,8 +47,7 @@
 		};
 
 		this.delete = function (news) {
-			var dialog = ConfirmDialog('Radera nyhet', 'Vill du radera nyheten?');
-			dialog
+			ConfirmDialog($translate.instant('NEWS.DELETE_TITLE'), $translate.instant('NEWS.DELETE_BODY'))
 				.then(() => {
 					return NewsResource.delete({id: news.id}).$promise;
 				})

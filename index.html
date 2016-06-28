@@ -1,25 +1,27 @@
 <!DOCTYPE html>
 <base href="/">
-<html lang="sv" ng-app="app">
+<html lang="en" ng-app="app">
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-	<title>Rartracker</title>
+	<title>Rartracker.org</title>
 	<link href="bower_components/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css" />
-	<link href="/css/rartracker.css" rel="stylesheet">
+	<link href="/css/rartracker.css?v=6" rel="stylesheet">
 	<link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.min.css">
-	<script src="/bower_components/angular/angular.min.js"></script>
-	<script src="/bower_components/angular-cookies/angular-cookies.min.js"></script>
-	<script src="/bower_components/angular-resource/angular-resource.min.js"></script>
-	<script src="/bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-	<script src="/bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
-	<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+	<script src="/bower_components/angular/angular.min.js?v=1"></script>
+	<script src="/bower_components/angular-cookies/angular-cookies.min.js?v=1"></script>
+	<script src="/bower_components/angular-resource/angular-resource.min.js?v=1"></script>
+	<script src="/bower_components/angular-sanitize/angular-sanitize.min.js?v=1"></script>
+	<script src="/bower_components/angular-ui-router/release/angular-ui-router.min.js?v=1"></script>
+	<script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.min.js?v=1"></script>
 	<script src="/bower_components/Chart.js/Chart.min.js"></script>
 	<script src="/bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
-	<script src="/dist/app-dist.js"></script>
-	<script src="/dist/app-templates.js"></script>
+	<script src="/bower_components/angular-translate/angular-translate.min.js"></script>
+	<script src="/bower_components/angular-translate-loader-static-files/angular-translate-loader-static-files.min.js"></script>
+	<script src="/dist/app-dist.js?v=6"></script>
+	<script src="/dist/app-templates.js?v=6"></script>
 	<custom-css></custom-css>
 </head>
 <body ng-cloak>
@@ -38,14 +40,14 @@
 
 	<script type="text/javascript">
 		if (typeof document.createElement('input').checkValidity !== 'function') {
-			document.body.innerHTML = '<h2 style="text-align: center;">Din webbläsare är tyvärr för gammal och saknar stöd för HTML5-funktioner som krävs av denna sajt.</h2>';
+			document.body.innerHTML = '<h2 style="text-align: center;">Your web browser is too old and doesn\'t support required HTML5 features.</h2>';
 		}
 	</script>
-	<noscript><h2 class="text-center">Denna sajt fungerar inte alls med JavaScript avstängt.</h2></noscript>
+	<noscript><h2 class="text-center">This site doesn't work at all with JavaScript turned off.</h2></noscript>
 
 	<br />
 	<div class="text-center" style="font-size: 12px;">
-		Sidan bygger på <a href="http://swetorrentking.github.io/rartracker/" target="_blank">rartracker</a> 0.2.2
+		{{ 'GENERAL.SITE_POWERED' | translate }} <a href="http://swetorrentking.github.io/rartracker/" target="_blank">rartracker</a> v0.3.0
 	</div>
 	<br/>
 

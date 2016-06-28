@@ -5,7 +5,7 @@
 		.module('app.forums')
 		.controller('NewTopicController', NewTopicController);
 
-	function NewTopicController($scope, ForumResource, $state, $stateParams, user, authService) {
+	function NewTopicController($scope, $translate, ForumResource, $state, $stateParams, user, authService) {
 		$scope.$parent.vm.activateTopicsView();
 		this.postStatus = 0;
 
@@ -34,7 +34,7 @@
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
 				} else {
-					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+					this.addAlert({ type: 'danger', msg: $translate.instant('GENERAL.ERROR_OCCURED') });
 				}
 			});
 		};

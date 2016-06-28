@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('BonusController', BonusController);
 
-	function BonusController($uibModal, authService, ErrorDialog, ConfirmDialog, BonusShopResource, user) {
+	function BonusController($uibModal, $translate, authService, ErrorDialog, ConfirmDialog, BonusShopResource, user) {
 
 		this.currentUser = user;
 
@@ -44,28 +44,28 @@
 			switch (item.id) {
 				case 10: // crown
 					settingsObj = {
-						title: 'Köp krona',
-						body: 'Vill du spendera '+item.price+'p på en krona-ikon?',
+						title: $translate.instant('USER.BUY_CROWN'),
+						body: $translate.instant('USER.BUY_CROWN_CONFIRM', {price: item.price})
 					};
 					break;
 				case 6: // invite
 					settingsObj = {
-						title: 'Köp invite',
-						body: 'Vill du spendera '+item.price+'p på en invite?',
+						title: $translate.instant('USER.BUY_INVITE'),
+						body: $translate.instant('USER.BUY_INVITE_CONFIRM', {price: item.price})
 					};
 					break;
 				case 2: // request slot
 					settingsObj = {
-						title: 'Köp request-slot',
-						body: 'Vill du spendera '+item.price+'p på en extra request-slot?',
+						title: $translate.instant('USER.BUY_REQUEST_SLOT'),
+						body: $translate.instant('USER.BUY_REQUEST_SLOT_CONFIRM', {price: item.price})
 					};
 					break;
 				case 8: // custom title
 					settingsObj = {
-						title: 'Köp custom title',
-						body: 'Vill du spendera '+item.price+'p på en custom title?',
+						title: $translate.instant('USER.BUY_CUSTOM_TITLE'),
+						body: $translate.instant('USER.BUY_CUSTOM_TITLE_CONFIRM', {price: item.price}),
 						wantReason: true,
-						reasonText: 'Custom title:',
+						reasonText: $translate.instant('USER.CUSTOM_TITLE') + ':',
 					};
 					break;
 			}
@@ -93,8 +93,8 @@
 				resolve: {
 					settings: () => {
 						return  {
-							title: 'Köp hjärta till vän',
-							body: 'Vill du spendera '+item.price+'p på ett hjärta till en vän?',
+							title: $translate.instant('USER.BUY_HEART'),
+							body: $translate.instant('USER.BUY_HEART_SHOP_BODY', {price: item.price}),
 							motivation: '',
 							user: {
 								id: 0
@@ -124,8 +124,8 @@
 			switch (item.id) {
 				case 3: // minus 10gb
 					settingsObj = {
-						title: 'Köp bort nerladdad GB',
-						body: 'Vill du köpa bort GB från din nerladdat för minst '+item.price+'p?',
+						title: $translate.instant('USER.BUY_GB_TITLE'),
+						body: $translate.instant('USER.BUY_GB_BODY', {price: item.price}),
 						gigabyte: 10,
 						user: {
 							id: 0
@@ -135,8 +135,8 @@
 					break;
 				case 4: // minus 10gb on friend
 					settingsObj = {
-						title: 'Köp bort nerladdad GB på vän',
-						body: 'Vill du köpa bort GB nerladdat på en vän för minst '+item.price+'p?',
+						title: $translate.instant('USER.BUY_GB_FRIEND_TITLE'),
+						body: $translate.instant('USER.BUY_GB_FRIEND_BODY', {price: item.price}),
 						gigabyte: 10,
 						user: {
 							id: 0

@@ -85,7 +85,7 @@ class TorrentLists {
 
 		$row = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$row) {
-			throw new Exception('Torrentlistan finns inte');
+			throw new Exception(L::get("TORRENT_LIST_NOT_FOUND"), 404);
 		}
 
 		$arr = array();
@@ -113,22 +113,22 @@ class TorrentLists {
 		if ($postData["id"]) {
 			$torrentList = $this->get($postData["id"], true);
 			if ($torrentList["user"]["id"] != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN) {
-				throw new Exception('Du saknar rättigheter att redigera denna request.');
+				throw new Exception(L::get("PERMISSION_DENIED"), 401);
 			}
 		}
 
 		if (!is_array($postData["torrents"]) || count($postData["torrents"]) < 1) {
-			throw new Exception("Listan måste innehålla minst en torrent.");
+			throw new Exception(L::get("TORRENT_LIST_NO_TORRENTS"), 412);
 		}
 
 		if (strlen($postData["name"]) < 1) {
-			throw new Exception('Namnet är för kort.');
+			throw new Exception(L::get("TORRENT_LIST_NAME_TOO_SHORT"), 412);
 		}
 
 		$torrents = implode(",", $postData["torrents"]);
 
 		if (!preg_match ('/^[\d,]+$/', $torrents) ){
-			throw new Exception("Ogiltig torrentlista.", 400);
+			throw new Exception(L::get("TORRENT_LIST_INVALID"), 400);
 		}
 
 		$slug = Helper::slugify($postData["name"]);
@@ -161,7 +161,7 @@ class TorrentLists {
 	public function delete($listId, $reason) {
 		$torrentList = $this->get($listId);
 		if ($torrentList["user"]["id"] != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN && $this->user->getId() !== 1) {
-			throw new Exception('Du saknar rättigheter att radera denna lista.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$this->purge($torrentList["id"]);
@@ -187,10 +187,10 @@ class TorrentLists {
 			$this->db->query("UPDATE torrent_lists SET votes = votes - 1 WHERE id = " . (int) $listId);
 		} else {
 			if ($torrentList["user"]["id"] == $this->user->getId()) {
-				throw new Exception("Du får inte rösta på din egna lista.", 401);
+				throw new Exception(L::get("TORRENT_LIST_VOTE_OWN_ERROR"), 401);
 			}
 			if ($res["type"] == "unlisted") {
-				throw new Exception("Det går inte rösta på olistade listor.", 401);
+				throw new Exception(L::get("TORRENT_LIST_VOTE_UNLISTED_ERROR"), 401);
 			}
 			$sth = $this->db->prepare("INSERT INTO torrent_list_votes(torrent_list, userid) VALUES(?, ?)");
 			$sth->bindParam(1, $listId,					PDO::PARAM_INT);

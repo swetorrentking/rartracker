@@ -1,14 +1,14 @@
 <div class="text-center">
-	<h1>Mina foruminlägg</h1>
+	<h1 translate="FORUM.MY_THREADS"></h1>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadPosts()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.posts.length == 0"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadPosts()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}" ng-hide="vm.posts.length == 0"></uib-pagination>
 
 	<loading-indicator hide="vm.posts"></loading-indicator>
-	<div ng-show="vm.posts.length == 0" class="alert alert-warning" role="alert">Du har inga foruminlägg i forumet</div>
+	<div ng-show="vm.posts.length == 0" class="alert alert-warning" role="alert" translate="FORUM.MY_NO_THREADS"></div>
 
 	<div class="col-md-10 col-centered nopadding" ng-show="vm.posts">
 		<posts posts="vm.posts" delete-post="vm.deleteComment(post)" ng-hide="vm.posts.length == 0"></posts>
 	</div>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadPosts()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.posts.length == 0"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadPosts()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}" ng-hide="vm.posts.length == 0"></uib-pagination>
 </div>

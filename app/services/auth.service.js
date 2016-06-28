@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.service('authService', AuthService);
 
-	function AuthService($rootScope, userClasses, StatusResource, $cookies, $state, $timeout, $location, $q) {
+	function AuthService($rootScope, userClasses, StatusResource, $cookies, $state, $timeout, $location, $q, $translate) {
 
 		this.lastStateChange = Date.now();
 		this.activeTimer = null;
@@ -27,6 +27,7 @@
 			this.user = user;
 			this.deferred.resolve(user);
 			$rootScope.$broadcast('userUpdated', user);
+			return $translate.use(user.language);
 		};
 
 		this.setSettings = function (settings) {
@@ -40,7 +41,10 @@
 
 		this.getPromise = function () {
 			if (!this.deferred.promise.$$state.status) {
-				return this.deferred.promise;
+				return this.deferred.promise
+					.then(user => {
+						return $translate.use(user.language).then(() => user);
+					});
 			} else {
 				var d = $q.defer();
 				d.resolve(this.user);

@@ -1,20 +1,20 @@
 <table class="table table-striped table-hover table-text-center">
 	<thead>
 		<tr>
-			<th class="text-left">Användare</th>
-			<th>Port</th>
-			<th>Uppladdat</th>
-			<th>Hastighet</th>
-			<th>Nerladdat</th>
-			<th>Hastighet</th>
-			<th>Färdig</th>
-			<th>Ansluten</th>
-			<th>Klient</th>
+			<th class="text-left" translate="TORRENTS.USER"></th>
+			<th translate="TORRENTS.PORT"></th>
+			<th translate="TORRENTS.UPLOADED"></th>
+			<th translate="TORRENTS.SPEED"></th>
+			<th translate="TORRENTS.DOWNLOADED"></th>
+			<th translate="TORRENTS.SPEED"></th>
+			<th translate="TORRENTS.FINISHED"></th>
+			<th translate="TORRENTS.CONNECTED"></th>
+			<th translate="TORRENTS.CLIENT"></th>
 		</tr>
 	</thead>
 	<tbody ng-show="::vm.peers">
 		<tr ng-repeat="peer in ::vm.peers track by $index" ng-style="peer.userid == vm.myUserId && {backgroundColor: '#CCC'}">
-			<td class="text-left"><a ui-sref="user({id: peer.userid, username: peer.username})"><b>{{ ::peer.username }}</b></a><span ng-if="::!peer.userid"><i>Anonym</i></span> <span ng-show="::peer.userid && peer.anonym == 'yes'"><i>(Anonym)</i></span></td>
+			<td class="text-left"><a ui-sref="user({id: peer.userid, username: peer.username})"><b>{{ ::peer.username }}</b></a><span ng-if="::!peer.userid"><i translate="GENERAL.ANONYMOUS"></i></span> <span ng-show="::peer.userid && peer.anonym == 'yes'"><i>({{ 'GENERAL.ANONYMOUS' | translate }})</i></span></td>
 			<td ng-bind-html="::peer.connectable | connectable"></td>
 			<td ng-bind="::peer.uploaded | prettysize"></td>
 			<td>{{ ::vm.calcUploadSpeed(peer) | prettysize }}/s</td>

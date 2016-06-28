@@ -1,9 +1,9 @@
 <div class="text-center">
-	<h1>Logg</h1>
+	<h1 translate="LOG.TITLE"></h1>
 
 	<div class="input-group" style="margin: auto; width: 300px;">
 		<div class="input-group-addon"><i class="fa fa-search"></i></div>
-		<input type="text" class="form-control" placeholder="Sök i loggen" ng-model="vm.searchText" ng-model-options="{ debounce: 250 }" ng-change="vm.doSearch()" style="margin: auto;" />
+		<input type="text" class="form-control" placeholder="{{ 'LOG.SEARCH_BOX_PLACEHOLDER' | translate }}" ng-model="vm.searchText" ng-model-options="{ debounce: 250 }" ng-change="vm.doSearch()" style="margin: auto;" />
 		<span class="input-group-btn" ng-show="vm.searchText !== ''">
 			<button class="btn btn-default" type="button" ng-click="vm.searchText = ''; vm.doSearch();"><i class="fa fa-times"></i></button>
 		</span>
@@ -14,8 +14,8 @@
 
 	<table class="table" ng-show="vm.logs">
 		<tr>
-			<th style="width: 150px;">Datum</th>
-			<th class="text-left">Händelse</th>
+			<th style="width: 150px;" translate="TORRENTS.DATE"></th>
+			<th class="text-left" translate="LOG.EVENT"></th>
 		</tr>
 		<tr ng-repeat="log in vm.logs track by log.id">
 			<td>{{ ::log.added }}</td>
@@ -23,8 +23,9 @@
 		</tr>
 	</table>
 
-	<div ng-show="vm.searchText.length > 1 && vm.logs.length === 0" class="alert alert-warning" role="alert">Inga sökträffar!</div>
+	<br />
+	<div ng-show="vm.searchText.length > 1 && vm.logs.length === 0" class="alert alert-warning" role="alert" translate="LOG.NO_SEARCH_HITS"></div>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 </div>

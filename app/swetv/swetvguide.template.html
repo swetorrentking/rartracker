@@ -8,12 +8,12 @@
 				</tr>
 			</table>
 			<table class="table table-stripedTv table-hover table-nowrap" ng-init="itemNew=[]">
-				<tr class="programradtd" ng-hide="::dayGroup.day.length > 0" colspan="2"><td class="text-center"><i>Ännu inga SweTV-releaser för dagen</i></td></tr>
+				<tr class="programradtd" ng-hide="::dayGroup.day.length > 0" colspan="2"><td class="text-center"><i translate="TV.NO_TV_FOR_DAY"></i></td></tr>
 				<tr ng-init="itemsDisplay=[]" ng-repeat-start="program in ::dayGroup.day" ng-click="itemsDisplay[$index] = !itemsDisplay[$index]">
 					<td style="width: 65px;"><img style="height: 23px;" ng-src="/img/tvchannels/{{ ::program.pic }}" /></td>
 					<td class="text-left tvTdRow">
 						<b>{{ ::program.tv_klockslag*1000 | date:'HH:mm' }}</b> - {{ ::program.tv_program }}
-						<span ng-show="itemNew[$index]" class="label label-danger" style="font-size:10px">NY</span>
+						<span ng-show="itemNew[$index]" class="label label-danger" style="font-size:10px" translate="MAILBOX.NEW"></span>
 					</td>
 				</tr>
 				<tr ng-repeat-end ng-show="itemsDisplay[$index]">
@@ -40,7 +40,7 @@
 	<loading-indicator hide="vm.tvDataRow"></loading-indicator>
 
 	<div class="text-center" ng-show="vm.tvDataRow">
-		<uib-pagination max-size="5" items-per-page="1" total-items="5" ng-model="vm.currentPage" ng-click="vm.pageChanged()" previous-text="Nästa vecka" next-text="Föregående vecka"></uib-pagination>
+		<uib-pagination max-size="5" items-per-page="1" total-items="5" ng-model="vm.currentPage" ng-click="vm.pageChanged()" previous-text="{{ 'TV.NEXT_WEEK' | translate }}" next-text="{{ 'TV.PREVIOUS_WEEK' | translate }}"></uib-pagination>
 	</div>
 
 </div>

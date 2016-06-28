@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('EditTorrentController', EditTorrentController);
 
-	function EditTorrentController($state, $stateParams, DateService, ErrorDialog, SweTvResource, user, MovieDataResource, categories, TorrentsResource, uploadService) {
+	function EditTorrentController($state, $stateParams, $translate, DateService, ErrorDialog, SweTvResource, user, MovieDataResource, categories, TorrentsResource, uploadService) {
 
 		this.currentUser = user;
 		this.tvChannels = SweTvResource.Channels.query();
@@ -49,7 +49,7 @@
 				attachTorrentId: this.deleteVars.attachTorrentId,
 				restoreRequest: this.deleteVars.restoreRequest,
 			}, () => {
-				this.notFoundMessage = 'Torrenten är nu raderad.';
+				this.notFoundMessage = $translate.instant('TORRENTS.DELETED_DONE');
 			}, (error) => {
 				ErrorDialog.display(error.data);
 			});

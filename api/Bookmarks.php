@@ -15,7 +15,7 @@ class Bookmarks implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Bokmärket finns inte.');
+			throw new Exception(L::get("BOOMARK_NOT_EXIST"), 404);
 		}
 		return $res;
 	}
@@ -33,7 +33,7 @@ class Bookmarks implements IResource {
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
-			throw new Exception('Redan bokmärkt.');
+			throw new Exception(L::get("ALREADY_BOOKMARKED"), 409);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO bookmarks(userid, torrentid) VALUES(?, ?)");
@@ -45,7 +45,7 @@ class Bookmarks implements IResource {
 	public function delete($id, $postdata = null) {
 		$bookmark = $this->get($id);
 		if ($bookmark["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera bokmärket');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM bookmarks WHERE id = ' . $bookmark["id"]);
 	}

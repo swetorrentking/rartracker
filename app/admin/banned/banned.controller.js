@@ -10,7 +10,7 @@
 		this.initForm = function () {
 			this.addnonscene = {
 				whitelist: 1,
-				comment: 'Ej scene'
+				comment: ''
 			};
 		};
 

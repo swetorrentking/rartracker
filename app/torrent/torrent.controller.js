@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('TorrentController', TorrentController);
 
-	function TorrentController($scope, $state, $timeout, $stateParams, user, DeleteDialog, ConfirmDialog, SubtitlesResource, WatchingSubtitlesResource, uploadService, ErrorDialog, TorrentsResource, ReseedRequestsResource, $anchorScroll, $location) {
+	function TorrentController($scope, $state, $timeout, $translate, $stateParams, user, DeleteDialog, ConfirmDialog, SubtitlesResource, WatchingSubtitlesResource, uploadService, ErrorDialog, TorrentsResource, ReseedRequestsResource, $anchorScroll, $location) {
 
 		this.torrentId = $stateParams.id;
 		this.currentUser = user;
@@ -118,7 +118,7 @@
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
 				} else {
-					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade' });
+					this.addAlert({ type: 'danger', msg: $translate.instant('ERROR_OCCURED')});
 				}
 			});
 		};
@@ -179,7 +179,7 @@
 		};
 
 		this.deleteSubtitle = function (subtitle){
-			DeleteDialog('Radera undertext', 'Vill du radera undertexten?', true)
+			DeleteDialog($translate.instant('SUBTITLES.DELETE_TOPIC'), $translate.instant('SUBTITLES.DELETE_BODY'), true)
 				.then((reason) => {
 					SubtitlesResource.delete({id: subtitle.id, reason: reason}, () => {
 						var index = this.subtitles.indexOf(subtitle);
@@ -189,7 +189,7 @@
 		};
 
 		this.deleteComment = function (comment){
-			DeleteDialog('Radera kommentar', 'Vill du radera torrentkommentaren?', false)
+			DeleteDialog($translate.instant('COMMENTS.DELETE_TOPIC'), $translate.instant('COMMENTS.DELETE_BODY'), true)
 				.then(() => {
 					TorrentsResource.Comments.delete({
 						id: this.torrent.id,
@@ -202,7 +202,7 @@
 		};
 
 		this.requestReseed = function () {
-			ConfirmDialog('Önska seed', 'Vill du önska seed på denna torrent för [b]5p[/b]?\nAlla som har laddat ner eller seedat torrenten det senaste halvåret kommer få ett PM.')
+			ConfirmDialog($translate.instant('TORRENTS.REQUEST_SEED'), $translate.instant('TORRENTS.REQUEST_SEED_DIALOG_BODY'))
 				.then(() => {
 					return ReseedRequestsResource.save({torrentid: this.torrent.id}).$promise;
 				})
@@ -215,7 +215,7 @@
 
 		this.subtitleFileChanged = function () {
  			if (this.subFile.size > 2097152) {
- 				ErrorDialog.display('Filen är för stor. Max 2 MB tack.');
+ 				ErrorDialog.display($translate.instant('TORRENTS.SUBTITLE_FILE_TOO_LARGE'));
  				return;
  			}
 

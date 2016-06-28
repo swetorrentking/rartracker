@@ -4,7 +4,6 @@ class Suggestions {
 	private $db;
 	private $user;
 	private $forum;
-	private $suggestionForumId = 25;
 
 	public function __construct($db = null, $user = null, $forum = null) {
 		$this->db = $db;
@@ -53,14 +52,14 @@ class Suggestions {
 
 		$suggestion = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$suggestion) {
-			throw new Exception('Förslaget finns inte.', 404);
+			throw new Exception(L::get("SUGGESTION_NOT_FOUND"), 404);
 		}
 		return $suggestion;
 	}
 
 	public function vote($suggestId, $direction) {
 		if ($direction != "up" && $direction != "down") {
-			throw new Exception('Must vote up or down.');
+			throw new Exception(L::get("SUGGESTION_VOTE_ERROR"));
 		}
 
 		$sth = $this->db->prepare("SELECT 1 FROM suggestions WHERE id = ?");
@@ -69,7 +68,7 @@ class Suggestions {
 		$suggest = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$suggest) {
-			throw new Exception("Suggestion does not exist.");
+			throw new Exception(L::get("SUGGESTION_NOT_FOUND"), 404);
 		}
 
 		$userVoteWeight = $this->getUserVoteWeight($this->user->getClass(), $direction);
@@ -103,11 +102,11 @@ class Suggestions {
 
 	public function create($postData) {
 		if (strlen($postData["body"]) < 10) {
-			throw new Exception("Beskrivningen är för kort.");
+			throw new Exception(L::get("SUGGESTION_DESCRIPTION_TOO_SHORT"));
 		}
 
 		if (strlen($postData["subject"]) < 5) {
-			throw new Exception("Rubriken är för kort.");
+			throw new Exception(L::get("SUGGESTION_TITLE_TOO_SHORT"), 412);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO suggestions(title, body, userid, added) VALUES(?, ?, ?, NOW())");
@@ -118,7 +117,7 @@ class Suggestions {
 
 		$suggestId = $this->db->lastInsertId();
 
-		$topic = $this->forum->addTopic($this->suggestionForumId, $postData["subject"], $postData["body"], $postData["body"], true);
+		$topic = $this->forum->addTopic(Config::SUGGESTION_FORUM_ID, $postData["subject"], $postData["body"], $postData["body"], true);
 
 		$this->db->query('UPDATE suggestions SET topicid = ' . $topic["id"] . ' WHERE id = ' . $suggestId);
 		$this->vote($suggestId, "up");
@@ -128,7 +127,7 @@ class Suggestions {
 
 	public function update($id, $postData) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$post = $this->get($id);
@@ -141,32 +140,32 @@ class Suggestions {
 		switch($postData["status"]) {
 			case 1:
 				$color = "#5cb85c";
-				$text = "FÄRDIGT";
+				$text = L::get("SUGGESTION_STATUS_DONE");
 				break;
 			case 2:
 				$color = "#FF9D13";
-				$text = "GODKÄNT";
+				$text = L::get("SUGGESTION_STATUS_ACCEPTED");
 				break;
 			case 3:
 				$color = "#d9534f";
-				$text = "NEKAT";
+				$text = L::get("SUGGESTION_STATUS_DENIED");
 				break;
 			case 4:
 				$color = "#827B7B";
-				$text = "INGEN ÅTGÄRD";
+				$text = L::get("SUGGESTION_STATUS_NO_ACTION");
 				break;
 			default:
 				return;
 		}
 
-		$postBody = "Förslaget har ändrat status till [b][color=" . $color. "]" .$text. "[/color][/b]";
+		$postBody = L::get("SUGGESTION_STATUS_CHANGED_BODY", [$color, $text]);
 
 		$this->forum->addPost($post["topicid"], array("body" => $postBody), 1);
 	}
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare("DELETE FROM suggestions WHERE id = ?");

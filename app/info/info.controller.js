@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('InfoController', InfoController);
 
-	function InfoController(AdminResource, user, $timeout, ErrorDialog) {
+	function InfoController($translate, $timeout, ErrorDialog, AdminResource, user) {
 
 		this.initform = function () {
 			this.message = {
@@ -24,7 +24,7 @@
 					this.dialogStatus = 2;
 					$timeout(() => {
 						this.initform();
-						this.addAlert({ type: 'success', msg: 'Meddelande skickat' });
+						this.addAlert({ type: 'success', msg: $translate.instant('INFO.MESSAGE_SENT') });
 					}, 800);
 				})
 				.catch((error) => {

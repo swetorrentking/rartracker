@@ -5,8 +5,9 @@
 		.module('app.shared')
 		.controller('HaveDonatedController', HaveDonatedController);
 
-	function HaveDonatedController($uibModalInstance, DonationsResource) {
+	function HaveDonatedController($uibModalInstance, DonationsResource, configs) {
 
+		this.currency = configs.DONATIONS_CURRENCY;
 		this.submitDisabled = false;
 		this.settings = {
 			type: 2,

@@ -10,8 +10,8 @@ class Statistics {
 	}
 
 	public function getAllStats($days) {
-		if ($this->user->getClass() < User::CLASS_SKADIS) {
-			throw new Exception("Du har inte rättigheter till statistiken", 401);
+		if ($this->user->getClass() < User::CLASS_ACTOR) {
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->query("SELECT COUNT(*) FROM statistics");
@@ -78,7 +78,7 @@ class Statistics {
 	public function run() {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
 		$todaysDateOnlyDay = date('Y-m-d');

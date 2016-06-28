@@ -5,11 +5,12 @@
 		.module('app.shared')
 		.controller('UserEditController', UserEditController);
 
-	function UserEditController($stateParams, $state, DeleteDialog, UsersResource, userClasses, cssDesigns, authService, user) {
+	function UserEditController($stateParams, $state, $translate, DeleteDialog, UsersResource, userClasses, cssDesigns, authService, languageSupport, user) {
 
 		this.currentUser = user;
 		this.userClasses = userClasses;
 		this.cssDesigns = cssDesigns;
+		this.languageSupport = languageSupport;
 
 		this.getUser = function () {
 			UsersResource.Users.get({id: $stateParams.id}, (user) => {
@@ -42,7 +43,7 @@
 		};
 
 		this.deleteUser = function () {
-			DeleteDialog('Radera användaren', 'Vill du radera \''+this.user.username+'\' ifrån databasen?')
+			DeleteDialog($translate.instant('USER.DELETE'), $translate.instant('USER.DELETE_CONFIRM', {'username': this.user.username}))
 				.then(() => {
 					return UsersResource.Users.delete({id: $stateParams.id}).$promise;
 				}).then(() => {
@@ -54,7 +55,7 @@
 			this.editButtonDisabled = true;
 
 			UsersResource.Users.update({id: this.user.id}, this.user, () => {
-				this.addAlert({ type: 'success', msg: 'Inställningarna sparades.' });
+				this.addAlert({ type: 'success', msg: $translate.instant('USER.SETTINGS_SAVED') });
 				this.editButtonDisabled = false;
 				if (this.user.id == user.id) {
 					authService.statusCheck();

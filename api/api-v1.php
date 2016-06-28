@@ -46,6 +46,9 @@ if (class_exists('Memcached')) {
 	}
 }
 
+/* Load default language */
+L::setLanguage(Config::DEFAULT_LANGUAGE);
+
 /* Routes acceptable not logged in */
 try {
 	switch(true) {
@@ -125,11 +128,12 @@ try {
 
 	/* Login check before the following routes */
 	$user->loginCheck();
+	L::setLanguage($user->getLanguage());
 
 	switch(true) {
 		case validateRoute('GET', 'status'):
 			/* IP change check and logging */
-			if ($user->getClass() < User::CLASS_FILMSTJARNA && ((int)$_GET["timeSinceLastCheck"] < 5100 || $user->getBrowserIp() !== $user->getIp())) {
+			if ($user->getClass() < User::CLASS_MOVIE_STAR && ((int)$_GET["timeSinceLastCheck"] < 5100 || $user->getBrowserIp() !== $user->getIp())) {
 				$user->logIp();
 			}
 
@@ -703,7 +707,7 @@ try {
 			if (is_array($watch) && $watch[0]) {
 				httpResponse($watch[0]);
 			} else {
-				httpResponseError(404, 'Bevakning saknas för imdb-id ' . $params[4]);
+				httpResponseError(404);
 			}
 			break;
 
@@ -1349,7 +1353,7 @@ try {
 		$errorString = $e->getMessage() . $e->getFile() . $e->getLine();
 		$sqlerrors = new SqlErrors($db, $user);
 		$sqlerrors->create($errorString);
-		httpResponseError(500, "Ett serverfel har inträffat. Händelsen har loggats.");
+		httpResponseError(500, L::get("SERVER_ERROR"));
 	} else {
 		httpResponseError($e->getCode(), $e->getMessage());
 	}

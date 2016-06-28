@@ -2,20 +2,20 @@
 	<thead ng-if="vm.showHeader != 'false'">
 		<tr>
 			<th style="width: 57px;" ng-if="vm.colIndex == 'true'">#</th>
-			<th style="width: 57px;">Typ</th>
-			<th class="text-left"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'n'})">Namn</a> &nbsp;<a class="whiteLink" href="" ng-click="vm.onSort({sort:'i'})">IMDb</a></th>
+			<th style="width: 57px;" translate="TORRENTS.TYPE"></th>
+			<th class="text-left"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'n'})" translate="TORRENTS.NAME"></a> &nbsp;<a class="whiteLink" href="" ng-click="vm.onSort({sort:'i'})">IMDb</a></th>
 			<th style="width: 45px;">&nbsp;</th>
 			<th style="width: 50px;" ng-if="vm.colDownload == 'true'" class="hidden-xs"><i class="fa fa-download"></i></th>
 			<th style="width: 50px;" ng-if="vm.colBookmark == 'true'" class="hidden-xs"><i class="fa fa-bookmark"></i></th>
 			<th style="width: 50px;" ng-if="vm.colComments == 'true'" class="hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'c'})"><i class="fa fa-comment"></i></a></th>
-			<th style="width: 90px;" ng-if="vm.colDate == 'true'" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'d'})">Datum</a></th>
-			<th style="width: 80px;" ng-if="vm.colSize == 'true'" class="hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'s'})">Storlek</a></th>
-			<th style="width: 80px;" ng-if="vm.colTimesCompleted == 'true'" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'f'})">Nerladdad</a></th>
-			<th style="width: 80px;" ng-if="vm.colData == 'true'" class="hidden-md hidden-sm hidden-xs">Data</th>
+			<th style="width: 90px;" ng-if="vm.colDate == 'true'" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'d'})" translate="TORRENTS.DATE"></a></th>
+			<th style="width: 80px;" ng-if="vm.colSize == 'true'" class="hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'s'})" translate="TORRENTS.SIZE"></a></th>
+			<th style="width: 80px; white-space: nowrap;" ng-if="vm.colTimesCompleted == 'true'" class="hidden-md hidden-sm hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'f'})" translate="TORRENTS.DOWNLOADED_COMPLETED"></a></th>
+			<th style="width: 80px;" ng-if="vm.colData == 'true'" class="hidden-md hidden-sm hidden-xs" translate="TORRENTS.DATA"></th>
 			<th style="width: 50px;" ng-if="vm.colSeeders == 'true'" class="hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'up'})"><i class="fa fa-arrow-up"></i></a></th>
 			<th style="width: 50px;" ng-if="vm.colLeechers == 'true'" class="hidden-xs"><a class="whiteLink" href="" ng-click="vm.onSort({sort:'dl'})"><i class="fa fa-arrow-down"></i></a></th>
 			<th style="width: 80px;" ng-if="vm.colDelete == 'true'" class="hidden-xs"><i class="fa fa-trash-o"></i></th>
-			<th style="width: 80px;" ng-if="vm.checkMode"><a class="whiteLink" href="" ng-click="vm.checkAll()">Välj</a></th>
+			<th style="width: 80px;" ng-if="vm.checkMode"><a class="whiteLink" href="" ng-click="vm.checkAll()" translate="TORRENTS.CHECK"></a></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -31,7 +31,7 @@
 				<torrent torrent="::torrent" search-text="{{ vm.searchText }}"></torrent>
 			</td>
 			<td class="newCol" ng-if="!old">
-				<span class="badge" style="font-size: 10px;">NY</span>
+				<span class="badge" style="font-size: 10px;" translate="MAILBOX.NEW"></span>
 			</td>
 			<td class="vert-align hidden-xs" style="width: 50px;" ng-if="vm.colDownload == 'true'">
 				<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{::torrent.id}}">
@@ -49,9 +49,9 @@
 			<td class="vert-align hidden-sm hidden-xs" ng-if="vm.colSize == 'true'" style="width: 80px;">
 				{{ ::torrent.size | prettysize }}
 				<br />
-				<div class="text-small">{{ ::torrent.numfiles }} filer</div>
+				<div class="text-small" translate="TORRENTS.NUM_FILES" translate-value-x="{{::torrent.numfiles}}"></div>
 			</td>
-			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="vm.colTimesCompleted == 'true'" style="width: 80px;">{{ ::torrent.times_completed }} gånger</td>
+			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="vm.colTimesCompleted == 'true'" style="width: 80px;" translate="TORRENTS.TIMES_COMPLETED" translate-value-x="{{::torrent.times_completed}}"></td>
 			<td class="vert-align hidden-md hidden-sm hidden-xs" ng-if="vm.colData == 'true'" style="width: 80px;">{{:: torrent.data | prettysize }}</td>
 			<td class="vert-align hidden-xs" ng-if="vm.colSeeders == 'true'" style="width: 50px;">
 				<a ng-if="torrent.seeders > 0" ui-sref="torrent({id: torrent.id, name: torrent.name, scrollTo:'seeders'})" ng-bind="::torrent.seeders"></a>
@@ -62,7 +62,7 @@
 				<span ng-if="torrent.leechers <= 0">0</span>
 			</td>
 			<td class="vert-align hidden-xs" ng-if="vm.colDelete == 'true'" style="width: 50px;">
-				<button type="button" ng-click="vm.onDelete({torrent:torrent})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+				<button type="button" ng-click="vm.onDelete({torrent:torrent})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> {{ 'BUTTONS.ERASE' | translate }}</button>
 			</td>
 			<td class="vert-align" ng-if="vm.checkMode">
 				<button class="btn btn-default btn-xs" uib-btn-checkbox btn-checkbox-true="'yes'" btn-checkbox-false="'no'" ng-model="torrent.selected"><i class="fa fa-check"></i></button>

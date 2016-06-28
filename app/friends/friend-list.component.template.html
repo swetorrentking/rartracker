@@ -10,16 +10,16 @@
 			<td>
 				<user user="::friend.user"></user>
 				<br /><br />
-				Senast sedd: {{ ::friend.user.last_access }} ({{ ::friend.user.last_access | dateDifference }} sedan)
+				{{ 'FRIENDS.LAST_SEEN' | translate }}: {{ ::friend.user.last_access }} ({{ ::friend.user.last_access | dateDifference }} {{ 'MAILBOX.AGO' | translate }})
 				<br /><br />
 				<i>{{ ::friend.comment }}</i>
 			</td>
 			<td style="text-align: center; width: 200px;" class="alignMiddle">
 				<div ng-show="vm.showSendMessage">
-					<button ng-click="vm.sendMessage(friend.user)" class="btn btn-default btn-xs"><i class="fa fa-envelope-o"></i> Skicka meddelande</button>
+					<button ng-click="vm.sendMessage(friend.user)" class="btn btn-default btn-xs"><i class="fa fa-envelope-o"></i> {{ 'MAILBOX.SEND_MESSAGE' | translate }}</button>
 					<br /><br />
 				</div>
-				<button ng-click="vm.delete({ friend: friend})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+				<button ng-click="vm.delete({ friend: friend})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> {{ 'BUTTONS.ERASE' | translate }}</button>
 			</td>
 		</tr>
 	</table>

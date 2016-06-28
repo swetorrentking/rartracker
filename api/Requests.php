@@ -69,7 +69,7 @@ class Requests {
 
 		$row = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$row) {
-			throw new Exception('Requesten finns inte');
+			throw new Exception(L::get("REQUEST_NOT_FOUND"), 404);
 		}
 
 		$arr = array();
@@ -109,35 +109,31 @@ class Requests {
 	}
 
 	public function createOrUpdate($postData, $reqId = null) {
-		if ($this->user->getClass() < User::CLASS_SKADIS) {
-			throw new Exception('Du har inte rättigheter.', 401);
+		if ($this->user->getClass() < User::CLASS_ACTOR) {
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($reqId) {
 			$request = $this->get($reqId);
 			if ($request["user"]["id"] != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN) {
-				throw new Exception('Du saknar rättigheter att redigera denna request.');
+				throw new Exception(L::get("PERMISSION_DENIED"));
 			}
 		} else {
 			if ($this->user->getRequestSlots() <= count($this->myRequests())) {
-				throw new Exception('Du har utnyttjat alla dina maximalt antal aktiva requests.');
+				throw new Exception(L::get("REQUEST_SLOTS_EXCEEDED"), 401);
 			}
 		}
 
 		if ($postData["category"] < Torrent::DVDR_PAL || $postData["category"] > Torrent::SUBPACK) {
-			throw new Exception('Ogiltig kategori.');
+			throw new Exception(L::get("REQUEST_INVALID_CATEGORY"));
 		}
 
 		if (in_array($postData["category"], Array(1,2,3,4,5,6,7)) && strlen($postData["imdbInfo"]) < 2) {
-			throw new Exception('Ingen IMDB-länk vald.');
+			throw new Exception(L::get("REQUEST_NO_IMDB_URL"));
 		}
 
 		if (in_array($postData["category"], Array(8,9,10,11,12)) && strlen($postData["customName"]) < 2) {
-			throw new Exception('Namnet är för kort.');
-		}
-
-		if ($postData["receiver"] == $this->user->getId()) {
-			throw new Exception('Skicka inte meddelande till dig själv.');
+			throw new Exception(L::get("REQUEST_NAME_TOO_SHORT"));
 		}
 
 		$requestName = $postData["imdbInfo"];
@@ -170,7 +166,7 @@ class Requests {
 			return Array("id" => $request["id"], "slug" => $slug);
 		} else {
 			$insertId = $this->db->lastInsertId();
-			$this->log->log(1, "Request ([url=/requests/".$insertId ."/".$slug."][b]".$requestName."[/b][/url]) inlagd utav {{username}}", $this->user->getId(), false);
+			$this->log->log(1, L::get("REQUEST_SITE_LOG", [$insertId, $slug, $requestName]), $this->user->getId(), false);
 			$this->vote($insertId, 0);
 			return Array("id" => $insertId, "name" => $requestName);
 		}
@@ -179,20 +175,20 @@ class Requests {
 	public function delete($reqId, $reason) {
 		$request = $this->get($reqId);
 		if ($request["user"]["id"] != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN && $this->user->getId() !== 1) {
-			throw new Exception('Du saknar rättigheter att radera denna request.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$votes = $this->getVotes($reqId);
-		$this->log->log(3, "Request ([b]".$request["request"]."[/b]) raderades utav {{username}} med anledningen: [i]".$reason."[/i]", $this->user->getId(), false);
+		$this->log->log(3, L::get("REQUEST_DELETED_SITE_LOG", [$request["request"], $reason]), $this->user->getId(), false);
 
 		foreach ($votes as $vote) {
-			$message = "Requesten [b]".$request["request"]."[/b] har blivit raderad av " . $this->user->getUsername() . " med anledning: [i]" . $reason ."[/i]";
+			$message = L::get("REQUEST_DELETED_PM_BODY", [$request["request"], $this->user->getUsername(), $reason]);
 			if ($vote["reward"] > 0) {
-				$message .= "\n\nDu har fått tillbaka din hittelön på [b]+".$vote["reward"]."p[/b]";
-				$this->user->bonusLog($vote["reward"], "Återbetalning av hittelön för request: " . $request["request"] . ".", $vote["user"]["id"]);
+				$message .= "\n\n " . L::get("REQUEST_DELETED_PM_REWARD", [$vote["reward"]]);
+				$this->user->bonusLog($vote["reward"], L::get("REQUEST_REWARD_PAYBACK_BONUS_LOG", [$request["request"]]), $vote["user"]["id"]);
 			}
 			if ($vote["user"]["id"] != $this->user->getId()) {
-				$this->mailbox->sendSystemMessage($vote["user"]["id"], "Request raderad", $message);
+				$this->mailbox->sendSystemMessage($vote["user"]["id"], L::get("REQUEST_DELETED_PM_SUBJECT"), $message);
 			}
 		}
 
@@ -208,9 +204,9 @@ class Requests {
 	public function restore($reqId, $reason) {
 		$request = $this->get($reqId);
 		$this->db->query("UPDATE requests SET filled = 0 WHERE id = " . $reqId);
-		$this->log->log(1, "Request ([url=/requests/".$reqId ."/][b]".$request["slug"]."[/b][/url]) har blivit återställd", 0, false);
+		$this->log->log(1, L::get("REQUEST_RESTORED_SITE_LOG", [$reqId, $request["slug"]]), 0, false);
 		if ($this->user->getId() != $request["user"]["id"]) {
-			$this->mailbox->sendSystemMessage($request["user"]["id"], "Request återställd", "Din request ([url=/archive/requests/".$reqId ."/][b]".$request["request"]."[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{$reason}[/b]");
+			$this->mailbox->sendSystemMessage($request["user"]["id"], L::get("REQUEST_RESTORED_PM_SUBJECT"), L::get("REQUEST_RESTORED_PM_BODY", [$reqId, $request["request"], $reason]));
 		}
 	}
 
@@ -218,7 +214,7 @@ class Requests {
 		$request = $this->get($reqid);
 
 		if ($this->user->getBonus() < $reward) {
-			throw new Exception('Du har inte så många bonuspoäng.');
+			throw new Exception(L::get("NOT_ENOUGH_BONUS"), 412);
 		}
 
 		$res = $this->db->query("SELECT COUNT(*) FROM reqvotes WHERE reqid = " . $reqid . " AND userid = " . $this->user->getId());
@@ -235,7 +231,7 @@ class Requests {
 		}
 
 		if ($reward > 0) {
-			$this->user->bonusLog(-$reward, "Hittelön på request " . $request["request"] . ".", $this->user->getId());
+			$this->user->bonusLog(-$reward, L::get("REQUEST_REWARD_BONUS_LOG", [$request["request"]]), $this->user->getId());
 		}
 		return $this->getVoteAmount($reqid, strtotime($request["added"]));
 	}

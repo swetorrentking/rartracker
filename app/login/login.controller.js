@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('LoginController', LoginController);
 
-	function LoginController($state, authService, AuthResource) {
+	function LoginController($state, $translate, authService, AuthResource) {
 
 		this.credentials = {
 			username: '',
@@ -23,7 +23,7 @@
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
 				} else {
-					this.addAlert({ type: 'danger', msg: 'Ett fel inträffade.' });
+					this.addAlert({ type: 'danger', msg: $translate.instant('GENERAL.ERROR_OCCURED') });
 				}
 			});
 		};

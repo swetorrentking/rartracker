@@ -1,21 +1,21 @@
 <ul class="nav navbar-nav navbar-nav-small">
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-login-attempts" ui-sref-opts="{reload: true}">Inlogg</a></li>
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-signups" ui-sref-opts="{reload: true}">Regg</a></li>
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-reports" ui-sref-opts="{reload: true}">Rapporter <span ng-show="vm.currentUser.newReports > 0" class="badge">{{ vm.currentUser.newReports }}</span></a></li>
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-mailbox" ui-sref-opts="{reload: true}">Staff PM  <span ng-show="vm.currentUser.newAdminMessages > 0" class="badge">{{ vm.currentUser.newAdminMessages }}</span></a></li>
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-search" ui-sref-opts="{reload: true}">Användarsök</a></li>
-	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-logs" ui-sref-opts="{reload: true}">Adminlogg</a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-login-attempts" ui-sref-opts="{reload: true}" translate="ADMIN.LOGINS"></a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-signups" ui-sref-opts="{reload: true}" translate="ADMIN.SIGNUPS"></a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-reports" ui-sref-opts="{reload: true}">{{ 'ADMIN.REPORTS' | translate }} <span ng-show="vm.currentUser.newReports > 0" class="badge">{{ vm.currentUser.newReports }}</span></a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-mailbox" ui-sref-opts="{reload: true}">{{ 'ADMIN.STAFF_MESSAGES' | translate }}  <span ng-show="vm.currentUser.newAdminMessages > 0" class="badge">{{ vm.currentUser.newAdminMessages }}</span></a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-search" ui-sref-opts="{reload: true}" translate="ADMIN.USER_SEARCH"></a></li>
+	<li class="menuSmall" ui-sref-active="active"><a ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-logs" ui-sref-opts="{reload: true}" translate="ADMIN.STAFF_LOG"></a></li>
 	<li class="menuSmall" uib-dropdown>
-	<a href="#" uib-dropdown-toggle>Mer <span class="caret"></span></a>
+	<a href="#" uib-dropdown-toggle>{{ 'MENU.VIEW_MORE' | translate }} <span class="caret"></span></a>
 		<ul class="dropdown-menu" role="menu">
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="forum-posts"><i class="fa fa-file-text-o fa-fw"></i> Foruminlägg</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="torrent-comments"><i class="fa fa-file-text-o fa-fw"></i> Kommentarer</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-ipchanges"><i class="fa fa-book fa-fw"></i> IP-byten</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="recovery-logs"><i class="fa fa-book fa-fw"></i> Recovery-logg</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-sqlerrors"><i class="fa fa-fw fa-exclamation-triangle"></i> SQL-fellogg</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="cheatlog"><i class="fa fa-book fa-fw"></i> Fusklogg</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-banned"><i class="fa fa-ban fa-fw"></i> Bannat</a></li>
-			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-donations"><i class="fa fa-usd fa-fw"></i> Donerat</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="forum-posts"><i class="fa fa-file-text-o fa-fw"></i> {{ 'ADMIN.FORUM_POSTS' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="torrent-comments"><i class="fa fa-file-text-o fa-fw"></i> {{ 'ADMIN.COMMENTS' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-ipchanges"><i class="fa fa-book fa-fw"></i> {{ 'ADMIN.IP_CHANGES' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="recovery-logs"><i class="fa fa-book fa-fw"></i> {{ 'ADMIN.RECOVERY_LOG' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-sqlerrors"><i class="fa fa-fw fa-exclamation-triangle"></i> {{ 'ADMIN.SQL_LOG' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="cheatlog"><i class="fa fa-book fa-fw"></i> {{ 'ADMIN.CHEAT_LOG' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-banned"><i class="fa fa-ban fa-fw"></i> {{ 'ADMIN.BANNED' | translate }}</a></li>
+			<li><a class="noborder" ng-click="navCollapsed = !navCollapsed" href="#" ui-sref="admin-donations"><i class="fa fa-usd fa-fw"></i> {{ 'ADMIN.DONATED' | translate }}</a></li>
 		</ul>
 	</li>
 </ul>

@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.service('uploadService', UploadService);
 
-	function UploadService($rootScope, $q, categories, DateService, MovieDataResource) {
+	function UploadService($rootScope, $q, $translate, categories, DateService, MovieDataResource) {
 
 		this.onProgressFn = function () {};
 		this.setOnProgress = function (fn) {
@@ -139,7 +139,7 @@
 
 			result.push({
 				id: 1,
-				program: ' -- Fyll i ett program manuellt --'
+				program: $translate.instant('TORRENTS.ENTER_TV_MANUALLY')
 			});
 
 			var lastDate = '';

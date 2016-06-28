@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('RulesController', RulesController);
 
-	function RulesController(RulesResource, $uibModal, ConfirmDialog, user) {
+	function RulesController($uibModal, $translate, ConfirmDialog, RulesResource, user) {
 
 		this.currentUser = user;
 
@@ -14,9 +14,7 @@
 		});
 
 		this.delete = function (rule) {
-			var dialog = ConfirmDialog('Radera regel', 'Vill du radera den valda regeln?');
-
-			dialog
+			ConfirmDialog($translate.instant('RULES.DELETE'), $translate.instant('RULES.DELETE_CONFIRM'))
 				.then(() => {
 					return RulesResource.delete(rule).$promise;
 				})

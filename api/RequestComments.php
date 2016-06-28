@@ -51,7 +51,7 @@ class RequestComments {
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$comment = $this->get($id);
@@ -68,7 +68,7 @@ class RequestComments {
 		$comment = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$comment) {
-			throw new Exception('Kommentaren finns inte.');
+			throw new Exception(L::get("COMMENT_NOT_EXIST"), 404);
 		}
 
 		return $comment;
@@ -79,12 +79,12 @@ class RequestComments {
 		$request = $this->request->get($requestId);
 
 		if (strlen($post) < 2) {
-			throw new Exception('Inlägget är för kort.');
+			throw new Exception(L::get("COMMENT_TOO_SHORT"), 412);
 		}
 
 		$lastComment = $this->getLastComment($requestId);
 		if ($lastComment && $lastComment["user"] == $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN && (time() - strtotime($lastComment["added"]) < 86400)) {
-			throw new Exception('Du kan inte dubbelposta. Redigera ditt tidigare inlägg istället.');
+			throw new Exception(L::get("FORUM_DOUBLE_POST"));
 		}
 
 		$sth = $this->db->prepare('INSERT INTO request_comments(request, user, added, text) VALUES(?, ?, NOW(), ?)');
@@ -95,9 +95,8 @@ class RequestComments {
 
 		// Notify requester of new comment
 		if ($this->user->getId() != $request["user"]["id"]) {
-			$subject = "Kommentar på request: " . $request["request"];
-			$message = "Du har fått en ny kommentar på din request [b]" . $request["request"] . "[/b]\n\nLänk: [url=/request/".$request["id"]."/".$request["slug"]."#comments]/request/".$request["id"]."/[/url]";
-			$this->mailbox->sendSystemMessage($request["user"]["id"], $subject, $message);
+			$message = L::get("REQUEST_COMMENT_PM_BODY", [$request["request"], $request["id"], $request["slug"], $request["id"]]);
+			$this->mailbox->sendSystemMessage($request["user"]["id"], L::get("REQUEST_COMMENT_PM_SUBJECT", [$request["request"]]), $message);
 		}
 
 		$this->request->updateCommentsAmount($request["id"], 1);
@@ -105,13 +104,13 @@ class RequestComments {
 
 	public function update($requestId, $postId, $postData) {
 		if (strlen($postData) < 2) {
-			throw new Exception('Inlägget är för kort.');
+			throw new Exception(L::get("COMMENT_TOO_SHORT"), 412);
 		}
 
 		$post = $this->get($postId);
 
 		if ($post["request"] != $requestId) {
-			throw new Exception('Inlägg och request matchar inte.');
+			throw new Exception(L::get("COMMENT_REQUEST_NOT_MATCHING"));
 		}
 
 		$sth = $this->db->prepare('UPDATE request_comments SET ori_text = text, text = ?, editedby = ?, editedat = NOW() WHERE id = ?');

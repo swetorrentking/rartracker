@@ -15,7 +15,7 @@ class LoginAttempts implements IResource {
 		$index = (int)$postdata["index"] ?: 0;
 
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$where = array();
@@ -65,7 +65,7 @@ class LoginAttempts implements IResource {
 
 	public function delete($id, $postdata = null) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("DELETE FROM inlogg WHERE id = ?");
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
@@ -96,7 +96,7 @@ class LoginAttempts implements IResource {
 		$sth->execute();
 		$arr = $sth->fetch();
 		if ($arr[0] > $this->maximumLoginAttempts) {
-			throw new Exception('Du har gjort för många inloggningsförsök. Du måste vänta 5 minuter innan du kan försöka igen.');
+			throw new Exception(L::get("LOGIN_ATTEMPTS_EXCEEDED"), 401);
 		}
 	}
 

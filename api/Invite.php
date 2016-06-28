@@ -17,15 +17,15 @@ class Invite implements IResource {
 	public function create($postdata = null) {
 
 		if ($this->user->isInviteBanned()) {
-			throw new Exception('Du är bannad ifrån att kunna bjuda in användare.', 401);
+			throw new Exception(L::get("INVITE_BANNED"), 401);
 		}
 
-		if ($this->user->getClass() < User::CLASS_SKADIS) {
-			throw new Exception('Du måste vara minst Skådis för att kunna bjuda in.', 401);
+		if ($this->user->getClass() < User::CLASS_DIRECTOR) {
+			throw new Exception(L::get("INVITE_MINIMUM_CLASS_ERROR"), 401);
 		}
 
 		if ($this->user->getInvites() == 0) {
-			throw new Exception('Du har inga invites.', 400);
+			throw new Exception(L::get("INVITES_DEPLETED"), 400);
 		}
 
 		$this->db->query("UPDATE users SET invites = invites - 1 WHERE id = " . $this->user->getId());
@@ -38,7 +38,7 @@ class Invite implements IResource {
 	public function delete($id, $postdata = null) {
 		$invite = $this->get($id);
 		if ($invite["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera denna inviten.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM invites WHERE id = ' . $invite["id"]);
 		$this->db->query("UPDATE users SET invites = invites + 1 WHERE id = " . $this->user->getId());
@@ -50,7 +50,7 @@ class Invite implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Inviten finns inte.', 404);
+			throw new Exception(L::get("INVITE_NOT_FOUND"), 404);
 		}
 		return $res;
 	}
@@ -60,7 +60,7 @@ class Invite implements IResource {
 		$sth->bindParam(1, $secret, PDO::PARAM_STR);
 		$sth->execute();
 		if (!$sth->fetch()) {
-			throw new Exception('Inviten finns inte.', 404);
+			throw new Exception(L::get("INVITE_NOT_FOUND"), 404);
 		}
 	}
 

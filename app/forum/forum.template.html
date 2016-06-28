@@ -1,12 +1,12 @@
 <div class="text-center">
 
 	<h1>
-		<span ng-if="vm.currentState == 'forum.forums'">Forum</span>
-		<a ng-if="vm.currentState != 'forum.forums'" ui-sref="forum.forums">Forum</a>
+		<span ng-if="vm.currentState == 'forum.forums'" translate="FORUM.FORUMS"></span>
+		<a ng-if="vm.currentState != 'forum.forums'" ui-sref="forum.forums" translate="FORUM.FORUMS"></a>
 
 		<span ng-if="vm.forum.name && vm.currentState == 'forum.topics'">&raquo; {{ vm.forum.name }}</span>
 		<span ng-if="vm.forum.name && vm.currentState != 'forum.topics'">&raquo; <a ui-sref="forum.topics({id: vm.forum.id})">{{ vm.forum.name }}</a></span>
-		
+
 		<span ng-show="vm.topic.subject"> &raquo; {{ vm.topic.subject }}</span>
 	</h1>
 

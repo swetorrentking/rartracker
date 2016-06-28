@@ -1,10 +1,10 @@
 <div class="text-center">
-	<h1>Bokmärkta torrents</h1>
+	<h1>{{ 'BOOKMARKS.TITLE' | translate }}</h1>
 
 	<loading-indicator hide="vm.bookmarks"></loading-indicator>
 	<div class="table-responsive">
 		<torrents-table torrents="vm.bookmarks" on-delete="vm.delete(torrent)" col-download="true" col-comments="true" col-date="true" col-size="true" col-times-completed="true" col-seeders="true" col-leechers="true" col-delete="true"></torrents-table>
 	</div>
 	<br />
-	<div ng-show="vm.bookmarks.length == 0" class="alert alert-warning" role="alert">Du har inga bokmärkta torrents</div>
+	<div ng-show="vm.bookmarks.length == 0" class="alert alert-warning" role="alert" translate="TORRENTS.NO_BOOKMARKS"></div>
 </div>

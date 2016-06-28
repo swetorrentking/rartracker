@@ -15,12 +15,12 @@
 			<br style="clear: both;" />
 		</div>
 	</div>
-	<button ui-sref="start-edit" class="btn btn-default btn-xs center-block"><i class="fa fa-cog"></i> Anpassa startsidan</button>
+	<button ui-sref="start-edit" class="btn btn-default btn-xs center-block"><i class="fa fa-cog"></i> {{ 'START.CUSTOMIZE' | translate }}</button>
 
 	<br />
 
 	<div class="panel panel-green" ng-show="::vm.torrentLists.length">
-		<div class="panel-heading">Populära listor</div>
+		<div class="panel-heading">{{ 'START.POPULAR_LISTS' | translate }}</div>
 
 		<uib-carousel active="0" interval="5000" no-transition="false">
 			<uib-slide ng-repeat="torrentList in ::vm.torrentLists track by torrentList.id" index="$index">
@@ -35,14 +35,14 @@
 	<br />
 
 	<div class="panel panel-green">
-		<div class="panel-heading">Nyheter</div>
+		<div class="panel-heading">{{ 'NEWS.TITLE' | translate }}</div>
 
 		<br />
 		<news limit="2"></news>
 
 		<br style="clear: both;" />
 		<div class="text-center">
-			<button ui-sref="news" class="btn btn-default btn-xs"><i class="fa fa-newspaper-o"></i> Visa alla nyheter</button>
+			<button ui-sref="news" class="btn btn-default btn-xs"><i class="fa fa-newspaper-o"></i> {{ 'NEWS.SHOW_ALL' | translate }}</button>
 		</div>
 		<br />
 	</div>
@@ -52,7 +52,7 @@
 	<div class="row">
 		<div class="col-lg-5 col-lg-push-1 col-md-6">
 			<div class="panel panel-green">
-				<div class="panel-heading">Omröstning</div>
+				<div class="panel-heading">{{ 'POLL.TITLE_SINGLE' | translate }}</div>
 				<div>
 					<poll poll="vm.poll" vote="vm.vote()"></poll>
 				</div>
@@ -62,44 +62,44 @@
 		<div class="col-lg-5 col-lg-push-1  col-md-6">
 
 			<div class="panel panel-green">
-				<div class="panel-heading">Statistik</div>
+				<div class="panel-heading">{{ 'STATISTICS.TITLE' | translate }}</div>
 				<div>
 					<table class="table table-striped table-hover noshadow">
 						<tr>
-							<td class="text-right" style="width: 60%">Registrerade användare</td>
+							<td class="text-right" style="width: 60%">{{ 'START.REGISTERED_USERS' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.users | number }}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Torrents</td>
+							<td class="text-right">{{ 'START.TORRENTS' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.torrents | number }}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Peers</td>
+							<td class="text-right">{{ 'START.PEERS' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.seeders + vm.stats.leechers | number}}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Peersrekord</td>
+							<td class="text-right">{{ 'START.PEERS_RECORD' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.peersRecord | number}}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Seedare</td>
+							<td class="text-right">{{ 'START.SEEDERS' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.seeders | number}}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Leechare</td>
+							<td class="text-right">{{ 'START.LEECHERS' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.leechers | number}}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Aktiva användare senaste 15 min</td>
+							<td class="text-right">{{ 'START.ACTIVE_USERS_15MIN' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.active15m | number}}</td>
 						</tr>
 						<tr>
-							<td class="text-right">Aktiva användare senaste dygnet</td>
+							<td class="text-right">{{ 'START.ACTIVE_USERS_24H' | translate }}</td>
 							<td class="text-left">{{ ::vm.stats.active24h }}</td>
 						</tr>
 					</table>
 					<br />
-					<button class="btn btn-default btn-xs center-block" ui-sref="statistics()"><i class="fa fa-bar-chart"></i> Visa all statistik</button>
+					<button class="btn btn-default btn-xs center-block" ui-sref="statistics()"><i class="fa fa-bar-chart"></i> {{ 'START.SHOW_ALL_STATISTICS' | translate }}</button>
 				</div>
 				<br style="clear: both;" />
 			</div>

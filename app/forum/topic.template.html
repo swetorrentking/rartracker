@@ -1,4 +1,4 @@
-<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchPosts()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchPosts()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 <loading-indicator hide="vm.posts"></loading-indicator>
 
@@ -6,11 +6,11 @@
 	<posts posts="vm.posts" edit-obj="vm.editObj" on-quote="vm.quotePost(post)" goto-anchor="vm.gotoAnchor(postId)" delete-post="vm.deletePost(post)" edit-post="vm.editPost(post)" abort-edit="vm.abortEdit()" save-edit="vm.saveEdit(post)"></posts>
 	<div ng-show="$parent.vm.topic.locked == 'no' && vm.numberOfPages == vm.currentPage" id="newPost" class="col-sm-10 col-sm-push-1">
 		<div class="text-center">
-			<h3>Skriv inlägg</h3>
+			<h3 translate="FORUM.POST_REPLY"></h3>
 			<div class="form-group">
-				<textarea class="form-control" rows="8" id="postText" ng-model="vm.post.body" placeholder="Skriv inlägg..."></textarea>
+				<textarea class="form-control" rows="8" id="postText" ng-model="vm.post.body" placeholder="{{ 'COMMENTS.POST' | translate }}..."></textarea>
 			</div>
-			<button ng-show="vm.postStatus == 0" class="btn btn-primary" ng-click="vm.savePost()">Skriv inlägg</button>
+			<button ng-show="vm.postStatus == 0" class="btn btn-primary" ng-click="vm.savePost()" translate="FORUM.SUBMIT"></button>
 			<button ng-show="vm.postStatus == 1" class="btn btn-primary disabled"><i class="fa fa-spinner fa-spin"></i></button>
 			<!--
 			<br />
@@ -26,14 +26,12 @@
 	</div>
 	<div class="clearfix"></div>
 	<div ng-show="vm.post.body.length > 0">
-		<h3 class="text-center">Live förhandsvisning av inlägg:</h3>
+		<h3 class="text-center" translate="FORUM.POST_LIVE_PREVIEW"></h3>
 		<posts posts="[vm.post]"></posts>
 	</div>
 	<br />
-	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" class="alert-warning" role="alert" type="danger" close="vm.closeAlert()" ng-show="vm.numberOfPages == vm.currentPage && $parent.vm.topic.locked == 'yes'">
-		Tråden är låst.
-	</div>
+	<div class="alert alert-danger col-sm-10 col-sm-push-1 text-center" class="alert-warning" role="alert" type="danger" close="vm.closeAlert()" ng-show="vm.numberOfPages == vm.currentPage && $parent.vm.topic.locked == 'yes'" translate="FORUM.THREAD_LOCKED"></div>
 	<topic-admin-panel topic="$parent.$parent.vm.topic" ng-if="vm.currentUser.class >= 8"></topic-admin-panel>
 </div>
 
-<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchPosts()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchPosts()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>

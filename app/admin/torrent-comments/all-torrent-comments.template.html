@@ -1,7 +1,7 @@
 <div class="text-center">
-	<h1>Alla torrentkommentarer</h1>
+	<h1 translate="TORRENTS.ALL_COMMENTS"></h1>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.comments.length == 0"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}" ng-hide="vm.comments.length == 0"></uib-pagination>
 
 	<loading-indicator hide="vm.comments"></loading-indicator>
 
@@ -9,5 +9,5 @@
 		<posts posts="vm.comments"></posts>
 	</div>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista" ng-hide="vm.comments.length == 0"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadComments()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}" ng-hide="vm.comments.length == 0"></uib-pagination>
 </div>

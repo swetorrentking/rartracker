@@ -1,20 +1,13 @@
 <div class="text-center">
-	<h1 class="block-center text-center">Invite</h1>
-	<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert">Du måste vara 'Skådis' för att kunna använda invite-systemet</div>
-	<div ng-show="vm.currentUser.inviteban == 1" class="alert alert-warning" role="alert">Du är bannad ifrån att kunna bjuda in användare.</div>
+	<h1 class="block-center text-center" translate="INVITE.TITLE"></h1>
+	<div ng-show="vm.currentUser.class < 2" class="alert alert-warning" role="alert" translate="GENERAL.PAGE_ACCESS_LIMIT" translate-value-class="Movie star"></div>
+	<div ng-show="vm.currentUser.inviteban == 1" class="alert alert-warning" role="alert" translate="INVITE.BANNED"></div>
 
-	<div ng-show="vm.currentUser.class > 0 && vm.currentUser.inviteban == 0">
+	<div ng-show="vm.currentUser.class > 1 && vm.currentUser.inviteban == 0">
 
 	<div class="panel panel-default col-sm-6 col-centered" style="padding: 0px;">
-		<div class="panel-heading">Regler</div>
-		<div class="panel-body">
-		1. Bjuder du in någon som missköter sig riskerar du förlora invite-möjligheten.
-		<br />
-		2. Endast användare från <b>skandinavien/norden</b> är tillåtna att bjuda in.
-
-		<br /><br />
-		<b>TLDR:</b> Bjud endast in personer du litar på.
-		</div>
+		<div class="panel-heading" translate="INVITE.RULES"></div>
+		<div class="panel-body" translate="INVITE.RULES_BODY"></div>
 	</div>
 
 	<input type="button" ng-click="vm.createInvite()" class="btn btn-default center-block btn-sm" value="{{ vm.createButtonText }}" ng-disabled="vm.timeLeft > 0" />
@@ -24,9 +17,9 @@
 	<div class="col-lg-8 col-centered" ng-show="vm.invites">
 		<table class="table table-striped table-hover">
 			<tr>
-				<th style="width: 150px;" class="text-left">Skapad</th>
-				<th class="text-left">Invite-länk</th>
-				<th style="width: 80px;" class="text-center">Radera</th>
+				<th style="width: 150px;" class="text-left" translate="LIST.CREATED"></th>
+				<th class="text-left" translate="INVITE.INVITE_URL"></th>
+				<th style="width: 80px;" class="text-center" translate="BUTTONS.DELETE"></th>
 			</tr>
 			<tr ng-repeat="invite in vm.invites">
 				<td class="alignMiddle">{{ ::invite.skapad }}</td>
@@ -37,6 +30,6 @@
 	</div>
 	<br />
 	<br />
-	<i>Oanvända invite-länkar blir inaktiva efter en vecka</i>
+	<i translate="INVITE.EXTRA_INFO"></i>
 </div>
 </div>

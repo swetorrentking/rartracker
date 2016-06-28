@@ -5,7 +5,7 @@
 		.module('app.requests')
 		.controller('RequestController', RequestController);
 
-	function RequestController($state, $stateParams, DeleteDialog, ErrorDialog, $uibModal, RequestsResource, $location, $anchorScroll, $timeout, user) {
+	function RequestController($translate, $state, $stateParams, DeleteDialog, ErrorDialog, $uibModal, RequestsResource, $location, $anchorScroll, $timeout, user) {
 
 		this.currentUser = user;
 		this.postStatus = 0;
@@ -51,7 +51,7 @@
 		};
 
 		this.delete = function () {
-			DeleteDialog('Radera request', 'Vill du radera requesten \''+this.request.request+'\'?', true)
+			DeleteDialog($translate.instant('REQUESTS.DELETE'), $translate.instant('REQUESTS.DELETE_CONFIRM', {name: this.request.request}), true)
 				.then((reason) => {
 					return RequestsResource.Requests.delete({ id: $stateParams.id, reason: reason }).$promise;
 				})

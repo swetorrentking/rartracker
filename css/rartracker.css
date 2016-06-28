@@ -344,6 +344,7 @@ th {
 	color: #ffffff;
     font-weight: bold;
     text-align: center;
+	white-space: nowrap;
 }
 
 td, th {

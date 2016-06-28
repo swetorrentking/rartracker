@@ -1,30 +1,30 @@
-<div class="row center-block" style="margin-top: 50px;">
+<div class="row center-block">
 
-	<h1 class="text-center">Glömt lösenord</h1>
+	<h1 class="text-center" translate="RECOVER.TITLE"></h1>
 
 	<div ng-show="vm.gotSecret">
 		<uib-alert type="{{alert.type}}" close="closeAlert()" ng-show="vm.alert != null">
 		 	<span ng-bind-html="vm.alert.msg | bbCode"></span>
 		</uib-alert>
 		<div class="text-center">
-			<button class="btn btn-default btn-xs" ui-sref="login()">Gå till inloggningen</button>
+			<button class="btn btn-default btn-xs" ui-sref="login()" translate="RECOVER.GO_TO_LOGIN"></button>
 		</div>
 	</div>
 	<div ng-hide="vm.gotSecret">
 		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 			<div class="panel panel-default">
-				<div class="panel-heading"><b>Email</b> (Metod 1)</div>
+				<div class="panel-heading" translate="RECOVER.METHOD_EMAIL"></div>
 				<div class="panel-body">
 					<form class="form-horizontal" role="form" ng-submit="vm.resetByEmail()">
 					<div class="form-group">
-						<label class="col-sm-4 control-label">E-mailadress</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.EMAIL"></label>
 						<div class="col-sm-8">
-							<input type="email" class="form-control" placeholder="E-mailadress"  ng-model="vm.credentials.email" required>
+							<input type="email" class="form-control" placeholder="{{ 'SIGNUP.EMAIL' | translate }}" ng-model="vm.credentials.email" required>
 						</div>
 					</div>
 					<div class="form-group last">
 						<div class="col-sm-offset-4 col-sm-8">
-							<button type="submit" class="btn btn-primary btn-md">Skicka bekräftelsemail</button>
+							<button type="submit" class="btn btn-primary btn-md" translate="RECOVER.SEND_CONFIRM_MAIL"></button>
 						</div>
 					</div>
 					</form>
@@ -37,24 +37,24 @@
 
 		<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
 			<div class="panel panel-default">
-				<div class="panel-heading"><b>Passkey</b> (Metod 2)</div>
+				<div class="panel-heading" translate="RECOVER.METHOD_PASSKEY"></div>
 				<div class="panel-body">
 					<form class="form-horizontal" role="form" ng-submit="vm.resetByPasskey()">
 					<div class="form-group">
-						<label class="col-sm-4 control-label">E-mailadress</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.EMAIL"></label>
 						<div class="col-sm-8">
-							<input type="email" class="form-control" placeholder="E-mailadress"  ng-model="vm.credentials.email" required>
+							<input type="email" class="form-control" placeholder="{{ 'SIGNUP.EMAIL' | translate }}" ng-model="vm.credentials.email" required>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Passkey</label>
+						<label class="col-sm-4 control-label" translate="RECOVER.PASSKEY"></label>
 						<div class="col-sm-8">
-							<input type="text" class="form-control" placeholder="Passkey" ng-model="vm.credentials.passkey" required>
+							<input type="text" class="form-control" placeholder="{{ 'RECOVER.PASSKEY' | translate }}" ng-model="vm.credentials.passkey" required>
 						</div>
 					</div>
 					<div class="form-group last">
 						<div class="col-sm-offset-4 col-sm-8">
-							<button type="submit" class="btn btn-primary btn-md">Begär nytt lösenord</button>
+							<button type="submit" class="btn btn-primary btn-md" translate="RECOVER.REQUEST_NEW_PASSWORD"></button>
 						</div>
 					</div>
 					</form>
@@ -66,11 +66,11 @@
 		</div>
 
 		<div class="panel panel-default col-sm-4 col-sm-push-4" style="padding: 0px;">
-			<div class="panel-heading"><b>IRC-support</b></div>
+			<div class="panel-heading"><b translate="RECOVER.IRC_SUPPORT"></b></div>
 			<div class="panel-body">
-			Server: <strong><a href="http://webchat.freequest.net/" target="_blank">irc.freequest.net</a></strong><br />
+			{{ 'RECOVER.SERVER' | translate }}: <strong><a href="http://webchat.freequest.net/" target="_blank">irc.freequest.net</a></strong><br />
 			<br />
-			Kanal: <strong>#rartracker.support</strong>
+			{{ 'RECOVER.CHANNEL' | translate }}: <strong>#rartracker</strong>
 			</div>
 		</div>
 	</div>

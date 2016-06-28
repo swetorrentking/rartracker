@@ -5,7 +5,7 @@
 		.module('app.shared')
 		.controller('UserController', UserController);
 
-	function UserController($stateParams, $state, ConfirmDialog, SendMessageDialog, FriendsResource, BlocksResource, BonusShopResource, ErrorDialog, UsersResource, authService, user) {
+	function UserController($stateParams, $translate, $state, ConfirmDialog, SendMessageDialog, FriendsResource, BlocksResource, BonusShopResource, ErrorDialog, UsersResource, authService, user) {
 
 		this.currentUser = user;
 
@@ -98,9 +98,8 @@
 		};
 
 		this.buyHeart = function () {
-			var dialog = ConfirmDialog('Köp hjärta till vän', 'Vill du spendera 25p på ett hjärta till \''+this.user.username+'\'?', true, 'Anledning:');
-
-			dialog.then((reason) => {
+			ConfirmDialog($translate.instant('USER.BUY_HEART'), $translate.instant('USER.BUY_HEART_BODY', {username: this.user.username}), true, $translate.instant('TORRENTS.REASON'))
+			.then((reason) => {
 				BonusShopResource.save({ id: 1, userId: this.user.id, motivation: reason }).$promise
 					.then(() => {
 						authService.statusCheck();
@@ -113,9 +112,8 @@
 		};
 
 		this.addFriend = function () {
-			var dialog = ConfirmDialog('Lägg till vän', 'Vill du lägga till \'' + this.user.username + '\' som vän?', true, 'Kommentar (valfritt):');
-
-			dialog.then((reason) => {
+			ConfirmDialog($translate.instant('USER.ADD_FRIEND'), $translate.instant('USER.ADD_FRIEND_BODY', {username: this.user.username}), true, $translate.instant('USER.OPTIONAL_COMMENT'))
+			.then((reason) => {
 				FriendsResource.save({friendid: this.user.id, comment: reason}).$promise
 					.then(() => {
 						$state.go('friends');
@@ -127,7 +125,7 @@
 		};
 
 		this.blockUser = function () {
-			var dialog = ConfirmDialog('Blockera användare', 'Vill du lägga till \'' + this.user.username + '\' på blocklistan?', true, 'Kommentar (valfritt):');
+			var dialog = ConfirmDialog($translate.instant('USER.BLOCK_USER'), $translate.instant('USER.BLOCK_USER_BODY', {username: this.user.username}), true, $translate.instant('USER.OPTIONAL_COMMENT'));
 
 			dialog.then((reason) => {
 				BlocksResource.save({blockid: this.user.id, comment: reason}).$promise

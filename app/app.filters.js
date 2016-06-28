@@ -3,19 +3,19 @@
 
 	angular
 		.module('app.shared')
-		.filter('prettysize', function () {
+		.filter('prettysize', function ($translate) {
 			return function (bytes) {
 				if (angular.isUndefined(bytes) || bytes === null) {
 					 return;
 				}
 				if (bytes < 1000 * 1024) {
-					return (bytes / 1024).toFixed(0) + ' KiB';
+					return (bytes / 1024).toFixed(0) + ' ' + $translate.instant('GENERAL.UNITS.KB');
 				} else if (bytes < 1000 * 1048576) {
-					return (bytes / 1048576).toFixed(0) + ' MiB';
+					return (bytes / 1048576).toFixed(0) + ' ' + $translate.instant('GENERAL.UNITS.MB');
 				} else if (bytes < 1000 * 1073741824) {
-					return (bytes / 1073741824).toFixed(2) + ' GiB';
+					return (bytes / 1073741824).toFixed(2) + ' ' + $translate.instant('GENERAL.UNITS.GB');
 				} else {
-					return (bytes / 1099511627776).toFixed(2) + ' TiB';
+					return (bytes / 1099511627776).toFixed(2) + ' ' + $translate.instant('GENERAL.UNITS.TB');
 				}
 			};
 		})
@@ -43,12 +43,12 @@
 				}
 			};
 		})
-		.filter('connectable', function ($sce) {
+		.filter('connectable', function ($sce, $translate) {
 			return function (connectable) {
 				if (connectable) {
-					return $sce.trustAsHtml('<span style="color:#008000;">Öppen</span>');
+					return $sce.trustAsHtml('<span style="color:#008000;">'+$translate.instant('GENERAL.OPEN')+'</span>');
 				} else {
-					return $sce.trustAsHtml('<span style="color:#800000;">Stängd</span>');
+					return $sce.trustAsHtml('<span style="color:#800000;">'+$translate.instant('GENERAL.CLOSED')+'</span>');
 				}
 			};
 		})
@@ -113,7 +113,7 @@
 				return timeDiff;
 			};
 		})
-		.filter('dateDifference', function (authService) {
+		.filter('dateDifference', function (authService, $translate) {
 			return function (startDate, endDate) {
 				if (startDate !== undefined) {
 					var date1 = new Date(typeof startDate == 'string' ? startDate.replace(/ /, 'T') + 'Z' : startDate);
@@ -131,37 +131,37 @@
 					weeks -= years * 52;
 
 					if (years > 0) {
-						return years + ' år';
+						return years + ' ' + (years > 1 ? $translate.instant('DATE.YEARS') : $translate.instant('DATE.YEAR'));
 					}
 
 					if (weeks === 1) {
-						return weeks + ' vecka';
+						return weeks + ' ' + $translate.instant('DATE.WEEK');
 					} else if (weeks > 1) {
-						return weeks + ' veckor';
+						return weeks + ' ' + $translate.instant('DATE.WEEKS');
 					}
 
 					if (days > 0) {
-						return days + ' dag' + (days > 1 ? 'ar' : '');
+						return days + ' ' + (days > 1 ? $translate.instant('DATE.DAYS') : $translate.instant('DATE.DAY'));
 					}
 
 					if (hours > 0) {
-						return hours + ' timm' + (hours > 1 ? 'ar' : 'e');
+						return hours + ' ' + (hours > 1 ? $translate.instant('DATE.HOURS') : $translate.instant('DATE.HOUR'));
 					}
 
 					if (minutes > 0) {
-						return minutes + ' min';
+						return minutes + ' ' + $translate.instant('DATE.MINUTES_SHORT');
 					}
 
-					return '<' + ' 1 min';
+					return '<' + ' 1 ' + $translate.instant('DATE.MINUTES_SHORT');
 				}
 			};
 		})
-		.filter('genderIcon', function ($sce) {
+		.filter('genderIcon', function ($sce, $translate) {
 			return function (gender) {
 				if (gender == 1) {
-					return $sce.trustAsHtml('<img src="/img/icons/man.gif" alt="Man" />');
+					return $sce.trustAsHtml('<img src="/img/icons/man.gif" alt="'+ $translate.instant('SIGNUP.GENDER_MAN') +'" />');
 				} else if (gender == 2) {
-					return $sce.trustAsHtml('<img src="/img/icons/woman.gif" alt="Kvinna" />');
+					return $sce.trustAsHtml('<img src="/img/icons/woman.gif" alt="'+ $translate.instant('SIGNUP.GENDER_WOMAN') +'" />');
 				}
 			};
 		})
@@ -212,16 +212,16 @@
 				return $sce.trustAsHtml(text);
 			};
 		})
-		.filter('reportType', function () {
+		.filter('reportType', function ($translate) {
 			return function (type) {
 				switch (type) {
-					case 'torrent':		return 'Torrent';
-					case 'post':		return 'Foruminlägg';
-					case 'request':		return 'Request';
-					case 'pm':			return 'Meddelande';
-					case 'comment':		return 'Kommentar';
-					case 'subtitle':	return 'Undertext';
-					case 'user':		return 'Användare';
+					case 'torrent':		return $translate.instant('TORRENTS.TORRENT');
+					case 'post':		return $translate.instant('ADMIN.FORUM_POSTS');
+					case 'request':		return $translate.instant('REQUESTS.TITLE_SINGLE');
+					case 'pm':			return $translate.instant('MAILBOX.MESSAGE');
+					case 'comment':		return $translate.instant('REQUESTS.COMMENT');
+					case 'subtitle':	return $translate.instant('TORRENTS.SWE_SUBTITLES');
+					case 'user':		return $translate.instant('TORRENTS.USER');
 				}
 			};
 		})
@@ -232,7 +232,7 @@
 				}
 			};
 		})
-		.filter('bbCode', function ($sce) {
+		.filter('bbCode', function ($sce, $translate) {
 
 			var smilies = {
 				':-)': 'smile1.gif',
@@ -486,19 +486,19 @@
 				text = text.replace(/\[img=([^\s'\"<>]+?)\]/gi,'<img border="0" src="$1" />');
 
 				// [imgw] Images resized [/imgw]
-				text = text.replace(/\[imgw\](http:\/\/[^\s'\"<>]+(\.(jpg|gif|png)))\[\/imgw\]/gi,'<img width="700" border="0" src="$1" /><br><font class=small>Bilden är förminskad, <b><a href="$1">Klicka här </a></b>för orginalstorlek!</font>');
+				text = text.replace(/\[imgw\](http:\/\/[^\s'\"<>]+(\.(jpg|gif|png)))\[\/imgw\]/gi,'<img width="700" border="0" src="$1" /><br><font class=small>' + $translate.instant('FORUM.IMAGE_RESIZED_CLICK') + '</font>');
 
 				// [imgw= Images resized ]
-				text = text.replace(/\[imgw=([^\s'\"<>]+?)\]/gi,'<img border="0" width="700" src="$1" /><br><font class=small>Bilden är förminskad, <b><a href="$1">Klicka här </a></b>för orginalstorlek!</font>');
+				text = text.replace(/\[imgw=([^\s'\"<>]+?)\]/gi,'<img border="0" width="700" src="$1" /><br><font class=small>' + $translate.instant('FORUM.IMAGE_RESIZED_CLICK') + '</font>');
 
 				// [quote] Quoted text [/quote]
-				text = text.replace(/\[quote\]([\S\s]+?)\[\/quote\]/g,'<b>Citat:</b><div class="quoted">$1</div>');
+				text = text.replace(/\[quote\]([\S\s]+?)\[\/quote\]/g,'<b>' + $translate.instant('FORUM.QUOTED') + ':</b><div class="quoted">$1</div>');
 
 				// [quote=Name] Quoted text by Name [/quote]
-				text = text.replace(/\[quote=(.*?)\]([\S\s]+?)\[\/quote\]/g,'<b>$1 skrev:</b><div class="quoted">$2</div>');
+				text = text.replace(/\[quote=(.*?)\]([\S\s]+?)\[\/quote\]/g,'<b>$1 ' + $translate.instant('MAILBOX.WROTE') + '</b><div class="quoted">$2</div>');
 
 				// [spoiler] Quoted text [/spoiler]
-				text = text.replace(/\[spoiler\]([\S\s]+?)\[\/spoiler\]/g,'<b>Spoiler (markera texten för att se):</b><div class="quoted" style="color: #FFF;">$1</div>');
+				text = text.replace(/\[spoiler\]([\S\s]+?)\[\/spoiler\]/g,'<b>' + $translate.instant('FORUM.SPOILER_TAG') + '</b><div class="quoted" style="color: #FFF;">$1</div>');
 
 				// [video] Underline [/video]
 				text = text.replace(/\[video=(?:https:\/\/)?(?:www\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=)?(.+)\]/g,'<iframe width="600" height="400" src="https://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>');

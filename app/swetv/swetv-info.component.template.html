@@ -4,7 +4,7 @@
 			<h2>{{ ::vm.torrent.tv_program }}</h2>
 			<b>{{ ::vm.torrent.tv_episode }}</b>
 			<br />
-			Sändes: <b>{{ vm.torrent.tv_klockslag*1000 | date:'HH:mm' }}</b>
+			{{ 'TV.AIRED' | translate }}: <b>{{ vm.torrent.tv_klockslag*1000 | date:'HH:mm' }}</b>
 			<br />
 			<br />
 			{{ ::vm.torrent.tv_info }}

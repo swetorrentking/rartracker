@@ -27,7 +27,7 @@ class MovieData {
 
 	public function getDataByImdbId($id) {
 		if (preg_match('/[^t0-9]/', $id, $match)) {
-			throw new Exception('Inget giltigt IMDb-id');
+			throw new Exception(L::get("MOVIE_ID_INVALID"));
 		}
 
 		$sth = $this->db->prepare("SELECT * FROM imdbinfo WHERE imdbid = ?");
@@ -94,7 +94,7 @@ class MovieData {
         curl_close($ch);
 
 		if (!$data) {
-			throw new Exception('Kunde inte hämta IMDB info ifrån servern.');
+			throw new Exception(L::get("MOVIE_FETCH_ERROR"));
 		}
 
 		/* GENRE */
@@ -238,7 +238,7 @@ class MovieData {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Finns ingen filmdata med detta id.', 404);
+			throw new Exception(L::get("MOVIE_NOT_FOUND"), 404);
 		}
 
 		$url = 'http://akas.imdb.com/title/'.$res["imdbid"].'/';
@@ -288,10 +288,10 @@ class MovieData {
 
 	public function updateYoutube($id, $youtubeId) {
 		if ($this->user->getClass() < User::CLASS_ADMIN && strlen($youtubeId) == 0) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
-		if ($this->user->getClass() < User::CLASS_REGISSAR) {
-			throw new Exception("Du saknar rättigheter.", 401);
+		if ($this->user->getClass() < User::CLASS_DIRECTOR) {
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("UPDATE imdbinfo SET youtube_id = ? WHERE id = ?");
 		$sth->bindParam(1,	$youtubeId,		PDO::PARAM_STR);
@@ -301,7 +301,7 @@ class MovieData {
 
 	public function updateImdbToplist () {
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
 		$data = file_get_contents("http://akas.imdb.com/boxoffice/rentals");

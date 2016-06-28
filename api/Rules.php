@@ -17,7 +17,7 @@ class Rules {
 
 	public function create($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 	 	$sth = $this->db->prepare("INSERT INTO rules(title, text) VALUES(?, ?)");
@@ -28,7 +28,7 @@ class Rules {
 
 	public function update($id, $postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 	 	$sth = $this->db->prepare("UPDATE rules SET title = ?, text = ? WHERE id = ?");
 		$sth->bindParam(1, $postdata["title"],		PDO::PARAM_STR);
@@ -39,7 +39,7 @@ class Rules {
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 	 	$sth = $this->db->prepare("DELETE FROM rules WHERE id = ?");
 		$sth->bindParam(1, $id,	PDO::PARAM_INT);

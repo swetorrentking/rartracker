@@ -9,12 +9,12 @@
 				torrentCategory: '<',
 				movieData: '<'
 			},
-			template: `<button ng-class="{'disabled': vm.watching}" class="btn btn-default btn-xs" ng-click="vm.addWatch()"><i class="fa fa-eye"></i> Bevakning</button> <i ng-bind-html="vm.getWatchInformation() | bbCode"></i>`,
+			template: `<button ng-class="{'disabled': vm.watching}" class="btn btn-default btn-xs" ng-click="vm.addWatch()"><i class="fa fa-eye"></i> {{ 'WATCHER.TITLE' | translate }}</button> <i ng-bind-html="vm.getWatchInformation() | bbCode"></i>`,
 			controller: WatchButtonController,
 			controllerAs: 'vm'
 		});
 
-	function WatchButtonController(authService, WatchDialog, UsersResource, categories) {
+	function WatchButtonController($translate, authService, WatchDialog, UsersResource, categories) {
 
 		this.$onInit = function () {
 			this.user = authService.getUser();
@@ -48,11 +48,11 @@
 			if (!this.watching) {
 				return;
 			}
-			var string = 'Du bevakar';
+			var string = $translate.instant('WATCHER.WATCHING_STR_1');
 			if (this.watching.typ === 1) {
-				string += ' nya avsnitt av denna serien';
+				string += $translate.instant('WATCHER.WATCHING_NEW_TV');
 			} else {
-				string += ' denna film';
+				string += $translate.instant('WATCHER.WATCHING_MOVIE');
 			}
 			var format;
 			if (typeof this.watching.format === 'number') {
@@ -62,10 +62,10 @@
 			}
 
 			var formats = format.map(cat => this.getCatName(cat)).join(', ');
-			string += ' i formaten [b]' + formats + '[/b]';
+			string += $translate.instant('WATCHER.WATCHING_FORMATS', {formats: formats});
 
 			if (this.watching.swesub === true) {
-				string += ' med [b]Svensk text[/b]';
+				string += $translate.instant('WATCHER.WATCHING_WITH_SUBS');
 			}
 			string += '.';
 			return string;

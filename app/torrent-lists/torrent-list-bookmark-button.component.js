@@ -8,7 +8,7 @@
 				torrentList: '=',
 				small: '@'
 			},
-			template: `<button ng-click="vm.create()" ng-disabled="vm.currentUser.id === vm.torrentList.user.id" class="btn btn-default btn-sm" ng-class="{'active': vm.torrentList.bookmarked}"><i class="fa fa-bookmark"></i><span ng-show="vm.small != 'true'"> Bokmärk</span></button>`,
+			template: `<button ng-click="vm.create()" ng-disabled="vm.currentUser.id === vm.torrentList.user.id" class="btn btn-default btn-sm" ng-class="{'active': vm.torrentList.bookmarked}"><i class="fa fa-bookmark"></i><span ng-show="vm.small != 'true'"> {{ 'TORRENTS.BOOKMARK' | translate }}</span></button>`,
 			controller: TorrentListBookmarkButtonController,
 			controllerAs: 'vm'
 		});

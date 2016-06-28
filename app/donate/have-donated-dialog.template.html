@@ -1,19 +1,19 @@
 <div class="modal-header text-center">
-	<h2 class="modal-title">Jag har donerat!</h2>
+	<h2 class="modal-title" translate="DONATE.I_HAVE_DONATED"></h2>
 </div>
 <div class="modal-body">
 	<table class="table">
 		<tr>
-			<td class="tdBold text-left" style="width: 175px;">Donerad summa</td>
+			<td class="tdBold text-left" style="width: 175px;" translate="DONATE.SUM"></td>
 			<td>
 				<div class="input-group">
-					<input type="text" class="form-control" ng-model="vm.settings.sum" placeholder="Summa" />
-					<div class="input-group-addon">SEK</div>
+					<input type="text" class="form-control" ng-model="vm.settings.sum" placeholder="{{ 'DONATE.SUM' | translate }}" />
+					<div class="input-group-addon" ng-bind="vm.currency"></div>
 				</div>
 			</td>
 		</tr>
 		<tr>
-			<td class="tdBold text-left">Typ</td>
+			<td class="tdBold text-left" translate="TORRENTS.TYPE"></td>
 			<td>
 				<div class="btn-group">
 					<label class="btn btn-default" ng-model="vm.settings.type" uib-btn-radio="2">Bitcoin</label>
@@ -24,26 +24,26 @@
 		</tr>
 		<tr ng-show="vm.settings.type == 1">
 			<td class="tdBold text-left">Paysafe PIN</td>
-			<td><input type="text" class="form-control" ng-model="vm.settings.pin" placeholder="16 siffror PIN" /></td>
+			<td><input type="text" class="form-control" ng-model="vm.settings.pin" placeholder="16 PIN numbers" /></td>
 		</tr>
 		<tr>
-			<td class="tdBold text-left">Guldstjärna</td>
+			<td class="tdBold text-left" translate="DONATE.GOLDSTAR"></td>
 			<td>
 				<div class="btn-group">
-					<label class="btn btn-default" ng-model="vm.settings.goldstar" uib-btn-radio="1">Ja</label>
-					<label class="btn btn-default" ng-model="vm.settings.goldstar" uib-btn-radio="0">Nej</label>
+					<label class="btn btn-default" ng-model="vm.settings.goldstar" uib-btn-radio="1" translate="BUTTONS.YES"></label>
+					<label class="btn btn-default" ng-model="vm.settings.goldstar" uib-btn-radio="0" translate="BUTTONS.NO"></label>
 				</div>
 			</td>
 		</tr>
 		<tr>
-			<td class="tdBold text-left">Meddelande (valfritt)</td>
-			<td><textarea ng-model="vm.settings.comment" class="form-control"></textarea></td>
+			<td class="tdBold text-left" translate="DONATE.MESSAGE"></td>
+			<td><textarea ng-model="vm.settings.comment" class="form-control" placeholder="{{ 'DONATE.MESSAGE' | translate }}"></textarea></td>
 		</tr>
 	</table>
 </div>
 <div class="modal-footer">
 	<div class="button-group text-center">
-		<button class="btn btn-success" ng-disabled="vm.submitDisabled" ng-click="vm.confirm()">Skicka in</button>
-		<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+		<button class="btn btn-success" ng-disabled="vm.submitDisabled" ng-click="vm.confirm()" translate="DONATE.SEND"></button>
+		<button class="btn btn-default" ng-click="vm.cancel()" translate="BUTTONS.ABORT"></button>
 	</div>
 </div>

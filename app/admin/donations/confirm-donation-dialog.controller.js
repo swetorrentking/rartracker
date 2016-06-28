@@ -5,7 +5,7 @@
 		.module('app.admin')
 		.controller('ConfirmDonationController', ConfirmDonationController);
 
-	function ConfirmDonationController($uibModalInstance, $timeout, donation, MailboxResource, UsersResource, ErrorDialog, DonationsResource) {
+	function ConfirmDonationController($uibModalInstance, $translate, $timeout, donation, MailboxResource, UsersResource, ErrorDialog, DonationsResource) {
 		donation.sum = parseInt(donation.sum, 10);
 
 		this.donation = donation;
@@ -17,12 +17,12 @@
 		this.message = {
 			systemMessage: true,
 			receiver: donation.user.id,
-			body: 'Tack så mycket [b]' + this.donation.user.username + '[/b] för din donation på [b]' + this.donation.sum + ' SEK![/b].\nDu har belönats med [b]' + this.donation.gb +' GB[/b] uppladdat och [b]' + this.donation.bonus + ' bonuspoäng[/b].\n\n:thankyou:',
-			subject: 'Bekräftelse på donation'
+			body: '',
+			subject: $translate.instant('ADMIN.CONFIRM_DONATE_SUBJECT')
 		};
 
 		this.updateMessageBody = function () {
-			this.message.body = 'Tack så mycket [b]' + this.donation.user.username +'[/b] för din donation på [b]' + this.donation.sum + ' SEK![/b].\nDu har belönats med [b]' + this.donation.gb +' GB[/b] uppladdat och [b]' + this.donation.bonus + ' bonuspoäng[/b].\n\n:thankyou:';
+			this.message.body = $translate.instant('ADMIN.CONFIRM_DONATE_BODY', {username: this.donation.user.username, sum: this.donation.sum, gb: this.donation.gb, bonus: this.donation.bonus});
 		};
 
 		this.send = function () {
@@ -61,6 +61,8 @@
 		this.cancel = function () {
 			$uibModalInstance.dismiss();
 		};
+
+		this.updateMessageBody();
 
 	}
 })();

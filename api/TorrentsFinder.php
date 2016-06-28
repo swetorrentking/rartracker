@@ -9,7 +9,7 @@ class TorrentsFinder {
 
 	public function getTorrents($get) {
 		if (!preg_match("/^[a-z0-9]{32}$/", $get["passkey"])) {
-			throw new Exception("Invalid passkey.", 401);
+			throw new Exception(L::get("TORRENTS_FINDER_INVALID_PASSKEY"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT id FROM users WHERE passkey = ? AND enabled = "yes"');
@@ -17,7 +17,7 @@ class TorrentsFinder {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception("User not found or disabled.", 401);
+			throw new Exception(L::get("USER_NOT_FOUND_ERROR"), 401);
 		}
 
 		$userid = $res["id"];
@@ -25,7 +25,7 @@ class TorrentsFinder {
 		$torrents = json_decode($get["torrents"]);
 
 		if (!is_array($torrents)) {
-			throw new Exception("Param 'torrents' is not an array.", 400);
+			throw new Exception(L::get("TORRENTS_FINDER_PARAMETER_ERROR"), 400);
 		}
 
 		$resultArray = array();

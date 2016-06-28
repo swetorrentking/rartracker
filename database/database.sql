@@ -548,7 +548,6 @@ CREATE TABLE IF NOT EXISTS `shop` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(20) NOT NULL DEFAULT '',
   `description` text NOT NULL,
-  `shopfil` varchar(100) NOT NULL DEFAULT '',
   `price` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
@@ -889,6 +888,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `uplLastReadCommentId` int(11) NOT NULL DEFAULT '0',
   `search_sort` enum('name','added') NOT NULL DEFAULT 'name',
   `section` enum('all','new','archive') NOT NULL DEFAULT 'all',
+  `language` VARCHAR(2) NOT NULL DEFAULT 'en',
   `p2p` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
@@ -905,17 +905,17 @@ CREATE TABLE IF NOT EXISTS `users` (
 INSERT INTO `settings` (`arg`, `value_s`, `value_i`) VALUES
 ('peers_rekord', '', 0);
 
-INSERT INTO `users` (`id`, `username`, `old_password`, `passhash`, `secret`, `email`, `added`, `last_login`, `last_access`, `info`, `acceptpms`, `ip`, `class`, `avatar`, `uploaded`, `lastweekupload`, `downloaded`, `downloaded_real`, `title`, `country`, `notifs`, `modcomment`, `enabled`, `avatars`, `donor`, `warned`, `warneduntil`, `torrentsperpage`, `topicsperpage`, `anonym`, `postsperpage`, `anonymratio`, `anonymicons`, `reqslots`, `passkey`, `last_browse`, `last_reqbrowse`, `last_tvbrowse`, `last_seriebrowse`, `last_ovrigtbrowse`, `last_allbrowse`, `last_bevakabrowse`, `invites`, `invited_by`, `bonuspoang`, `leechbonus`, `leechstart`, `randomcheck`, `doljuploader`, `softbet`, `forumban`, `parkerad`, `uptime`, `forum_access`, `isp`, `mbitupp`, `mbitner`, `alder`, `gender`, `torrentip`, `skull`, `crown`, `pokal`, `coin`, `hearts`, `inviteban`, `muptime`, `nytt_seed`, `arkiv_seed`, `browser`, `operativ`, `indexlist`, `uploadban`, `css`, `design`, `tvvy`, `https`, `magnet`, `lastreadnews`, `uplLastReadCommentId`, `search_sort`, `section`, `p2p`) VALUES
-(1, 'System', '', '$2y$08$uxL463WTmJHaLvSVNlr9A.OoVevHeczC98U3QeKVB1fgh03V7O/ue', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 'name', 'all', 0);
+INSERT INTO `users` (`id`, `username`, `old_password`, `passhash`, `secret`, `email`, `added`, `last_login`, `last_access`, `info`, `acceptpms`, `ip`, `class`, `avatar`, `uploaded`, `lastweekupload`, `downloaded`, `downloaded_real`, `title`, `country`, `notifs`, `modcomment`, `enabled`, `avatars`, `donor`, `warned`, `warneduntil`, `torrentsperpage`, `topicsperpage`, `anonym`, `postsperpage`, `anonymratio`, `anonymicons`, `reqslots`, `passkey`, `last_browse`, `last_reqbrowse`, `last_tvbrowse`, `last_seriebrowse`, `last_ovrigtbrowse`, `last_allbrowse`, `last_bevakabrowse`, `invites`, `invited_by`, `bonuspoang`, `leechbonus`, `leechstart`, `randomcheck`, `doljuploader`, `softbet`, `forumban`, `parkerad`, `uptime`, `forum_access`, `isp`, `mbitupp`, `mbitner`, `alder`, `gender`, `torrentip`, `skull`, `crown`, `pokal`, `coin`, `hearts`, `inviteban`, `muptime`, `nytt_seed`, `arkiv_seed`, `browser`, `operativ`, `indexlist`, `uploadban`, `css`, `design`, `tvvy`, `https`, `magnet`, `lastreadnews`, `uplLastReadCommentId`, `search_sort`, `section`, `language`, `p2p`) VALUES
+(1, 'System', '', '$2y$08$uxL463WTmJHaLvSVNlr9A.OoVevHeczC98U3QeKVB1fgh03V7O/ue', '', '', '2015-10-31 16:16:27', '2015-10-31 16:16:27', '2015-10-31 16:25:31', '', 'yes', '123.123.123.123', 8, '', 0, 0, 0, 0, '', 0, '', '', 'yes', 'yes', 'no', 'no', '0000-00-00 00:00:00', 0, 0, 'no', 0, 'no', 'no', 1, '', 1446304880, 0, 0, 0, 0, 0, 0, 9, NULL, 0, 0, '0000-00-00 00:00:00', 0, 8, 0, 0, 1, 0, '0000-00-00 00:00:00', '', 0, 0, 0, 0, '0.0.0.0.0', 0, 0, 0, 0, 0, 0, 240, 0, 0, '', '', '1, 141', 'no', '', 0, 0, 0, 0, 0, 0, 'name', 'all', 'en', 0);
 
 INSERT INTO `forumheads` (`id`, `sort`, `name`, `minclassread`) VALUES
 (1, 0, 'Rartracker', 0);
 
 INSERT INTO `forums` (`sort`, `id`, `forumhead`, `name`, `description`, `minclassread`, `minclasswrite`, `postcount`, `topiccount`, `minclasscreate`) VALUES
-(1, 1, 1, 'Rartracker', 'Diskutera allt som rör trackern.', 0, 0, 0, 0, 0),
-(0, 2, 1, 'Staff', 'Forumet för staff', 8, 8, 0, 0, 8),
-(2, 3, 1, 'Omröstningar', 'Diskutera omröstningen på startsidan. ', 0, 0, 1, 1, 8),
-(3, 4, 1, 'Förslag', 'Här diskuteras alla förslag och idéer.', 0, 0, 0, 0, 0);
+(1, 1, 1, 'Rartracker', 'Discuss everything about this tracker.', 0, 0, 0, 0, 0),
+(0, 2, 1, 'Staff', 'The Staff forum.', 8, 8, 0, 0, 8),
+(2, 3, 1, 'Polls', 'Discuss the front page polls.', 0, 0, 1, 1, 8),
+(3, 4, 1, 'Suggestions', 'Discuss all suggestions and ideas.', 0, 0, 0, 0, 0);
 
 INSERT INTO `customindex` (`id`, `tid`, `typ`, `format`, `sektion`, `sort`, `genre`) VALUES
 (1, 1, 0, 1, 0, 2, ''),
@@ -925,14 +925,14 @@ INSERT INTO `customindex` (`id`, `tid`, `typ`, `format`, `sektion`, `sort`, `gen
 (141, 1, 1, 1, 0, 2, ''),
 (163, 2, 1, 2, 0, 2, '');
 
-INSERT INTO `shop` (`id`, `name`, `description`, `shopfil`, `price`) VALUES
-(1, 'HJÄRTA', 'Skicka ett hjärtan till en vän för att visa uppmärksamhet eller tacksamhet. Hjärtan syns på profilen.', 'shop_heart.php', 25),
-(2, '+1 REQUEST SLOT', 'Trött på att bara kunna ha 1 aktiv request ute samtidigt? Spendera då 50p på ytterligare 1 requestslot!', 'shop_req.php', 50),
-(3, '-10GB', 'Lite taskig ratio? Köp bort 10GB från din mängd Nerladdat så känns det genast bättre!', 'shop_gb.php', 75),
-(4, '-10GB PÅ KOMPIS', 'Hjälp en kompis på traven genom att köpa bort 10GB från personens mängd Nerladdat.', 'shop_gb2.php', 75),
-(6, '+1 INVITE', 'Med en invite kan du bjuda in någon du känner till sidan.', 'shop_invite.php', 50),
-(8, 'CUSTOM TITLE', 'Din custom titel syns efter ditt namn i forum, kommentarer istället för exempelvis (Skådis).', 'shop_ct.php', 300),
-(10, 'IKON - KRONA', 'Vill du ha lite extra status kan du köpa en extra ikon brevid ditt nick som syns överallt.', 'shop_crown.php', 1000);
+INSERT INTO `shop` (`id`, `name`, `description`, `price`) VALUES
+(1, 'HEART', 'Send a heart to a friend to show appreciation. Hearts are visible on the user profile.', 25),
+(2, '+1 REQUEST SLOT', 'Tired of just one active request? Buy additional slots!', 50),
+(3, '-10GB', 'Bad ratio? Buy away from your download.', 75),
+(4, '-10GB FROM FRIEND', 'Help a friend by buying away 10GB from that persons downloaded.', 75),
+(6, '+1 INVITE', 'With invites you can invite someone you know to become member on the site.', 50),
+(8, 'CUSTOM TITLE', 'The custom title are displayed after your name everywhere instead of your class.', 300),
+(10, 'ICON - CROWN', 'If you want som extra status you can buy this fancy icon which will be visible everywhere after your username.', 1000);
 
 INSERT INTO `tv_kanaler` (`id`, `xmlid`, `namn`, `pic`, `visible`, `priority`) VALUES
 (1, 'action.canalplus.se', 'Canal+ Action', '', 0, 1),

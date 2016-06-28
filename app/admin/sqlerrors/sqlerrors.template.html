@@ -1,13 +1,13 @@
 <div class="text-center">
-	<h1>SQL fellogg</h1>
+	<h1 translate="ADMIN.SQL_LOG"></h1>
 
 	<loading-indicator hide="vm.logs"></loading-indicator>
 
 	<table class="table" ng-show="vm.logs">
 		<tr>
-			<th style="width: 200px;">Datum</th>
-			<th style="width: 125px;">Användare</th>
-			<th class="text-left">Händelse</th>
+			<th style="width: 200px;" translate="TORRENTS.DATE"></th>
+			<th style="width: 125px;" translate="TORRENTS.USER"></th>
+			<th class="text-left" translate="LOG.EVENT"></th>
 		</tr>
 		<tr ng-repeat="log in vm.logs">
 			<td>{{ ::log.added }}</td>
@@ -16,6 +16,6 @@
 		</tr>
 	</table>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getLogs()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 </div>

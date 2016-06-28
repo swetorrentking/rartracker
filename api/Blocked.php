@@ -25,7 +25,7 @@ class Blocked implements IResource {
 	public function create($postdata) {
 		$myEnemy = $this->user->get($postdata["blockid"]);
 		if (!$myEnemy) {
-			throw new Exception('Användaren finns inte.');
+			throw new Exception(L::get("USER_NOT_EXIST"));
 		}
 
 		$sth = $this->db->prepare('SELECT 1 FROM blocks WHERE userid = ? AND blockid = ?');
@@ -33,7 +33,7 @@ class Blocked implements IResource {
 		$sth->bindParam(2, $myEnemy["id"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
-			throw new Exception('Användaren är redan blockerad.');
+			throw new Exception(L::get("USER_ALREADY_BLOCKED"));
 		}
 
 		$sth = $this->db->prepare("INSERT INTO blocks(userid, blockid, comment) VALUES(?, ?, ?)");
@@ -46,7 +46,7 @@ class Blocked implements IResource {
 	public function delete($id, $postdata = "") {
 		$block = $this->get($id);
 		if ($block["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera denna blockering.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM blocks WHERE id = ' . $block["id"]);
 	}
@@ -57,7 +57,7 @@ class Blocked implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Blockeringen finns inte.');
+			throw new Exception(L::get("BLOCK_NOT_EXIST"));
 		}
 		return $res;
 	}

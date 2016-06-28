@@ -1,41 +1,41 @@
 <div class="text-left">
 	<div class="modal-header">
 		<h2 class="modal-title text-center">
-			<span ng-hide="vm.faq.id">Skapa ny FAQ</span>
-			<span ng-show="vm.faq.id">Redigera FAQ</span>
+			<span ng-hide="vm.faq.id" translate="FAQ.CREATE_NEW"></span>
+			<span ng-show="vm.faq.id" translate="FAQ.EDIT"></span>
 		</h2>
 	</div>
 	<div class="modal-body">
 		<form role="form">
 			<div class="form-group">
-				<label>Typ</label>
+				<label translate="FAQ.TYPE"></label>
 				<select ng-disabled="vm.hasChildren" ng-change="vm.typeChanged()" class="form-control" ng-model="vm.faq.type" ng-options="item.id as item.name for item in vm.typeOptions"></select>
 			</div>
 			<div class="form-group" ng-show="vm.faq.type == 'item'">
-				<label>Kopplad till huvudkategori</label>
+				<label translate="FAQ.MAIN_CATEGORY_LINK"></label>
 				<select class="form-control" ng-model="vm.faq.categ" ng-options="i.id as i.question for i in vm.faqList"></select>
 			</div>
 			<div class="form-group">
-				<label>Status</label>
+				<label translate="FAQ.STATUS"></label>
 				<select class="form-control" ng-model="vm.faq.flag" ng-options="vm.toInt(key) as value for (key, value) in vm.options"></select>
 			</div>
 			<div class="form-group">
-				<label>Titel</label>
-				<input type="text" class="form-control" placeholder="Rubrik" ng-model="vm.faq.question" />
+				<label translate="FAQ.TITLE"></label>
+				<input type="text" class="form-control" placeholder="{{ 'FAQ.TITLE' | translate }}" ng-model="vm.faq.question" />
 			</div>
 			<div ng-show="vm.faq.type == 'item'" class="form-group">
-				<label>Text</label>
-				<textarea class="form-control" rows="8" id="postText" ng-model="vm.faq.answer" placeholder="Skriv text..." ></textarea>
+				<label translate="FAQ.TEXT"></label>
+				<textarea class="form-control" rows="8" id="postText" ng-model="vm.faq.answer" placeholder="{{ 'FAQ.TEXT_PLACEHOLDER' | translate }}" ></textarea>
 			</div>
 		</form>
 	</div>
 	<div class="modal-footer">
 		<div class="button-group text-center">
 			<button class="btn btn-primary" ng-click="vm.create()">
-				<span ng-hide="vm.faq.id">Skapa ny FAQ-post</span>
-				<span ng-show="vm.faq.id">Spara ändringar</span>
+				<span ng-hide="vm.faq.id" translate="FAQ.CREATE_NEW"></span>
+				<span ng-show="vm.faq.id" translate="TORRENTS.SAVE_CHANGES"></span>
 			</button>
-			<button class="btn btn-default" ng-click="vm.cancel()">Avbryt</button>
+			<button class="btn btn-default" ng-click="vm.cancel()" translate="BUTTONS.ABORT"></button>
 		</div>
 	</div>
 </div>

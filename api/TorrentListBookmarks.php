@@ -15,7 +15,7 @@ class TorrentListBookmarks implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception('Bokmärket finns inte.');
+			throw new Exception(L::get("TORRENT_LISTS_BOOKMARKS_NOT_FOUND"), 404);
 		}
 		return $res;
 	}
@@ -23,12 +23,13 @@ class TorrentListBookmarks implements IResource {
 	public function query($postdata) {
 		$limit = (int)$postdata["limit"] ?: 10;
 		$index = (int)$postdata["index"] ?: 0;
-		$sth = $this->db->query('SELECT '.implode(',', User::getDefaultFields()).', torrent_list_bookmarks.torrent_list AS listId, imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, torrent_lists.* FROM torrent_list_bookmarks LEFT JOIN torrent_lists ON torrent_list_bookmarks.torrent_list = torrent_lists.id LEFT JOIN users ON torrent_lists.userid = users.id LEFT JOIN imdbinfo ON torrent_lists.imdbid = imdbinfo.id WHERE torrent_list_bookmarks.userid = '.$this->user->getId().' ORDER BY torrent_lists.id DESC');
+		$sth = $this->db->query('SELECT '.implode(',', User::getDefaultFields()).', torrent_list_bookmarks.torrent_list AS listId, torrent_list_bookmarks.id AS bookmarkId, imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, torrent_lists.* FROM torrent_list_bookmarks LEFT JOIN torrent_lists ON torrent_list_bookmarks.torrent_list = torrent_lists.id LEFT JOIN users ON torrent_lists.userid = users.id LEFT JOIN imdbinfo ON torrent_lists.imdbid = imdbinfo.id WHERE torrent_list_bookmarks.userid = '.$this->user->getId().' ORDER BY torrent_lists.id DESC');
 
 		$result = array();
 		while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$arr = array();
 			$arr["id"] = $row["listId"];
+			$arr["bookmarkId"] = $row["bookmarkId"];
 			$arr["added"] = $row["added"];
 			$arr["description"] = $row["description"];
 			$arr["name"] = $row["name"];
@@ -51,7 +52,7 @@ class TorrentListBookmarks implements IResource {
 		$data = $sth->fetch();
 		if (!$data) {
 			if ($data["userid"] === $this->user->getId()) {
-				throw new Exception("Du får inte bokmärka din egna lista.", 401);
+				throw new Exception(L::get("TORRENT_LISTS_BOOKMARK_OWN_LIST_ERROR"), 401);
 			}
 			$sth = $this->db->prepare("INSERT INTO torrent_list_bookmarks(userid, torrent_list) VALUES(?, ?)");
 			$sth->bindValue(1, $this->user->getId(), PDO::PARAM_INT);
@@ -69,7 +70,7 @@ class TorrentListBookmarks implements IResource {
 	public function delete($id, $postdata = null) {
 		$bookmark = $this->get($id);
 		if ($bookmark["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera bokmärket');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM torrent_list_bookmarks WHERE id = ' . $bookmark["id"]);
 	}

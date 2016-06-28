@@ -2,10 +2,10 @@
 	<tr>
 		<th style="width: 200px;">&nbsp;</th>
 		<th class="text-left">&nbsp;</th>
-		<th class="hidden-xs" style="width: 50px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'votes'})">Rösta</a></th>
-		<th class="text-left" ng-if="vm.colBookmark == 'true'" style="width: 75px;">Bokmärk</th>
-		<th class="hidden-sm hidden-xs" style="width: 150px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'added'})">Skapad</a></th>
-		<th class="text-left hidden-sm hidden-xs" style="width: 200px;">Skapare</th>
+		<th class="hidden-xs" style="width: 50px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'votes'})" translate="LIST.VOTE"></a></th>
+		<th class="text-left" ng-if="vm.colBookmark == 'true'" style="width: 75px;" translate="TORRENTS.BOOKMARK"></th>
+		<th class="hidden-sm hidden-xs" style="width: 150px;"><a class="whiteLink" href="" ng-click="vm.onSort({sort: 'added'})" translate="LIST.CREATED"></a></th>
+		<th class="text-left hidden-sm hidden-xs" style="width: 200px;" translate="LIST.CREATOR"></th>
 		<th style="width: 80px;" ng-if="vm.colDelete == 'true'"><i class="fa fa-trash-o"></i></th>
 	</tr>
 	<tr ng-repeat="torrentList in vm.torrentLists track by torrentList.id">
@@ -22,7 +22,7 @@
 		<td class="vert-align hidden-sm hidden-xs">{{ ::torrentList.added }}</td>
 		<td class="vert-align hidden-sm hidden-xs text-left"><user user="::torrentList.user"></user></td>
 		<td class="vert-align" ng-if="vm.colDelete == 'true'" style="width: 50px;">
-			<button ng-click="vm.onDelete({torrentList:torrentList})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> Ta bort</button>
+			<button ng-click="vm.onDelete({torrentList:torrentList})" class="btn btn-default btn-xs"><i class="fa fa-trash-o"></i> {{ 'BUTTONS.ERASE' | translate }}</button>
 		</td>
 	</tr>
 </table>

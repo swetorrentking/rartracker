@@ -1,7 +1,7 @@
 <div class="text-center">
-	<h1>Omröstningar</h1>
+	<h1>{{ 'POLL.TITLE' | translate }}</h1>
 	<div class="text-center" style="margin-bottom: 10px;" ng-if="vm.currentUser.class >= 8">
-		<button ng-click="vm.create()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa ny omröstning</button>
+		<button ng-click="vm.create()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> {{ 'POLL.CREATE' | translate }}</button>
 	</div>
 	<loading-indicator hide="vm.polls"></loading-indicator>
 
@@ -11,7 +11,7 @@
 
 	<br style="clear: both;" />
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getPolls()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.getPolls()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 	<br />
 </div>

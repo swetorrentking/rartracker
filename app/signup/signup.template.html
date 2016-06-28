@@ -1,43 +1,41 @@
 <div class="row center-block">
 	<loading-indicator hide="vm.valid > 0"></loading-indicator>
-	<uib-alert type="danger" ng-show="vm.valid == 2">
-		Inbjudningen är ogiltig eller har utgått.
-	</uib-alert>
+	<uib-alert type="danger" ng-show="vm.valid == 2">{{ 'SIGNUP.INVALID_CODE' | translate }}</uib-alert>
 	<div class="col-md-8 col-md-offset-2" ng-show="vm.valid == 1">
 		<div class="panel panel-default">
-			<div class="panel-heading"><b>Skapa konto</b></div>
+			<div class="panel-heading"><b translate="SIGNUP.CREATE"></b></div>
 			<div class="panel-body">
 				<form class="form-horizontal" role="form" ng-submit="vm.signup()">
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Användarnamn</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.USERNAME"></label>
 						<div class="col-sm-8">
-							<input type="text" class="form-control" placeholder="Användarnamn" ng-model="vm.credentials.username" pattern=".{2,12}" title="2-12 tecken" required />
+							<input type="text" class="form-control" placeholder="{{ 'SIGNUP.USERNAME' | translate }}" ng-model="vm.credentials.username" pattern=".{2,12}" title="2-12 tecken" required />
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">E-mail</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.EMAIL"></label>
 						<div class="col-sm-8">
-							<input type="email" class="form-control" placeholder="E-mail"  ng-model="vm.credentials.email" required />
+							<input type="email" class="form-control" placeholder="{{ 'SIGNUP.EMAIL' | translate }}"  ng-model="vm.credentials.email" required />
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Kön</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.GENDER"></label>
 						<div class="col-sm-8">
 							<div class="btn-group">
-								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="1">Man</label>
-								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="2">Kvinna</label>
-								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="0">Hen</label>
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="1" translate="SIGNUP.GENDER_MAN"></label>
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="2" translate="SIGNUP.GENDER_WOMAN"></label>
+								<label class="btn btn-default" ng-model="vm.credentials.gender" uib-btn-radio="0" translate="SIGNUP.GENDER_UNISEX"></label>
 							</div>
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Ålder</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.AGE"></label>
 						<div class="col-sm-8">
-							<input type="number" class="form-control" placeholder="Ålder" ng-model="vm.credentials.age" />
+							<input type="number" class="form-control" placeholder="{{ 'SIGNUP.AGE' | translate }}" ng-model="vm.credentials.age" />
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Föredrar format</label>
+						<label class="col-sm-4 control-label" translate="SIGNUP.PREFER_FORMAT"></label>
 						<div class="col-sm-8">
 							<div class="btn-group">
 								<label class="btn btn-default" ng-model="vm.credentials.format" uib-btn-radio="0">DVDR</label>
@@ -47,21 +45,27 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="inputPassword" class="col-sm-4 control-label">Lösenord</label>
+						<label class="col-sm-4 control-label" translate="USER.LANGUAGE"></label>
 						<div class="col-sm-8">
-							<input type="password" class="form-control" placeholder="Lösenord" ng-model="vm.credentials.password" required />
+							<select class="form-control" ng-model="vm.credentials.language" ng-options="i.id as i.name for i in vm.languageSupport"></select>
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="inputPassword" class="col-sm-4 control-label">Upprepa lösenord</label>
+						<label for="inputPassword" class="col-sm-4 control-label" translate="SIGNUP.PASSWORD"></label>
 						<div class="col-sm-8">
-							<input type="password" class="form-control" placeholder="Lösenord (igen)" ng-model="vm.credentials.passwordAgain" required />
+							<input type="password" class="form-control" placeholder="{{ 'SIGNUP.PASSWORD' | translate }}" ng-model="vm.credentials.password" required />
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword" class="col-sm-4 control-label" translate="SIGNUP.PASSWORD_REPEAT"></label>
+						<div class="col-sm-8">
+							<input type="password" class="form-control" placeholder="{{ 'SIGNUP.PASSWORD_REPEAT_PLACEHOLDER' | translate }}" ng-model="vm.credentials.passwordAgain" required />
 						</div>
 					</div>
 					<div class="form-group last">
 						<div class="col-sm-offset-4 col-sm-8">
-							<button type="submit" class="btn btn-primary btn-md">Skapa konto</button>
-							<button type="reset" class="btn btn-default btn-md">Rensa</button>
+							<button type="submit" class="btn btn-primary btn-md" translate="SIGNUP.CREATE"></button>
+							<button type="reset" class="btn btn-default btn-md" translate="SIGNUP.CLEAR"></button>
 						</div>
 					</div>
 				</form>

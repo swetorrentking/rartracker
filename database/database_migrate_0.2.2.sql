@@ -1,5 +1,5 @@
 ALTER TABLE `torrents` ADD `section` ENUM('new','archive') NOT NULL;
-ALTER TABLE `rarat`.`torrents` ADD INDEX (`section`);
+ALTER TABLE `torrents` ADD INDEX (`section`);
 UPDATE torrents SET section = 'archive' WHERE reqid > 0;
 UPDATE torrents SET reqid = 0 WHERE reqid = 1;
 ALTER TABLE `peers` CHANGE `nytt` `section` ENUM('new','archive') NOT NULL;

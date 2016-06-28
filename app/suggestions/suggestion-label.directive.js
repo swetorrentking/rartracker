@@ -12,25 +12,25 @@
 			controllerAs: 'vm'
 		});
 
-	function SuggestionLabelController($scope) {
+	function SuggestionLabelController($scope, $translate) {
 
 		this.render = function () {
 			switch(this.status) {
 				case 1:
 					this.labelClass = 'label-success';
-					this.text = 'FÄRDIGT';
+					this.text = $translate.instant('SUGGEST.STATUS_DONE').toUpperCase();
 						break;
 				case 2:
 					this.labelClass = 'label-warning';
-					this.text = 'GODKÄNT';
+					this.text = $translate.instant('SUGGEST.STATUS_ACCEPTED').toUpperCase();
 						break;
 				case 3:
 					this.labelClass = 'label-danger';
-					this.text = 'NEKAT';
+					this.text = $translate.instant('SUGGEST.STATUS_DENIED').toUpperCase();
 						break;
 				case 4:
 					this.labelClass = 'label-default';
-					this.text = 'INGEN ÅTGÄRD';
+					this.text = $translate.instant('SUGGEST.STATUS_NO_ACTION').toUpperCase();
 						break;
 				default:
 					this.text = '';

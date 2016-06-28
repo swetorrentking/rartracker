@@ -11,7 +11,7 @@ class IpChanges {
 
 	public function query($limit = 25, $index = 0) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->query("SELECT COUNT(*) FROM ipchanges");

@@ -1,13 +1,13 @@
 <loading-indicator hide="vm.faq"></loading-indicator>
 
 <div class="panel panel-default col-sm-10 col-sm-push-1" style="padding: 0px;">
-	<div class="panel-heading text-left">FAQ - Överblick<button ng-show="vm.currentUser.class >= 8" class="btn btn-default btn-xs pull-right" ng-model="vm.adminMode" uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">Adminläge</button></div>
+	<div class="panel-heading text-left">{{ 'FAQ.MAIN_TITLE' | translate }}<button ng-show="vm.currentUser.class >= 8" class="btn btn-default btn-xs pull-right" ng-model="vm.adminMode" uib-btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false" translate="FAQ.ADMIN_MODE"></button></div>
 	<div class="panel-body text-left">
-		<button ng-show="vm.adminMode" ng-click="vm.createFaq()" class="btn btn-default btn-xs pull-right"><i class="fa fa-plus"></i> Ny punkt</button>
+		<button ng-show="vm.adminMode" ng-click="vm.createFaq()" class="btn btn-default btn-xs pull-right"><i class="fa fa-plus"></i> {{ 'FAQ.NEW_ENTRY' | translate }}</button>
 		<div ng-repeat="fa in vm.faq | filter: type='categ'">
 			<b>{{ fa.question }}</b>
-			<span ng-show="fa.flag == 2" class="label label-warning">Uppdaterad</span>
-			<span ng-show="fa.flag == 3" class="label label-danger">Ny</span>
+			<span ng-show="fa.flag == 2" class="label label-warning" translate="FAQ.STATUS_UPDATED"></span>
+			<span ng-show="fa.flag == 3" class="label label-danger" translate="FAQ.STATUS_NEW"></span>
 
 			<span ng-show="vm.adminMode">
 				&nbsp;
@@ -18,8 +18,8 @@
 			<ul>
 				<li ng-repeat="faa in vm.faq | filter: vm.filterByCategory(fa.id)">
 					<a href="#{{faa.id}}">{{faa.question}}</a>
-					<span ng-show="faa.flag == 2" class="label label-warning">Uppdaterad</span>
-					<span ng-show="faa.flag == 3" class="label label-danger">Ny</span>
+					<span ng-show="faa.flag == 2" class="label label-warning" translate="FAQ.STATUS_UPDATED"></span>
+					<span ng-show="faa.flag == 3" class="label label-danger" translate="FAQ.STATUS_NEW"></span>
 
 					<span ng-show="vm.adminMode">
 						&nbsp;

@@ -1,21 +1,21 @@
 <div class="text-left">
 	<div class="modal-header">
-		<h2 class="modal-title text-center">Sök och välj torrents</h2>
+		<h2 class="modal-title text-center" translate="TORRENTS.SEARCH_AND_PICK"></h2>
 	</div>
 	<div class="modal-body">
-		<input type="text" class="form-control" placeholder="Sök film, serie..." ng-model="vm.searchText" ng-model-options="{ debounce: 200 }" ng-change="vm.doSearch()" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" />
+		<input type="text" class="form-control" placeholder="{{ 'GENERAL.SEARCH_BOX_PLACEHOLDER' | translate }}" ng-model="vm.searchText" ng-model-options="{ debounce: 200 }" ng-change="vm.doSearch()" autocomplete="off" spellcheck="false" autocorrect="off" autocapitalize="off" />
 		<br />
 		<div class="table-responsive">
 			<torrents-table torrents="vm.torrents" check-mode="true" search-text="vm.searchText" col-date="true" col-size="true" col-seeders="true" col-leechers="true"></torrents-table>
 		</div>
 		<div class="text-center">
-			<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+			<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 		</div>
 	</div>
 	<div class="modal-footer">
 		<div class="button-group text-center">
-			<button class="btn btn-primary" ng-click="vm.add()">Lägg till ({{ vm.getNumberChosen() }}) valda</button>
-			<button class="btn btn-default" ng-click="vm.cancel()">Stäng</button>
+			<button class="btn btn-primary" ng-click="vm.add()" translate="TORRENTS.ADD_SELECTED" translate-value-x="{{ vm.getNumberChosen() }}"></button>
+			<button class="btn btn-default" ng-click="vm.cancel()" translate="BUTTONS.CLOSE"></button>
 		</div>
 	</div>
 </div>

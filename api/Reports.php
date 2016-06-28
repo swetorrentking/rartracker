@@ -25,11 +25,11 @@ class Reports implements IResource {
 
 	public function create($postdata) {
 		if (!preg_match("/^(torrent|post|pm|request|comment|subtitle|user)$/", $postdata["type"])) {
-			throw new Exception('Felaktig typ.', 400);
+			throw new Exception(L::get("REPORT_WRONG_TYPE"), 400);
 		}
 
 		if (strlen($postdata["reason"]) < 2) {
-			throw new Exception('Anledningen är för kort.', 400);
+			throw new Exception(L::get("REPORT_REASON_TOO_SHORT"), 400);
 		}
 
 		$sth = $this->db->prepare('INSERT INTO reports (added, userid, reason, targetid, type) VALUES (NOW(), ?, ?, ?, ?)');
@@ -42,13 +42,13 @@ class Reports implements IResource {
 
 	public function update($id, $postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$report = $this->get($id);
 
 		if ($report["handledBy"] != 0 && $report["handledBy"] != $this->user->getId()) {
-			throw new Exception('Någon annan behandlar redan denna rapport.', 401);
+			throw new Exception(L::get("REPORT_ALREADY_PROCESSING"), 401);
 		}
 
 		$sth = $this->db->prepare('UPDATE reports SET handledBy = ? WHERE id = ?');
@@ -59,13 +59,13 @@ class Reports implements IResource {
 
 	public function delete($id, $postdata = null) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$report = $this->get($id);
 
 		if ($report["handledBy"] != 0 && $report["handledBy"] != $this->user->getId()) {
-			throw new Exception('Någon annan behandlar redan denna rapport.', 401);
+			throw new Exception(L::get("REPORT_ALREADY_PROCESSING"), 401);
 		}
 
 		$sth = $this->db->prepare('DELETE FROM reports WHERE id = ?');
@@ -75,7 +75,7 @@ class Reports implements IResource {
 
 	public function get($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare("SELECT * FROM reports WHERE id = ?");
@@ -84,7 +84,7 @@ class Reports implements IResource {
 		$report = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$report) {
-			throw new Exception('Rapporten finns inte', 404);
+			throw new Exception(L::get("REPORTS_NOT_FOUND"), 404);
 		}
 
 		return $report;
@@ -92,7 +92,7 @@ class Reports implements IResource {
 
 	public function query($postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$limit = (int)$postdata["limit"] ?: 25;

@@ -12,26 +12,26 @@ class Leechbonus {
 	public function run() {
 
 		if ($_SERVER['SERVER_ADDR'] != $_SERVER["REMOTE_ADDR"]) {
-			throw new Exception("Must be run by server.", 401);
+			throw new Exception(L::get("MUST_BE_RUN_BY_SERVER_ERROR"), 401);
 		}
 
 		/* 1. Save all users current seed amount. Run every hour */
 
-		$nu = time('Y-m-d H');
+		$now = time('Y-m-d H');
 		$user = $this->db->query('SELECT * FROM users WHERE enabled = "yes"');
 		while($u = $user->fetch(PDO::FETCH_ASSOC)) {
 
 			$res = $this->db->query('SELECT torrents.size, peers.to_go FROM peers JOIN torrents ON peers.torrent = torrents.id WHERE userid = ' . $u["id"] . ' GROUP BY userid, torrent');
 
-			$seedat = 0;
+			$seededAmount = 0;
 			while($r = $res->fetch(PDO::FETCH_ASSOC)) {
-				$seedat += ($r["size"] - $r["to_go"]);
+				$seededAmount += ($r["size"] - $r["to_go"]);
 			}
 
-			$gb = round($seedat / 1073741824);
+			$gb = round($seededAmount / 1073741824);
 
 			if ($gb > 0) {
-				$this->db->query('INSERT INTO leechbonus(userid, datum, gbseed) VALUES('.$u["id"].', '.$nu.', '.$gb.')');
+				$this->db->query('INSERT INTO leechbonus(userid, datum, gbseed) VALUES('.$u["id"].', '.$now.', '.$gb.')');
 			}
 
 		}
@@ -54,12 +54,12 @@ class Leechbonus {
 	}
 
 	private function leechbonus($gb) {
-		$procent = round(($gb / $this->leechBonusLimitGb)*100);
+		$percent = round(($gb / $this->leechBonusLimitGb)*100);
 
-		if ($procent > 100) {
-			$procent = 100;
+		if ($percent > 100) {
+			$percent = 100;
 		}
 
-		return $procent;
+		return $percent;
 	}
 }

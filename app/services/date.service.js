@@ -3,7 +3,7 @@
 
 	angular
 		.module('app.shared')
-		.service('DateService', function () {
+		.service('DateService', function ($translate) {
 			this.leadingZeros = function (date) {
 				return date < 10 ? '0' + date : date;
 			};
@@ -21,13 +21,13 @@
 			this.getWeekDay = function (timestamp) {
 				var date = new Date(timestamp*1000);
 				switch(date.getDay()) {
-					case 0: return 'Söndag';
-					case 1: return 'Måndag';
-					case 2: return 'Tisdag';
-					case 3: return 'Onsdag';
-					case 4: return 'Torsdag';
-					case 5: return 'Fredag';
-					case 6: return 'Lördag';
+					case 0: return $translate.instant('GENERAL.DAYS.0');
+					case 1: return $translate.instant('GENERAL.DAYS.1');
+					case 2: return $translate.instant('GENERAL.DAYS.2');
+					case 3: return $translate.instant('GENERAL.DAYS.3');
+					case 4: return $translate.instant('GENERAL.DAYS.4');
+					case 5: return $translate.instant('GENERAL.DAYS.5');
+					case 6: return $translate.instant('GENERAL.DAYS.6');
 					default: return '-';
 				}
 			};

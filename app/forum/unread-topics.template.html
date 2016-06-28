@@ -1,23 +1,23 @@
 <div class="text-center">
-	<h1>Trådar med olästa inlägg</h1>
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<h1 translate="FORUM.UNREAD_THREADS"></h1>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 	<loading-indicator hide="vm.topics"></loading-indicator>
-	<div ng-show="vm.topics.length == 0" class="alert alert-warning" role="alert">Du har inga olästa foruminlägg</div>
+	<div ng-show="vm.topics.length == 0" class="alert alert-warning" role="alert" translate="FORUM.NO_UNREAD_THREADS"></div>
 
 	<div class="table-responsive col-md-10 col-centered nopadding" ng-show="vm.topics.length > 0">
 		<table class="table table-striped table-hover table-nowrap forumtable table-text-center">
 			<tr>
-				<th class="text-left">Ämne</th>
-				<th style="width: 80px;" class="hidden-sm hidden-xs">Inlägg</th>
-				<th style="width: 200px;" class="hidden-xs">Forum</th>
+				<th class="text-left" translate="FORUM.TOPIC"></th>
+				<th style="width: 80px;" class="hidden-sm hidden-xs" translate="FORUM.POSTS"></th>
+				<th style="width: 200px;" class="hidden-xs" translate="FORUM.FORUMS"></th>
 			</tr>
 			<tr ng-repeat="topic in vm.topics track by topic.id">
 				<td class="text-left">
 					<img class="forum-icon locked-new" ng-if="topic.locked == 'yes'" />
 					<img class="forum-icon unlocked-new" ng-if="topic.locked == 'no'"  />
 
-					<span ng-show="topic.sticky == 'yes'">Klistrad: </span><a href="" ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug})"><b>{{ ::topic.subject }}</b></a>
+					<span ng-show="topic.sticky == 'yes'">{{ 'FORUM.STICKY' | translate }}: </span><a href="" ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug})"><b>{{ ::topic.subject }}</b></a>
 					<a ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug, page: ceil(topic.postcount, postsPerPage), 'lastpost': 1})" class="noBorder"><i class="fa fa-arrow-right"></i></a>
 					<br/>
 					{{ ::topic.sub }}
@@ -28,5 +28,5 @@
 		</table>
 	</div>
 
-	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.fetchTopics()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 </div>

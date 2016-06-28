@@ -5,7 +5,9 @@
 		.module('app.admin')
 		.controller('DonationsController', DonationsController);
 
-	function DonationsController($state, $stateParams, $uibModal, ConfirmDialog, DonationsResource) {
+	function DonationsController($state, $translate, $stateParams, $uibModal, ConfirmDialog, DonationsResource, configs) {
+
+		this.currency = configs.DONATIONS_CURRENCY;
 		this.itemsPerPage = 25;
 		this.currentPage = $stateParams.page;
 
@@ -39,7 +41,7 @@
 		};
 
 		this.delete = function (donation) {
-			ConfirmDialog('Radera donation', 'Vill du verkligen radera donationen?')
+			ConfirmDialog($translate.instant('DONATE.DELETE'), $translate.instant('DONATE.DELETE_CONFIRM'))
 				.then(() => {
 					return DonationsResource.delete({ id: donation.id }, () => {
 						var index = this.donations.indexOf(donation);

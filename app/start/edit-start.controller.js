@@ -5,17 +5,17 @@
 		.module('app.shared')
 		.controller('EditStartController', EditStartController);
 
-	function EditStartController(StartTorrentsResource, ErrorDialog) {
+	function EditStartController(StartTorrentsResource, ErrorDialog, $translate) {
 
 		this.data = {
 			tid: [
-				{ id: 0, name: 'Dagens' },
-				{ id: 1, name: 'Veckans' },
-				{ id: 2, name: 'Månadens' }
+				{ id: 0, name: $translate.instant('START.TIMESPAN_DAY') },
+				{ id: 1, name: $translate.instant('START.TIMESPAN_WEEK') },
+				{ id: 2, name: $translate.instant('START.TIMESPAN_MONTH') }
 			],
 			typ: [
-				{ id: 0, name: 'Filmer' },
-				{ id: 1, name: 'TV-serier' }
+				{ id: 0, name: $translate.instant('START.TYPE_MOVIES') },
+				{ id: 1, name: $translate.instant('START.TYPE_TV') }
 			],
 			format: [
 				{ id: 0, name: 'DVDR' },
@@ -23,13 +23,13 @@
 				{ id: 2, name: '1080p HD' }
 			],
 			sektion: [
-				{ id: 0, name: 'Nya releaser' },
-				{ id: 1, name: 'Nya på arkivet' }
+				{ id: 0, name: $translate.instant('START.SECTION_NEW') },
+				{ id: 1, name: $translate.instant('START.SECTION_NEW_ARCHIVE') }
 			],
 			sort: [
-				{ id: 2, name: 'Sortera efter popularitet' },
-				{ id: 0, name: 'Sortera efter högst betyg' },
-				{ id: 1, name: 'Sortera efter datum' }
+				{ id: 2, name: $translate.instant('START.SORT_POPULARITY') },
+				{ id: 0, name: $translate.instant('START.SORT_RATING') },
+				{ id: 1, name: $translate.instant('START.SORT_DATE') }
 			],
 			genre: [{
 				id: 'Action',
@@ -78,7 +78,7 @@
 			format: this.data.format[1],
 			sektion: this.data.sektion[0],
 			sort: this.data.sort[0],
-			genre: ''	
+			genre: ''
 		};
 
 		this.fetchTorrents = function () {

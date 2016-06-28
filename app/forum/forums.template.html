@@ -1,21 +1,21 @@
 <div style="text-align: center; margin: 20px;">
-	<button ui-sref="forum-unread-topics()" class="btn btn-default btn-xs">Visa olästa</button>
-	<button ui-sref="forum-search()" class="btn btn-default btn-xs">Sök</button>
-	<button ui-sref="forum-user-posts({id: vm.currentUser.id, username: vm.currentUser.username})" class="btn btn-default btn-xs">Visa mina inlägg</button>
-	<button ng-click="vm.markAllTopicsAsRead(); vm.markingTopics = true;" ng-disabled="vm.markingTopics" class="btn btn-default btn-xs">Markera alla trådar som lästa</button>
+	<button ui-sref="forum-unread-topics()" class="btn btn-default btn-xs" translate="FORUM.SHOW_UNREAD"></button>
+	<button ui-sref="forum-search()" class="btn btn-default btn-xs" translate="FORUM.SEARCH"></button>
+	<button ui-sref="forum-user-posts({id: vm.currentUser.id, username: vm.currentUser.username})" class="btn btn-default btn-xs" translate="FORUM.SHOW_MY_POSTS"></button>
+	<button ng-click="vm.markAllTopicsAsRead(); vm.markingTopics = true;" ng-disabled="vm.markingTopics" class="btn btn-default btn-xs" translate="FORUM.MARK_ALL_AS_READ"></button>
 </div>
 
 <loading-indicator hide="vm.forums"></loading-indicator>
 
-<div ng-show="vm.currentUser.parkerad == 1" class="alert alert-warning" role="alert">Ditt konto är parkerat och kan därför inte visa alla sidor. Parkera upp kontot ifrån inställningarna.</div>
+<div ng-show="vm.currentUser.parkerad == 1" class="alert alert-warning" role="alert">{{ 'GENERAL.ACCOUNT_PARKED' | translate }}</div>
 
 <div class="col-md-10 col-centered" ng-show="vm.forums && vm.currentUser.parkerad == 0">
 	<table class="table table-striped table-hover table-nowrap table-text-center forumtable">
 		<tr ng-repeat-start="header in ::vm.forums">
 			<th class="text-left">{{ ::header.name }}</th>
-			<th class="hidden-sm hidden-xs" style="width: 100px;">Trådar</th>
-			<th class="hidden-sm hidden-xs" style="width: 100px;">Inlägg</th>
-			<th class="hidden-xs text-left" style="width: 300px;">Senaste inlägget</th>
+			<th class="hidden-sm hidden-xs" style="width: 100px;" translate="FORUM.THREADS"></th>
+			<th class="hidden-sm hidden-xs" style="width: 100px;" translate="FORUM.POSTS"></th>
+			<th class="hidden-xs text-left" style="width: 300px;" translate="FORUM.LAST_POST"></th>
 		</tr>
 		<tr ng-repeat-end ng-repeat="forum in ::header.forums">
 			<td class="text-left">
@@ -28,8 +28,8 @@
 			<td class="text-middle hidden-sm hidden-xs">{{ ::forum.postcount }}</td>
 			<td class="text-left hidden-xs">
 				{{ ::forum.topic.post.added }}<br />
-				av <user user="forum.topic.user" show-class="false" show-icons="false"></user>
-				i <b><a ui-sref="forum.topic({id: forum.topic.id, forumid: forum.topic.forumid, page: ceil(forum.topic.post.postcount/postsPerPage), 'lastpost': 1, slug: forum.topic.slug})">{{ ::forum.topic.subject }}</a></b>
+				{{ 'FORUM.BY' | translate }} <user user="forum.topic.user" show-class="false" show-icons="false"></user>
+				{{ 'FORUM.IN' | translate }} <b><a ui-sref="forum.topic({id: forum.topic.id, forumid: forum.topic.forumid, page: ceil(forum.topic.post.postcount/postsPerPage), 'lastpost': 1, slug: forum.topic.slug})">{{ ::forum.topic.subject }}</a></b>
 			</td>
 		</tr>
 	</table>

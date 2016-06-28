@@ -10,7 +10,7 @@
 	</table>
 	<br />
 	<div class="text-center">
-	Röster: {{ vm.poll.totalAnswers }}
+	<span style="text-transform: capitalize;">{{ 'SUGGEST.VOTES' | translate}}: {{ vm.poll.totalAnswers }}</span>
 	<br />
 	</div>
 </div>
@@ -26,18 +26,18 @@
 		<tr>
 			<td class="text-left">
 				<div class="radio" style="margin-left: 25px;">
-					<label><input type="radio" ng-model="vm.poll.myChoise" ng-value="255" />Blank röst</label>
+					<label><input type="radio" ng-model="vm.poll.myChoise" ng-value="255" />{{ 'POLL.BLANK_VOTE' | translate }}</label>
 				</div>
 			</td>
 		</tr>
 	</table>
 	<br />
 	<div class="text-center">
-		<button class="btn btn-primary" ng-click="vm.vote()">Rösta!</button>
+		<button class="btn btn-primary" ng-click="vm.vote()">{{ 'POLL.VOTE' | translate }}</button>
 	</div>
 </div>
 <br />
 <div class="text-center">
-	<a ui-sref="forum.topic({id: vm.poll.topicid, forumid: 5})"><button class="btn btn-default btn-xs"><i class="fa fa-comment-o"></i> Diskutera fråga</button></a>
-	<button ng-hide="vm.onlyresult == 'true'" ui-sref="polls" class="btn btn-default btn-xs">Visa tidigare frågor</button>
+	<a ui-sref="forum.topic({id: vm.poll.topicid, forumid: 5})"><button class="btn btn-default btn-xs"><i class="fa fa-comment-o"></i> {{ 'POLL.DISCUSS' | translate }}</button></a>
+	<button ng-hide="vm.onlyresult == 'true'" ui-sref="polls" class="btn btn-default btn-xs">{{ 'POLL.SHOW_OLD' | translate }}</button>
 </div>

@@ -1,7 +1,7 @@
 # rartracker
 A modern front and backend bittorrent tracker written in AngularJS and PHP.
 ## Version
-0.2.2
+0.3.0
 ## Author
 the swedish torrent king
 ## Feature highlights
@@ -11,6 +11,7 @@ the swedish torrent king
 * Awesome features like bonus-system, leech bonus, seed-time, request system and rss-system.
 * Highly skinnable and mobile friendly design with Bootstrap CSS
 * Very clean code to grasp for developers
+* Dynamic multi language support
 
 # Installation
 ## 1. Install Node.js/npm and Git
@@ -49,7 +50,8 @@ $username = 'root';
 $password = '';
 ````
 
-Some site settings in api/Config.php and app/app.config.js
+Some site settings in api/Config.php and app/app.config.js should be changed!
+
 ### 2. Generate new unique salt hashes (optional for security)
 * Note that updating the salts will make current registered accounts unusable, you'd want to log in and create invite codes (step 4) before changing salts and finally registering new accounts.
 * $passwordSalt and $cookieSalt in **User.php** should be updated with new random hashes.
@@ -85,10 +87,13 @@ max_heap_table_size=2G
 12      *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-leechbonus
 */20    *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-cleanup
 0       0       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/fetch-tvdata
-0       0       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/fetch-moviedata
 0       0       *       *       5       wget -O /dev/null http://127.0.0.1/api/v1/run-bonus
 0       20      *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-statistics
 ````
+
+## Language support
+
+The default language is English, but if you want the back and front end to default to another of the available languages you need to change the default language variable in **Config.php** and **app.config.js**. If the user changes the display language, the default language will still be used for site wide logs and automatic messages.
 
 ## Developing and deploying
 ### Developing

@@ -1,21 +1,23 @@
 <div class="text-center">
-	<h1>Vänner</h1>
+	<h1 translate="FRIENDS.TITLE"></h1>
 
 	<loading-indicator hide="vm.friends"></loading-indicator>
-	<div ng-show="vm.friends.length == 0" class="alert alert-warning" role="alert">Du har inga vänner</div>
+	<div ng-show="vm.friends.length == 0" class="alert alert-warning" role="alert" translate="FRIENDS.NO_FRIENDS"></div>
 
 	<friend-list friends="vm.friends" delete="vm.deleteFriend(friend)" show-send-message="true"></friend-list>
 
 	<br /><br />
 
-	<h1>Blockerade</h1>
+	<h1 translate="FRIENDS.BLOCKED"></h1>
 
 	<loading-indicator hide="vm.blocked"></loading-indicator>
 
 	<friend-list friends="vm.blocked" delete="vm.deleteBlock(friend)"></friend-list>
 
-	<div ng-show="vm.blocked.length == 0" class="alert alert-warning" role="alert">Du har inga blockerade användare</div>
+	<div ng-show="vm.blocked.length == 0" class="alert alert-warning" role="alert" translate="FRIENDS.NO_BLOCKED"></div>
 
 	<br /><br />
-	<i>För att lägga till en vän eller blockering, <a user-picker href="#">sök först upp användarens profil</a> och använd funktionsknapparna.</i>
+	<i translate="FRIENDS.ADD_FRIEND_LINK"></i>
+	<br /><br />
+	<button class="btn-xs btn btn-default" user-picker><i class="fa fa-user fa-fw"></i> {{ 'FRIENDS.SEARCH_USERS' | translate }}</button>
 </div>

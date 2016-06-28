@@ -5,11 +5,11 @@
 			<br />
 			<div data-goldstars stars="vm.movieData.rating"></div>
 			<br />
-			<b>Genres</b> <span ng-show="vm.movieData.genres" class="label label-default" ng-repeat-start="genre in vm.movieData.genres | split">{{genre}}</span> <span ng-repeat-end></span>
+			<b translate="MOVIE.GENRES"></b> <span ng-show="vm.movieData.genres" class="label label-default" ng-repeat-start="genre in vm.movieData.genres | split">{{genre}}</span> <span ng-repeat-end></span>
 			<br /><br />
-			<b>Skådespelare</b> <span ng-show="vm.movieData.cast" class="label label-default" ng-repeat-start="cast in vm.movieData.cast | split">{{cast}}</span> <span ng-repeat-end></span>
+			<b translate="MOVIE.ACTORS"></b> <span ng-show="vm.movieData.cast" class="label label-default" ng-repeat-start="cast in vm.movieData.cast | split">{{cast}}</span> <span ng-repeat-end></span>
 
-			<div style="margin-top: 5px;" ng-if="vm.currentUser.class >= 6"><button ng-show="!vm.updatingMovieData" ng-click="vm.refreshMovieData()" class="btn btn-xs btn-default">Läs om IMDB-info</button><button ng-show="vm.updatingMovieData" class="btn btn-default btn-xs disabled">Uppdaterar data... vänta...</button></div>
+			<div style="margin-top: 5px;" ng-if="vm.currentUser.class >= 6"><button ng-show="!vm.updatingMovieData" ng-click="vm.refreshMovieData()" class="btn btn-xs btn-default" translate="MOVIE.RELOAD_DATA"></button><button ng-show="vm.updatingMovieData" class="btn btn-default btn-xs disabled" translate="MOVIE.RELOADING"></button></div>
 		</td>
 		<td style="border: 0px; padding: 5px;" ng-show="vm.movieData.photo">
 			<a target="_blank" ng-href="http://anonym.to/?http://www.imdb.com/title/{{ vm.movieData.imdbid }}/">
@@ -22,16 +22,17 @@
 	<div class="videowrapper" ng-if="vm.showTrailer" style="margin-bottom: 10px;">
 		<iframe ng-src="{{ vm.getIFrameSrc() }}"></iframe>
 	</div>
-	<button class="btn btn-default" ng-click="vm.showTrailer = !vm.showTrailer"><i class="fa fa-film" aria-hidden="true"></i> {{ vm.showTrailer ? 'Göm' : 'Visa' }} trailer</button>
+	<button class="btn btn-default" ng-click="vm.showTrailer = !vm.showTrailer" ng-show="vm.showTrailer"><i class="fa fa-film" aria-hidden="true"></i> {{ 'MOVIE.HIDE_TRAILER' | translate }}</button>
+	<button class="btn btn-default" ng-click="vm.showTrailer = !vm.showTrailer" ng-show="!vm.showTrailer"><i class="fa fa-film" aria-hidden="true"></i> {{ 'MOVIE.SHOW_TRAILER' | translate }}</button>
 	<button class="btn btn-default" ng-if="vm.currentUser.class >= 8" ng-click="vm.removeTrailer()"><i class="fa fa-trash" aria-hidden="true"></i></button>
 	<br />
 </div>
 <div ng-if="vm.trailer == 'true' && vm.currentUser.class >= 3 && !vm.movieData.youtube_id">
-	<button class="btn btn-default btn-xs" ng-click="vm.showTrailerUpload = !vm.showTrailerUpload"><i class="fa fa-plus" aria-hidden="true"></i> Lägg till Youtube-trailer</button>
+	<button class="btn btn-default btn-xs" ng-click="vm.showTrailerUpload = !vm.showTrailerUpload"><i class="fa fa-plus" aria-hidden="true"></i> {{ 'MOVIE.ADD_TRAILER' | translate }}</button>
 </div>
 <div ng-if="vm.showTrailerUpload">
 	<div class="input-group" style="margin:auto;width: 500px;">
-		<span class="input-group-addon" id="basic-addon2">Youtube-länk</span>
+		<span class="input-group-addon" id="basic-addon2" translate="MOVIE.YOUTUBE_URL"></span>
 		<input type="text" class="form-control" ng-model="vm.youtubeUrl" ng-change="vm.saveYoutubeTrailer()" placeholder="https://www.youtube.com/watch?v=XXXXX" />
 	</div>
 </div>

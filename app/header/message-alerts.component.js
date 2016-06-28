@@ -6,10 +6,10 @@
 		.component('messageAlerts', {
 			template: `
 				<div class="alert alert-warning message-dialog" ng-show="vm.currentUser.newMessages > 0 && vm.stateName != 'mailbox'">
-					<span><i class="fa fa-envelope-o"></i> <a ui-sref="mailbox">Du har {{ vm.currentUser.newMessages }} oläst<span ng-show="vm.currentUser.newMessages > 1">a</span> meddelande</a></span>
+					<span><i class="fa fa-envelope-o"></i> <a ui-sref="mailbox" translate="GENERAL.UNREAD_PM" translate-value-unread="{{ vm.currentUser.newMessages }}"></a></span>
 				</div>
 				<div class="alert alert-warning message-dialog" ng-show="vm.currentUser.unreadFlashNews > 0 && vm.stateName != 'news'">
-					<span><i class="fa fa-info-circle"></i> <a ui-sref="news">Du har {{ vm.currentUser.unreadFlashNews }} oläst<span ng-show="vm.currentUser.unreadFlashNews > 1">a</span> viktig<span ng-show="vm.currentUser.unreadFlashNews > 1">a</span> nyhet<span ng-show="vm.currentUser.unreadFlashNews > 1">er</span></a></span>
+					<span><i class="fa fa-info-circle"></i> <a ui-sref="news" translate="GENERAL.UNREAD_NEWS" translate-value-unread="{{ vm.currentUser.unreadFlashNews }}"></a></span>
 				</div>
 			`,
 			controller: MessageAlertsController,

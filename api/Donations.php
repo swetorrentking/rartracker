@@ -11,7 +11,7 @@ class Donations implements IResource {
 
 	public function query($postdata = null) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$limit = (int)$postdata["limit"] ?: 10;
@@ -63,7 +63,7 @@ class Donations implements IResource {
 
 	public function delete($id, $postdata = null) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("DELETE FROM donated WHERE id = ?");
 		$sth->bindParam(1, $id,	PDO::PARAM_INT);
@@ -72,7 +72,7 @@ class Donations implements IResource {
 
 	public function update($id, $postdata) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare("UPDATE donated SET status = ?, sum = ? WHERE id = ?");
 		$sth->bindParam(1, $postdata["status"],		PDO::PARAM_INT);

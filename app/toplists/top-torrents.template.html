@@ -1,27 +1,27 @@
 <div class="text-center">
 
-	<h2>Torrents</h2>
+	<h2 translate="TOPLISTS.MENU_TORRENTS"></h2>
 
 	<loading-indicator hide="vm.toplists.active"></loading-indicator>
 
 	<div ng-show="vm.toplists.active">
 
-		<h3>Mest aktiva</h3>
+		<h3 translate="TOPLISTS.MOST_ACTIVE"></h3>
 		<div class="table-responsive col-md-9 col-centered nopadding">
 			<torrents-table torrents="vm.toplists.active" col-index="true" col-data col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
 		</div>
 
-		<h3>Mest nerladdade</h3>
+		<h3 translate="TOPLISTS.MOST_DOWNLOADED"></h3>
 		<div class="table-responsive col-md-9 col-centered nopadding">
 			<torrents-table torrents="vm.toplists.downloaded" col-index="true" col-data col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
 		</div>
 
-		<h3>Mest data överförd</h3>
+		<h3 translate="TOPLISTS.MOST_DATA"></h3>
 		<div class="table-responsive col-md-9 col-centered nopadding">
 			<torrents-table torrents="vm.toplists.data" col-index="true" col-data col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
 		</div>
 
-		<h3>Bäst seedade</h3>
+		<h3 translate="TOPLISTS.BEST_SEEDED"></h3>
 		<div class="table-responsive col-md-9 col-centered nopadding">
 			<torrents-table torrents="vm.toplists.seeded" col-index="true" col-data col-times-completed="true" col-seeders="true" col-leechers="true"></torrents-table>
 		</div>

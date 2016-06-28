@@ -5,12 +5,12 @@
 		.module('app.shared')
 		.controller('InviteController', InviteController);
 
-	function InviteController($timeout, ErrorDialog, InvitesResource, configs, ConfirmDialog, user) {
+	function InviteController($timeout, $translate, ErrorDialog, InvitesResource, configs, ConfirmDialog, user) {
 
 		this.currentUser = user;
 		this.configs = configs;
 		this.timeLeft = 10;
-		this.createButtonText = 'Läs reglerna (10)';
+		this.createButtonText = $translate.instant('INVITE.READ_THE_RULES') + ' (10)';
 
 		this.fetchInvites = function () {
 			InvitesResource.query({}).$promise
@@ -30,7 +30,7 @@
 		};
 
 		this.deleteInvite = function (invite) {
-			ConfirmDialog('Radera invite', 'Vill du verkligen radera invitelänken. Den kommer bli okbrukbar!')
+			ConfirmDialog($translate.instant('INVITE.DELETE'), $translate.instant('INVITE.DELETE_CONFIRM'))
 				.then(() => {
 					return InvitesResource.delete({id: invite.id}).$promise;
 				})
@@ -49,10 +49,10 @@
 			$timeout(() => {
 				this.timeLeft -= 1;
 				if (this.timeLeft > 0) {
-					this.createButtonText = 'Läs reglerna! (' + this.timeLeft + ')';
+					this.createButtonText = $translate.instant('INVITE.READ_THE_RULES') + ' (' + this.timeLeft + ')';
 					this.countDownTick();
 				} else {
-					this.createButtonText = 'Skapa ny invite-länk';
+					this.createButtonText = $translate.instant('INVITE.CREATE');
 				}
 			}, 1000);
 		};

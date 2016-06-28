@@ -20,8 +20,8 @@
 			var modalInstance = $uibModal.open({
 				template: `
 					<div class="container-fluid">
-						<h4><i class="fa fa-user fa-fw"></i> Sök användare</h4>
-						<input type="text" ng-model="vm.asyncSelected" placeholder="Användarnamn" uib-typeahead="user.username for user in vm.getUsers($viewValue)" typeahead-loading="vm.loadingUsers" class="form-control" typeahead-on-select="vm.onSelected($item)" auto-focus />
+						<h4><i class="fa fa-user fa-fw"></i> {{ 'USER.SEARCH' | translate }}</h4>
+						<input type="text" ng-model="vm.asyncSelected" placeholder="{{ 'USER.NAME' | translate }}" uib-typeahead="user.username for user in vm.getUsers($viewValue)" typeahead-loading="vm.loadingUsers" class="form-control" typeahead-on-select="vm.onSelected($item)" auto-focus />
 						<br />
 					</div>
 				`,

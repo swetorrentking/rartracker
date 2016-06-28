@@ -1,37 +1,37 @@
 <div class="text-center">
-	<h1>Forumsök</h1>
+	<h1 translate="FORUM.FORUM_SEARCH"></h1>
 
 	<div class="form-inline">
 		<div class="input-group" style=" width: 300px;">
 			<div class="input-group-addon"><i class="fa fa-search"></i></div>
-			<input type="text" class="form-control" placeholder="Sök i forumet" ng-model="vm.searchText" ng-model-options="{ debounce: 300 }" ng-change="vm.doSearch()" style="width: 300px; margin: auto;" />
+			<input type="text" class="form-control" placeholder="{{ 'FORUM.FORUM_SEARCH_PLACEHOLDER' | translate }}" ng-model="vm.searchText" ng-model-options="{ debounce: 300 }" ng-change="vm.doSearch()" style="width: 300px; margin: auto;" />
 		</div>
 
 		<div class="btn-group">
-			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'topics'" ng-change="vm.switchTable()">Trådar</label>
-			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'posts'" ng-change="vm.switchTable()">Inlägg</label>
+			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'topics'" ng-change="vm.switchTable()" translate="FORUM.THREADS"></label>
+			<label class="btn btn-default btn-sm" ng-model="vm.table" uib-btn-radio="'posts'" ng-change="vm.switchTable()" translate="FORUM.POSTS"></label>
 		</div>
 	</div>
 
 	<br />
 
-	<div ng-show="vm.posts.length == 0 && vm.topics.length == 0 && vm.searchText.length > 1" class="alert alert-warning" role="alert">Inga sökträffar!</div>
+	<div ng-show="vm.posts.length == 0 && vm.topics.length == 0 && vm.searchText.length > 1" class="alert alert-warning" role="alert" translate="FORUM.NO_SEARCH_HITS"></div>
 
-	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 
 	<div class="table-responsive col-md-10 col-centered nopadding" ng-show="vm.topics.length > 0">
 		<table class="table table-striped table-hover table-nowrap forumtable table-text-center">
 			<tr>
-				<th class="text-left">Ämne</th>
-				<th style="width: 80px;" class="hidden-sm hidden-xs">Inlägg</th>
-				<th style="width: 200px;" class="hidden-xs">Forum</th>
+				<th class="text-left" translate="FORUM.TOPIC"></th>
+				<th style="width: 80px;" class="hidden-sm hidden-xs" translate="FORUM.THREADS"></th>
+				<th style="width: 200px;" class="hidden-xs" translate="FORUM.FORUMS"></th>
 			</tr>
 			<tr ng-repeat="topic in vm.topics">
 				<td class="text-left">
 					<img class="forum-icon locked-new" ng-if="topic.locked == 'yes'" />
 					<img class="forum-icon unlocked-new" ng-if="topic.locked == 'no'"  />
 
-					<span ng-show="topic.sticky == 'yes'">Klistrad: </span><a href="" ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug})"><b ng-bind-html="topic.subject | highlight:vm.searchText"></b></a>
+					<span ng-show="topic.sticky == 'yes'">{{ 'FORUM.STICKY' | translate }}: </span><a href="" ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug})"><b ng-bind-html="topic.subject | highlight:vm.searchText"></b></a>
 					<a ui-sref="forum.topic({id: topic.id, forumid: topic.forumid, slug: topic.slug, page: ceil(topic.postcount, postsPerPage), 'lastpost': 1})" class="noBorder"><i class="fa fa-arrow-right"></i></a>
 					<br/>
 					{{ ::topic.sub }}
@@ -48,5 +48,5 @@
 
 	<div class="clearfix"></div>
 
-	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination ng-show="vm.posts.length > 0 || vm.topics.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.doSearch()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 </div>

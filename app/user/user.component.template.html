@@ -4,23 +4,23 @@
 </b>
 
 <span ng-if="vm.showIcons != 'false' && (vm.iconSize == 'small' || !vm.iconSize)">
-	<img ng-if="vm.user.donor == 'yes'" class="icon" ng-src="/img/icons/star-small.png" width="16" height="16" title="Donerat" alt="Donerat" />
-	<img ng-if="vm.user.coin == 1" class="icon" ng-src="/img/icons/coin-small.png" width="16" height="16" title="Guldpeng" alt="Guldpeng" />
-	<img ng-if="vm.user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-small.png" width="16" height="16" title="Avstängd" alt="Avstängd" />
-	<img ng-if="vm.user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-small.png" width="16" height="13" title="Varnad" alt="Varnad" />
-	<img ng-if="vm.user.username && vm.user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-small.png" width="18" height="16" title="100% leechbonus" alt="100% leechbonus" />
-	<img ng-if="vm.user.crown == 1" class="icon" ng-src="/img/icons/crown-small.png" width="16" height="16" title="Krona" alt="Krona" />
-	<img ng-if="vm.user.pokal == 1" class="icon" ng-src="/img/icons/trophy-small.png" width="16" height="16" title="Pokal" alt="Pokal" />
+	<img ng-if="vm.user.donor == 'yes'" class="icon" ng-src="/img/icons/star-small.png" width="16" height="16" title="{{ 'ADMIN.DONATED' | translate }}" />
+	<img ng-if="vm.user.coin == 1" class="icon" ng-src="/img/icons/coin-small.png" width="16" height="16" title="{{ 'USER.GOLD_COIN' | translate }}" />
+	<img ng-if="vm.user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-small.png" width="16" height="16" title="{{ 'USER.DISABLED' | translate }}" />
+	<img ng-if="vm.user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-small.png" width="16" height="13" title="{{ 'USER.WARNED' | translate }}" />
+	<img ng-if="vm.user.username && vm.user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-small.png" width="18" height="16" title="100% LeechBonus" />
+	<img ng-if="vm.user.crown == 1" class="icon" ng-src="/img/icons/crown-small.png" width="16" height="16" title="{{ 'USER.CROWN' | translate }}" />
+	<img ng-if="vm.user.pokal == 1" class="icon" ng-src="/img/icons/trophy-small.png" width="16" height="16" title="{{ 'USER.TROPHY' | translate }}" />
 </span>
 
 <span ng-if="(vm.showIcons == 'true' || !vm.showIcons) && vm.iconSize == 'big'">
-	<img ng-if="vm.user.donor == 'yes'" class="icon" ng-src="/img/icons/star-big.png" width="23" height="23" title="Donerat" alt="Donerat" />
-	<img ng-if="vm.user.coin == 1" class="icon" ng-src="/img/icons/coin-big.png" width="23" height="23" title="Guldpeng" alt="Guldpeng" />
-	<img ng-if="vm.user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-big.png" width="20" height="20" title="Avstängd" alt="Avstängd" />
-	<img ng-if="vm.user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-big.png" width="23" height="19" title="Varnad" alt="Varnad" />
-	<img ng-if="vm.user.username && vm.user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-big.png" width="23" height="23" title="100% leechbonus" alt="100% leechbonus" />
-	<img ng-if="vm.user.crown == 1" class="icon" ng-src="/img/icons/crown-big.png" width="23" height="23" title="Krona" alt="Krona" />
-	<img ng-if="vm.user.pokal == 1" class="icon" ng-src="/img/icons/trophy-big.png" width="23" height="23" title="Pokal" alt="Pokal" />
+	<img ng-if="vm.user.donor == 'yes'" class="icon" ng-src="/img/icons/star-big.png" width="23" height="23" title="{{ 'ADMIN.DONATED' | translate }}" />
+	<img ng-if="vm.user.coin == 1" class="icon" ng-src="/img/icons/coin-big.png" width="23" height="23" title="{{ 'USER.GOLD_COIN' | translate }}" />
+	<img ng-if="vm.user.enabled == 'no'" class="icon" ng-src="/img/icons/disabled-big.png" width="20" height="20" title="{{ 'USER.DISABLED' | translate }}" />
+	<img ng-if="vm.user.warned == 'yes'" class="icon" ng-src="/img/icons/warned-big.png" width="23" height="19" title="{{ 'USER.WARNED' | translate }}" />
+	<img ng-if="vm.user.username && vm.user.leechbonus >= 100" class="icon" ng-src="/img/icons/leechbonus-big.png" width="23" height="23" title="100% LeechBonus" />
+	<img ng-if="vm.user.crown == 1" class="icon" ng-src="/img/icons/crown-big.png" width="23" height="23" title="{{ 'USER.CROWN' | translate }}" />
+	<img ng-if="vm.user.pokal == 1" class="icon" ng-src="/img/icons/trophy-big.png" width="23" height="23" title="{{ 'USER.TROPHY' | translate }}" />
 </span>
 
 <span ng-show="(!vm.showClass || vm.showClass == 'true') && vm.user.class != null">
@@ -28,6 +28,6 @@
 	<span ng-hide="::vm.user.title"> ({{ ::vm.user.class | userClass }})</span>
 </span>
 
-<span ng-show="::vm.user.anonymous"> <i>(Anonym)</i></span>
+<span ng-show="::vm.user.anonymous"> <i>({{ 'GENERAL.ANONYMOUS' | translate }})</i></span>
 
-<i ng-show="!vm.user.username">Anonym</i>
+<i ng-show="!vm.user.username" translate="GENERAL.ANONYMOUS"></i>

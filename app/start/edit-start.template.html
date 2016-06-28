@@ -20,14 +20,13 @@
 		<select ng-model="vm.list.sort" ng-options="i.name for i in vm.data.sort" class="form-control">
 		</select>
 	</td>
-
 	<td>
-		<select ng-model="vm.list.genre" ng-options="i.id for i in vm.data.genre" class="form-control">
-			<option value="">-- Alla genrer --</option>
+		<select ng-model="vm.list.genre" ng-options="i.id for i in vm.data.genres" class="form-control">
+			<option value="">-- {{ 'START.ALL_GENRES' | translate }} --</option>
 		</select>
 	</td>
 	<td>
-		<button ng-click="vm.add()" class="btn btn-default"><i class="fa fa-plus"></i> Lägg till</button>
+		<button ng-click="vm.add()" class="btn btn-default"><i class="fa fa-plus"></i> {{ 'START.ADD' | translate }}</button>
 	</td>
 </tr>
 </table>
@@ -47,16 +46,16 @@
 			</div>
 			<br style="clear: both" />
 			<div class="text-center">
-				<button ng-hide="$index == 0" ng-click="vm.move(row.id, 0)" class="btn btn-default"><i class="fa fa-arrow-up"></i> Flytta upp</button>
-				<button ng-hide="$index == vm.highligtedTorrents.length-1" ng-click="vm.move(row.id, 1)" class="btn btn-default"><i class="fa fa-arrow-down"></i> Flytta ner</button>
-				<button ng-click="vm.delete(row.id)" class="btn btn-default"><i class="fa fa-trash-o"></i> Radera</button>
+				<button ng-hide="$index == 0" ng-click="vm.move(row.id, 0)" class="btn btn-default"><i class="fa fa-arrow-up"></i> {{ 'START.MOVE_UP' | translate }}</button>
+				<button ng-hide="$index == vm.highligtedTorrents.length-1" ng-click="vm.move(row.id, 1)" class="btn btn-default"><i class="fa fa-arrow-down"></i> {{ 'START.MOVE_DOWN' | translate }}</button>
+				<button ng-click="vm.delete(row.id)" class="btn btn-default"><i class="fa fa-trash-o"></i> {{ 'START.DELETE' | translate }}</button>
 			</div>
 			<br style="clear: both;" />
 		</div>
 	</div>
 </div>
 <div class="text-center">
-Klicka för att återställa till fördefinierad startsida för kategori:
+{{ 'START.RESTORE_START' | translate }}
 	<button ng-click="vm.reset(1)" class="btn btn-default">DVDR</button>
 	<button ng-click="vm.reset(2)" class="btn btn-default">720p HD</button>
 	<button ng-click="vm.reset(3)" class="btn btn-default">1080p HD</button>

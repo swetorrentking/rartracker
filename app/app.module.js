@@ -27,7 +27,8 @@
 			/* 3rd-party modules */
 			'ui.router',
 			'ui.bootstrap',
-			'chart.js'
+			'chart.js',
+			'pascalprecht.translate',
 		]);
 
 	angular

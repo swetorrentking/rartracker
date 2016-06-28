@@ -15,7 +15,7 @@ class WatchingSubtitles implements IResource {
 		$sth->execute();
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$res) {
-			throw new Exception("Bevakningen finns inte.", 404);
+			throw new Exception(L::get("SUBTITLE_WATCH_NOT_FOUND"), 404);
 		}
 		return $res;
 	}
@@ -41,7 +41,7 @@ class WatchingSubtitles implements IResource {
 		$sth->bindParam(2, $postdata["torrentid"], PDO::PARAM_INT);
 		$sth->execute();
 		if ($sth->fetch()) {
-			throw new Exception("Redan bokmärkt.", 409);
+			throw new Exception(L::get("ALREADY_BOOKMARKED"), 409);
 		}
 
 		$sth = $this->db->prepare("INSERT INTO bevakasubs(userid, torrentid) VALUES(?, ?)");
@@ -53,7 +53,7 @@ class WatchingSubtitles implements IResource {
 	public function delete($id, $postdata = null) {
 		$bookmark = $this->get($id);
 		if ($bookmark["userid"] != $this->user->getId()) {
-			throw new Exception('Du saknar rättigheter att radera bokmärket');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$this->db->query('DELETE FROM bevakasubs WHERE id = ' . $bookmark["id"]);
 	}

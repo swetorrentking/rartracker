@@ -162,7 +162,7 @@ class Torrent {
 
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$torrent) {
-			throw new Exception('Torrenten finns inte.', 404);
+			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
 		if ($wantUser) {
@@ -259,16 +259,16 @@ class Torrent {
 		if ($time == 0) {
 			$daysAgo = date("Y-m-d H:i:s", time() - 172800); // 2 dar
 			$wherea[] = 't.added > "' . $daysAgo .'"';
-			$timeString = 'Dagens ';
+			$timeString = L::get("TORRENT_HIGHLIGHT_TIME_DAY");
 		} else if ($time == 1) {
 			$week = date("Y-m-d H:i:s", time() - 604800); // 7 dar
 			$wherea[] = 't.added > "' . $week.'"';
-			$timeString = 'Veckans ';
+			$timeString = L::get("TORRENT_HIGHLIGHT_TIME_WEEK");
 		}
 		else { // 2
 			$month = date("Y-m-d H:i:s", time() - 2419200); // 1 månad
 			$wherea[] = 't.added > "' . $month.'"';
-			$timeString = 'Månadens ';
+			$timeString = L::get("TORRENT_HIGHLIGHT_TIME_MONTH");
 		}
 
 
@@ -276,30 +276,30 @@ class Torrent {
 
 			if($type == 0) {
 				$wherea[] = 't.category IN (1,2)';
-				$formatString = 'DVD-filmer';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_DVD_MOVIES");
 			} else {
 				$wherea[] = 't.category IN (3)';
-				$formatString = 'DVD-serier';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_DVD_TV");
 			}
 
 		} else if ($format == 1) {
 
 			if ($type == 0) {
 				$wherea[] = 't.category IN (4)';
-				$formatString = '720p HD-filmer';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_HD_MOVIES");
 			} else {
 				$wherea[] = 't.category IN (6)';
-				$formatString = '720p HD-serier';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_HD_TV");
 			}
 
 		} if ($format == 2) {
 
 			if ($type == 0) {
 				$wherea[] = 't.category IN (5)';
-				$formatString = '1080p  HD-filmer';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_FULL_HD_MOVIES");
 			} else {
 				$wherea[] = 't.category IN (7)';
-				$formatString = '1080p HD-serier';
+				$formatString = L::get("TORRENT_HIGHLIGHT_CATEGORY_FULL_HD_TV");
 			}
 
 		}
@@ -310,19 +310,19 @@ class Torrent {
 			$year = 'AND i.year >= 2011';
 		} else {
 			$wherea[] = "section = 'archive'";
-			$sectionString = ' från arkivet ';
+			$sectionString = L::get("TORRENT_HIGHLIGHT_SECTION_ARCHIVE");
 			$year = '';
 		}
 
 		if($sort == 1) {
 			$sort = 'ORDER BY t.added DESC';
-			$sortString = 'senaste ';
+			$sortString = L::get("TORRENT_HIGHLIGHT_SORT_LATEST");
 		} else if ($sort == 2) {
 			$sort = 'ORDER BY t.seeders DESC';
-			$sortString = 'populäraste ';
+			$sortString = L::get("TORRENT_HIGHLIGHT_SORT_POPULAR");
 		} else {
 			$sort = 'ORDER BY i.rating DESC';
-			$sortString = 'bästa ';
+			$sortString = L::get("TORRENT_HIGHLIGHT_SORT_BEST");
 		}
 
 		$tgenre = "";
@@ -331,7 +331,7 @@ class Torrent {
 			$tgenre = strtolower($genres) . ' ';
 		}
 
-		$headline = $timeString . $sortString . $tgenre. $formatString . $sectionString;
+		$headline = ucfirst(L::get("TORRENT_HIGHLIGHT_STRING", [$timeString, $sortString, $tgenre, $formatString, $sectionString]));
 
 		$where = implode(" AND ", $wherea);
 
@@ -388,11 +388,11 @@ class Torrent {
 		$sth->execute();
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$torrent) {
-			throw new Exception('Torrenten finns inte.');
+			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
 		if ($this->user->getClass() < User::CLASS_ADMIN && $this->user->getId() != $torrent["owner"] && $this->user->getId() !== 1) {
-			throw new Exception('Du saknar rättigheter att radera torrenten.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($attachTorrentId > 0) {
@@ -400,15 +400,15 @@ class Torrent {
 		}
 
 		if ($this->user->getClass() < User::CLASS_ADMIN && time() - $torrent["added"] > 604800) {
-			throw new Exception("Radering spärrad på torrents över 7 dagar", 401);
+			throw new Exception(L::get("TORRENT_DELETE_BLOCK"), 401);
 		}
 
 		if ($pmPeers == 1) {
-			$subject = "En torrent du seedar har raderats";
-			$message = "Torrenten [b]".$torrent["name"]."[/b] som du seedar har blivit raderad.\n\nAnledning: [b]".$reason."[/b]";
+			$subject = L::get("TORRENT_SEEDED_DELETED_PM_SUBJECT");
+			$message = L::get("TORRENT_SEEDED_DELETED_PM_BODY", [$torrent["name"], $reason]);
 
 			if ($betterTorrent) {
-				$message .= "\n\nLadda ner följande istället: [url=/torrent/" . $betterTorrent["id"] . "/".$betterTorrent["name"]."][b]".$betterTorrent["name"]."[/b][/url]";
+				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
 			}
 
 			$sth = $this->db->query("SELECT userid FROM peers WHERE torrent = ".$id." GROUP BY userid");
@@ -421,11 +421,11 @@ class Torrent {
 		}
 
 		if ($pmUploader == 1 && $torrent["owner"] != $this->user->getId()) {
-			$subject = "Din torrent har raderats";
-			$message = "Torrenten [b]".$torrent["name"]."[/b] som du laddat upp har blivit raderad.\n\nAnledning: [b]".$reason."[/b]";
+			$subject = L::get("TORRENT_YOUR_DELETED_PM_SUBJECT");
+			$message = L::get("TORRENT_YOUR_DELETED_PM_BODY", [$torrent["name"], $reason]);
 
 			if ($betterTorrent) {
-				$message .= "\n\nLadda ner följande istället: [url=/torrent/" . $betterTorrent["id"] . "/".$betterTorrent["name"]."][b]".$betterTorrent["name"]."[/b][/url]";
+				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
 			}
 
 			$this->mailbox->sendSystemMessage($torrent["owner"], $subject, $message);
@@ -476,19 +476,19 @@ class Torrent {
 		} else {
 			$anonymous = 0;
 		}
-		$this->log->log(3, "Torrent ([b]".$torrent["name"]."[/b]) raderades utav {{username}} med anledningen: [i]".$reason."[/i]", $this->user->getId(), $anonymous);
+		$this->log->log(3, L::get("TORRENT_DELETED_LOG", [$torrent["name"], $reason]), $this->user->getId(), $anonymous);
 	}
 
 	public function deleteTorrentsInPack($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare('SELECT id, name FROM torrents WHERE id = ?');
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
 		$sth->execute();
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$torrent) {
-			throw new Exception("Torrenten finns inte.", 404);
+			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
 		$sth = $this->db->prepare('SELECT * FROM packfiles WHERE torrent = ?');
@@ -512,17 +512,16 @@ class Torrent {
 				$userToPmArray[$user[0]][] = $packTorrent["name"];
 			}
 
-			$this->delete($packTorrent["id"], "Finns nu inuti ett pack", 0, 0, 0);
+			$this->delete($packTorrent["id"], L::get("TORRENT_NOW_EXISTS_IN_PACK"), 0, 0, 0);
 		}
 
 		foreach ($userToPmArray as $userid => $torrents) {
-			$subject = "Torrents du seedar har ersatts med pack";
-			$message = "Följande torrents som du seedar:\n\n";
+			$subject = L::get("TORRENT_REPLACED_WITH_PACK_PM_SUBJECT");
+			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY") . "\n\n";
 			foreach($torrents as $t) {
 				$message .= "[b]".$t."[/b]\n";
 			}
-			$message .= "\n...har blivit raderade eftersom de nu [b]finns nu inuti ett pack[/b]";
-			$message .= "\n\nLadda gärna istället ner packet: [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]";
+			$message .= L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY_2") . " [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]";
 
 			$this->mailbox->sendSystemMessage($userid, $subject, $message);
 		}
@@ -530,7 +529,7 @@ class Torrent {
 
 	public function multiDelete($options) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception("Du saknar rättigheter.", 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$userToPmArray = array();
 
@@ -559,14 +558,14 @@ class Torrent {
 		}
 
 		foreach ($userToPmArray as $userid => $torrents) {
-			$subject = "Torrents du seedar har raderats";
-			$message = "Följande torrents som du seedar:\n\n";
+			$subject = L::get("TORRENT_MULTI_SEEDING_DELETED_PM_TOPIC");
+			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY") . "\n\n";
 			foreach($torrents as $t) {
 				$message .= "[b]".$t."[/b]\n";
 			}
-			$message .= "\n...har blivit raderade med anledning [b]".$options["reason"]."[/b]";
+			$message .= L::get("TORRENT_MULTI_SEEDING_DELETED_REASON", [$options["reason"]]);
 			if ($betterTorrent) {
-				$message .= "\n\nLadda ner följande istället: [url=/torrent/" . $betterTorrent["id"] . "/".$betterTorrent["name"]."][b]".$betterTorrent["name"]."[/b][/url]";
+				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
 			}
 			$this->mailbox->sendSystemMessage($userid, $subject, $message);
 		}
@@ -578,17 +577,17 @@ class Torrent {
 		$sth->execute();
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$torrent) {
-			throw new Exception('Torrenten finns inte.');
+			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
 		if ($this->user->getClass() < User::CLASS_ADMIN && $this->user->getId() != $torrent["owner"]) {
-			throw new Exception('Du saknar rättigheter att redigera torrenten.');
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		if ($torrent["swesub"] != $post["swesub"] && $post["swesub"] == 0) {
 			$subtitles = $this->subtitles->fetch($torrent["id"]);
 			if (count($subtitles) > 0) {
-				throw new Exception('Torrenten innehåller kopplade undertexter.');
+				throw new Exception(L::get("TORRENT_HAS_SUBTITLES"));
 			}
 		}
 
@@ -622,13 +621,13 @@ class Torrent {
 				$tvProgram = $post["programTitle"];
 				$tvTime = strtotime($post["programDate"] . ' ' . $post["programTime"]);
 				if (strlen($tvProgram) < 2) {
-					throw new Exception('Programnamnet för kort.');
+					throw new Exception(L::get("TORRENT_TV_NAME_TOO_SHORT"), 412);
 				}
 				$tvProgramId = 2;
 			} else {
 				$sweTv = $this->sweTv->getProgram($tvProgramId);
 				if (!$sweTv) {
-					throw new Exception('Ogiltigt TV-program valt.');
+					throw new Exception(L::get("TORRENT_TV_PROGRAM_INVALID"));
 				}
 
 				$tvProgram = $sweTv["program"];
@@ -679,13 +678,13 @@ class Torrent {
 			$anonymousEdit = 0;
 		}
 
-		$this->log->log(2, "Torrent ([url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]) ändrades utav {{username}}", $this->user->getId(), $anonymousEdit);
+		$this->log->log(2, L::get("TORRENT_EDITED_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]]), $this->user->getId(), $anonymousEdit);
 	}
 
 	public function upload($uploaded_file, $post) {
 
 		if ($this->user->isUploadBanned()) {
-			throw new Exception("Du är bannad ifrån att kunna ladda upp torrents.", 401);
+			throw new Exception(L::get("TORRENT_UPLOAD_BANNED"), 401);
 		}
 
 		$max_torrent_size = 10000000;
@@ -694,36 +693,36 @@ class Torrent {
 		include('benc.php');
 
 		if ($post["category"] < 1 || $post["category"] > 15) {
-			throw new Exception('Ogiltig kategori.');
+			throw new Exception(L::get("TORRENT_INVALID_CATEGORY"));
 		}
 
 		if ($post["section"] !== 'new' && $post["section"] !== 'archive') {
-			throw new Exception('Ogiltig sektion.');
+			throw new Exception(L::get("TORRENT_INVALID_SECTION"));
 		}
 
 		if (!preg_match("/\.torrent$/", $uploaded_file["name"], $match)) {
-			throw new Exception('Ingen torrent-fil.');
+			throw new Exception(L::get("TORRENT_INVLID_FILE"));
 		}
 
 		if (!is_uploaded_file($uploaded_file["tmp_name"])) {
-			throw new Exception('Filen kunde inte laddas upp.');
+			throw new Exception(L::get("TORRENT_UPLOAD_ERROR"));
 		}
 
 		if (!filesize($uploaded_file["tmp_name"])) {
-			throw new Exception('Filen verkar vara tom.');
+			throw new Exception(L::get("TORRENT_EMPTY_FILE_ERROR"));
 		}
 
 		if ($post["category"] == Torrent::TV_SWE && $post["section"] == 'new' && ($post["channel"] == 0 || $post["program"] == 0)){
-			throw new Exception('Du måste välja kanal och program för ny Svensk TV.');
+			throw new Exception(L::get("TORRENT_SWE_TV_DATA_MISSING"), 412);
 		}
 
 		if ($post["reqid"] > 0) {
 			$request = $this->requests->get($post["reqid"]);
 			if ($this->user->getId() == $request["user"]["id"]) {
-				throw new Exception("Du får inte fylla din egna request", 400);
+				throw new Exception(L::get("TORRENT_FILL_OWN_REQUEST_ERROR"), 400);
 			}
 			if ($request["filled"] == 1) {
-				throw new Exception("Requesten är redan fylld.", 400);
+				throw new Exception(L::get("TORRENT_REQUEST_ALREADY_FILLED_ERROR"), 400);
 			}
 		}
 
@@ -786,13 +785,13 @@ class Torrent {
 				$tvProgram = $post["programTitle"];
 				$tvTime = strtotime($post["programDate"]);
 				if (strlen($tvProgram) < 2) {
-					throw new Exception('Programnamnet för kort.');
+					throw new Exception(L::get("TORRENT_TV_NAME_TOO_SHORT"));
 				}
 				$tvProgramId = 2;
 			} else {
 				$sweTv = $this->sweTv->getProgram($tvProgramId);
 				if (!$sweTv) {
-					throw new Exception('Ogiltigt TV-program valt.');
+					throw new Exception(L::get("TORRENT_TV_PROGRAM_INVALID"));
 				}
 
 				$tvProgram = $sweTv["program"];
@@ -804,37 +803,37 @@ class Torrent {
 
 
 		if ($this->user->getClass() < User::CLASS_UPLOADER && $section == 'new') {
-			throw new Exception('Bara uppladdare kan ladda upp på nytt.');
+			throw new Exception(L::get("TORRENT_UPLOADER_REQUIRED_NEW"));
 		}
 
 		$sth = $this->db->prepare("SELECT COUNT(*) FROM torrents WHERE name = ?");
 		$sth->execute(Array($name));
 		$arr = $sth->fetch();
 		if ($arr[0] == 1) {
-			throw new Exception('Dublett. Releasen finns redan på sidan.');
+			throw new Exception(L::get("TORRENT_CONFLICT"), 409);
 		}
 
 		$sth = $this->db->prepare("SELECT COUNT(*) FROM packfiles WHERE filename = ?");
 		$sth->execute(Array($name));
 		$arr = $sth->fetch();
 		if ($arr[0] == 1) {
-			throw new Exception('Dublett. Releasen finns redan inuti ett pack.');
+			throw new Exception(L::get("TORRENT_CONFLICT_IN_PACK"), 409);
 		}
 
 		$sth = $this->db->prepare("SELECT comment FROM banned WHERE namn = ?");
 		$sth->execute(Array($name));
 		while ($arr = $sth->fetch(PDO::FETCH_ASSOC)) {
-			throw new Exception('Releasen är bannad med anledning: ' . $arr["comment"]);
+			throw new Exception(L::get("TORRENT_BANNED", [$arr["comment"]]));
 		}
 
 		$dict = bdec_file($uploaded_file["tmp_name"], $max_torrent_size);
 		if (!isset($dict)) {
-			throw new Exception('Fel på .torrent-filen.');
+			throw new Exception(L::get("TORRENT_FILE_ERROR"));
 		}
 
 		function dict_check($d, $s) {
 			if ($d["type"] != "dictionary") {
-				throw new Exception("Filen är inte en torrent-fil");
+				throw new Exception(L::get("TORRENT_INVLID_FILE"));
 			}
 			$a = explode(":", $s);
 			$dd = $d["value"];
@@ -847,7 +846,7 @@ class Torrent {
 				}
 				if (isset($t)) {
 					if ($dd[$k]["type"] != $t) {
-						throw new Exception("Torrent-filen saknar troligtvis announce/tracker url.");
+						throw new Exception(L::get("TORRENT_MISSING_ANNOUNCE_URL"));
 					}
 					$ret[] = $dd[$k]["value"];
 				}
@@ -859,14 +858,14 @@ class Torrent {
 
 		function dict_get($d, $k, $t) {
 			if ($d["type"] != "dictionary") {
-				throw new Exception("Fel på torrent-fil.");
+				throw new Exception(L::get("TORRENT_FILE_ERROR"));
 			}
 			$dd = $d["value"];
 			if (!isset($dd[$k]))
 				return;
 			$v = $dd[$k];
 			if ($v["type"] != $t) {
-				throw new Exception("Fel på torrent-fil.");
+				throw new Exception(L::get("TORRENT_FILE_ERROR"));
 			}
 			return $v["value"];
 		}
@@ -875,7 +874,7 @@ class Torrent {
 		list($dname, $plen, $pieces) = dict_check($info, "name(string):piece length(integer):pieces(string)");
 
 		if (strlen($pieces) % 20 != 0) {
-			throw new Exception("Fel på torrent-fil.");
+			throw new Exception(L::get("TORRENT_FILE_ERROR"));
 		}
 
 		$filelist = array();
@@ -887,10 +886,10 @@ class Torrent {
 		else {
 			$flist = dict_get($info, "files", "list");
 			if (!isset($flist)) {
-				throw new Exception("Saknar både längd och filer.");
+				throw new Exception(L::get("TORRENT_MISSSING_FILES_LENGTH"));
 			}
 			if (!count($flist)) {
-				throw new Exception("Torrent saknar filer.");
+				throw new Exception(L::get("TORRENT_MISSING_FILES"));
 			}
 			$totallen = 0;
 			foreach ($flist as $fn) {
@@ -899,12 +898,12 @@ class Torrent {
 				$ffa = array();
 				foreach ($ff as $ffe) {
 					if ($ffe["type"] != "string"){
-						throw new Exception("Fel på filnamn.");
+						throw new Exception(L::get("TORRENT_FILE_NAME_ERROR"));
 					}
 					$ffa[] = $ffe["value"];
 				}
 				if (!count($ffa)) {
-					throw new Exception("Fel på filnamn.");
+					throw new Exception(L::get("TORRENT_FILE_NAME_ERROR"));
 				}
 				$ffe = implode("/", $ffa);
 				$filelist[] = array($ffe, $ll);
@@ -929,13 +928,13 @@ class Torrent {
 			foreach($foundBanned as $f)
 				$files .= '\''.$f. '\', ';
 
-			$this->adminlog->create("[b]".$this->user->getUsername()."[/b] försökte ladda upp [i]".$name."[/i] innehållandes otllåtna skräpfil(er): [b]".$files."[/b].");
-			throw new Exception("Din torrent innehåller följande otillåtna skräpfiler: [b]".$files);
+			$this->adminlog->create(L::get("TORRENT_CONTAINING_BANNED_FILES_LOG", [$this->user->getUsername(), $name, $files]));
+			throw new Exception(L::get("TORRENT_CONTAINING_BANNED_FILES", [$files]));
 		}
 
 		if(($txt = $this->detectMissingFiles($filelist)) != false) {
-			$this->adminlog->create('[b]'.$this->user->getUsername().'[/b] försökte ladda upp [i]'.$name.'[/i] men: ' . $txt);
-			throw new Exception("Fattas filer i torrent: " . $txt);
+			$this->adminlog->create(L::get("TORRENT_PREVENTED_BANNED_FILE", [$this->user->getUsername(), $name]) . $txt);
+			throw new Exception(L::get("TORRENT_MISSING_FOLLOWING_FILES") . $txt);
 		}
 
 		$info['value']['source']['type'] = "string";
@@ -955,7 +954,7 @@ class Torrent {
 		$sth->execute();
 		$arr = $sth->fetch();
 		if ($arr[0] == 1) {
-			throw new Exception('Dublett. Releasen finns redan på sidan.');
+			throw new Exception(L::get("TORRENT_CONFLICT"), 409);
 		}
 
 		$pre = Helper::preCheck($name);
@@ -968,9 +967,9 @@ class Torrent {
 			/* Use pre-time to determine New or Archive section */
 			if ($section == 'archive' && $pre > time() - 604800) {
 				$section = 'new';
-				$this->adminlog->create("[b]".$this->user->getUsername()."[/b] laddade upp [i]'".$name."'[/i] på Arkiv men PRE-tid säger under 7 dagar, auto-flyttar till Nytt.");
+				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_NEW", [$this->user->getUsername(), $name]));
 			} else if ($section == 'new' && time() - $pre > 604800) {
-				$this->adminlog->create("[b]".$this->user->getUsername()."[/b] laddade upp [i]'".$name."'[/i] på Nytt men PRE-tid säger över 7 dagar, auto-flyttar till Arkiv.");
+				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_ARCHIVE", [$this->user->getUsername(), $name]));
 				$section = 'archive';
 			}
 		}
@@ -1002,7 +1001,7 @@ class Torrent {
 		$res = $sth->fetch(PDO::FETCH_ASSOC);
 		if ($res) {
 			if ($res["whitelist"] == 0) {
-				throw new Exception("Release-gruppen är bannad med anledningen: " . $res["comment"], 401);
+				throw new Exception(L::get("TORRENT_RELEASE_GROUP_BANNED", [$res["comment"]]), 401);
 			} else {
 				$p2p = 1;
 			}
@@ -1111,17 +1110,17 @@ class Torrent {
 
 			$uploader = "[url=/user/".$this->user->getId() ."/".$this->user->getUsername()."][b]".$this->user->getUsername()."[/b][/url]";
 			if ($anonymousUpload) {
-				$uploader = "[i]Anonym[/i]";
+				$uploader = "[i]".L::get("TORRENT_ANONYMOUS")."[/i]";
   			}
-			$message = "Requesten [url=/torrent/" . $insertId . "/".$name."][b]".$name."[/b][/url] har blivit uppladdad av " . $uploader;
+			$message = L::get("TORRENT_REQUEST_FILLED_PM_BODY", [$insertId, $name, $name, $uploader]);
   			foreach ($votes as $vote) {
   				if ($vote["user"]["id"] !== $this->user->getId()) {
-  					$this->mailbox->sendSystemMessage($vote["user"]["id"], "Request uppladdad!", $message);
+  					$this->mailbox->sendSystemMessage($vote["user"]["id"], L::get("TORRENT_REQUEST_FILLED_PM_TOPIC"), $message);
   				}
 			}
 		}
 
-		$this->log->log(1, "Torrent ([url=/torrent/" . $insertId . "/".$name."][b]".$name."[/b][/url]) laddades upp utav {{username}}", $this->user->getId(), $anonymousUpload);
+		$this->log->log(1, L::get("TORRENT_UPLOADED_LOG", [$insertId, $name, $name]), $this->user->getId(), $anonymousUpload);
 
 		/* Flush memcached */
 		if ($memcached && $category == 8) {
@@ -1153,7 +1152,7 @@ class Torrent {
 		$filepath = $this->torrentDir . $torrent["id"] . ".torrent";
 
 		if (!file_exists($filepath)) {
-			throw new Exception('Torrentfilen saknas.', 404);
+			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
 		if ($this->user->getHttps()) {
@@ -1237,12 +1236,12 @@ class Torrent {
 			foreach($arr as $ar) {
 				if ($antal > $ar["id"]) {
 					if ($ar["s"] < 50000000) {
-						$status.= "Fel storlek på rar" . $ar["id"] . ". ";
+						$status.= L::get("TORRENT_WRONG_RAR_FILE_SIZE", [$ar["id"]]);
 					}
 				}
 
 				if ($sista + 1 != $ar["id"]) {
-					$status.= "Fil " . ($sista + 1) . " saknas. ";
+					$status.= L::get("TORRENT_MISSING_FILE", [$sista + 1]);
 				}
 
 				$sista = $ar["id"];
@@ -1262,7 +1261,7 @@ class Torrent {
 
 	public function getSnatchLog($torrentId) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->query('SELECT snatch.*, snatch.uploaded AS s_uploaded, snatch.downloaded AS s_downloaded, snatch.id AS snatchId, '.implode(',', User::getDefaultFields()).' FROM snatch LEFT JOIN users ON snatch.userid = users.id WHERE snatch.torrentid = ' . $torrentId . ' ORDER BY klar DESC');
 

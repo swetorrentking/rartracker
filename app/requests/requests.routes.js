@@ -53,8 +53,8 @@
 			})
 			.state('requests.edit', {
 				url			: '/:id/:slug/edit',
-				templateUrl : '../app/requests/edit-request.template.html',
-				controller  : 'EditRequestController as vm',
+				templateUrl : '../app/requests/add-request.template.html',
+				controller  : 'AddRequestController as vm',
 				resolve		: { user: authService => authService.getPromise() }
 			})
 			.state('requests.my', {

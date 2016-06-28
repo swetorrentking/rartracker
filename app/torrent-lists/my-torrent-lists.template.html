@@ -1,15 +1,15 @@
 <div class="text-center">
-	<h1>Mina egna listor</h1>
+	<h1 translate="LIST.MY_LISTS"></h1>
 
 	<loading-indicator hide="vm.torrentLists"></loading-indicator>
 	<torrent-lists torrent-lists="vm.torrentLists"></torrent-lists>
-	<div ng-show="vm.torrentLists.length === 0" class="alert alert-warning" role="alert">Du har inga egna torrentlistor</div>
+	<div ng-show="vm.torrentLists.length === 0" class="alert alert-warning" role="alert" translate="LIST.NO_OWN_LISTS"></div>
 	<br />
 
-	<h1>Mina bokmärkta listor</h1>
+	<h1 translate="LIST.MY_BOOKMARKED"></h1>
 
 	<loading-indicator hide="vm.bookmarks"></loading-indicator>
 	<torrent-lists torrent-lists="vm.bookmarks" on-delete="vm.delete(torrentList)" col-delete="true"></torrent-lists>
 	<br />
-	<div ng-show="vm.bookmarks.length == 0" class="alert alert-warning" role="alert">Du har inga bokmärkta torrentlistor</div>
+	<div ng-show="vm.bookmarks.length == 0" class="alert alert-warning" role="alert" translate="LIST.NO_BOOKMARKS"></div>
 </div>

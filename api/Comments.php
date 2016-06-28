@@ -17,7 +17,7 @@ class Comments {
 		$sth->execute();
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
 		if (!$torrent) {
-			throw new Exception('Torrenten finns inte.');
+			throw new Exception(L::get("TORRENT_NOT_EXIST"), 404);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM comments WHERE torrent = ?');
@@ -58,7 +58,7 @@ class Comments {
 	public function getCommentsForUserTorrents($userId, $limit = 10, $index = 0) {
 
 		if ($userId != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM comments LEFT JOIN users ON users.id = comments.user LEFT JOIN torrents ON torrents.id = comments.torrent WHERE torrents.owner = ? AND comments.user != ?');
 		$sth->bindParam(1, $userId, PDO::PARAM_INT);
@@ -101,7 +101,7 @@ class Comments {
 
 	public function getUserComments($userId, $limit = 10, $index = 0) {
 		if ($userId != $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$sth = $this->db->prepare('SELECT COUNT(*) FROM comments WHERE user = ?');
@@ -143,7 +143,7 @@ class Comments {
 
 	public function getAllComments($limit = 10, $index = 0) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 		$sth = $this->db->query('SELECT COUNT(*) FROM comments');
 		$arr = $sth->fetch();
@@ -195,7 +195,7 @@ class Comments {
 
 	public function delete($id) {
 		if ($this->user->getClass() < User::CLASS_ADMIN) {
-			throw new Exception('Du saknar rättigheter.', 401);
+			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
 
 		$comment = $this->get($id);
@@ -211,7 +211,7 @@ class Comments {
 		$comment = $sth->fetch(PDO::FETCH_ASSOC);
 
 		if (!$comment) {
-			throw new Exception('Kommentaren finns inte.');
+			throw new Exception(L::get("COMMENT_NOT_EXIST"), 404);
 		}
 
 		return $comment;
@@ -220,16 +220,16 @@ class Comments {
 	public function add($torrentId, $post) {
 
 		if (!$this->torrent->get($torrentId)) {
-			throw new Exception('Torrenten finns inte.');
+			throw new Exception(L::get("TORRENT_NOT_EXIST"), 404);
 		}
 
 		if (strlen($post) < 2) {
-			throw new Exception('Inlägget är för kort.');
+			throw new Exception(L::get("COMMENT_TOO_SHORT"), 412);
 		}
 
 		$lastComment = $this->getLastComment($torrentId);
 		if ($lastComment && $lastComment["user"] == $this->user->getId() && $this->user->getClass() < User::CLASS_ADMIN && (time() - strtotime($lastComment["added"]) < 86400)) {
-			throw new Exception('Du kan inte dubbelposta. Redigera ditt tidigare inlägg istället.');
+			throw new Exception(L::get("FORUM_DOUBLE_POST"));
 		}
 
 		$sth = $this->db->prepare('INSERT INTO comments(torrent, user, added, text) VALUES(?, ?, NOW(), ?)');
@@ -243,13 +243,13 @@ class Comments {
 
 	public function update($torrentId, $postId, $postData) {
 		if (strlen($postData) < 2) {
-			throw new Exception('Inlägget är för kort.');
+			throw new Exception(L::get("COMMENT_TOO_SHORT"), 412);
 		}
 
 		$post = $this->get($postId);
 
 		if ($post["torrent"] != $torrentId) {
-			throw new Exception('Inlägg och torrent matchar inte.');
+			throw new Exception(L::get("COMMENT_TORRENT_NOT_MATCHING"));
 		}
 
 		$sth = $this->db->prepare('UPDATE comments SET ori_text = text, text = ?, editedby = ?, editedat = NOW() WHERE id = ?');

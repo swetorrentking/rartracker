@@ -1,11 +1,11 @@
 <div class="text-center">
 	<div class="modal-header">
-		<h2 class="modal-title"><i class="fa fa-exclamation-triangle"></i> Fel</h2>
+		<h2 class="modal-title"><i class="fa fa-exclamation-triangle"></i> {{ 'GENERAL.ERROR_OCCURED' | translate }}</h2>
 	</div>
 	<div class="modal-body" ng-bind-html="::vm.body | bbCode"></div>
 	<div class="modal-footer">
 		<div class="button-group text-center">
-			<button class="btn btn-default" ng-click="vm.ok()">OK</button>
+			<button class="btn btn-default" ng-click="vm.ok()" translate="BUTTONS.CONFIRM"></button>
 		</div>
 	</div>
 </div>

@@ -1,12 +1,12 @@
 <div class="text-center">
 
-	<h1>Statistik</h1>
+	<h1 translate="STATISTICS.TITLE"></h1>
 
-	<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert">Du måste vara minst 'Skådis' för att kunna se all statistik</div>
+	<div ng-show="vm.currentUser.class == 0" class="alert alert-warning" role="alert" translate="GENERAL.PAGE_ACCESS_LIMIT" translate-value-class="Actor"></div>
 
 	<div ng-show="vm.currentUser.class > 0 && vm.dataLoaded">
 		<div class="panel panel-default" style="padding: 0px;">
-			<div class="panel-heading text-left">Användare</div>
+			<div class="panel-heading text-left" translate="MENU.USERS"></div>
 			<div class="panel-body text-left">
 
 				<div class="col-sm-6">
@@ -20,27 +20,27 @@
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.activeUsersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Aktiva användare']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-line" chart-data="vm.activeUsersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.activeUsers]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.activeClientsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Aktiva klienter']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-line" chart-data="vm.activeClientsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.activeClients]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.userSharedData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Utdelat per användare i snitt (Gigabyte)']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> GB'}">
+					<canvas class="chart chart-line" chart-data="vm.userSharedData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.sharedPerUser]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> GB'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.usersWith100LeechBonus" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Användare med 100% LeechBonus']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-line" chart-data="vm.usersWith100LeechBonus" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.usersFullLeechbonus]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-bar" chart-data="vm.registeredUsersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Registrerade användare']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-bar" chart-data="vm.registeredUsersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.registredUsers]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
@@ -52,7 +52,7 @@
 		</div>
 
 		<div class="panel panel-default" style="padding: 0px;">
-			<div class="panel-heading text-left">Torrents</div>
+			<div class="panel-heading text-left" translate="TORRENTS.TORRENTS"></div>
 			<div class="panel-body text-left">
 
 				<div class="col-sm-6">
@@ -65,12 +65,12 @@
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.totalSharedData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Total mängd utdelad data']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> TB'}">
+					<canvas class="chart chart-line" chart-data="vm.totalSharedData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.totalShared]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> TB'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-line" chart-data="vm.totalPeersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Antal peers']" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-line" chart-data="vm.totalPeersData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.numPeers]" chart-options="{pointDot: true, pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
@@ -78,16 +78,16 @@
 		</div>
 
 		<div class="panel panel-default" style="padding: 0px;">
-			<div class="panel-heading text-left">Forum</div>
+			<div class="panel-heading text-left" translate="FORUM.FORUMS"></div>
 			<div class="panel-body text-left">
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-bar" chart-data="vm.forumPostsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Nya foruminlägg']" chart-options="{pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-bar" chart-data="vm.forumPostsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.newForumPosts]" chart-options="{pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 
 				<div class="col-sm-6">
-					<canvas class="chart chart-bar" chart-data="vm.torrentCommentsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="['Nya torrentkommentarer']" chart-options="{pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
+					<canvas class="chart chart-bar" chart-data="vm.torrentCommentsData" chart-labels="vm.statsDateLabels" chart-legend="true" chart-series="[vm.titles.newTorrentComments]" chart-options="{pointHitDetectionRadius: 10, tooltipTemplate: '<%= value%> st'}">
 					</canvas>
 				</div>
 

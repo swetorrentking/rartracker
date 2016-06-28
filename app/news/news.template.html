@@ -1,8 +1,8 @@
 <div class="panel panel-green">
-	<div class="panel-heading">Nyheter</div>
+	<div class="panel-heading">{{ 'NEWS.TITLE' | translate }}</div>
 	<br />
 	<div class="text-center" style="margin-bottom: 10px;" ng-if="vm.currentUser.class >= 8">
-		<button ng-click="vm.createNews()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nyhet</button>
+		<button ng-click="vm.createNews()" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> {{ 'NEWS.CREATE' | translate }}</button>
 	</div>
 
 	<news mark-as-read="true"></news>

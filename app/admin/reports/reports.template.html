@@ -1,7 +1,7 @@
 <div class="text-center">
-	<h1>Rapporter</h1>
+	<h1 translate="ADMIN.REPORTS"></h1>
 
-	<div ng-show="vm.reports.length == 0" class="alert alert-warning" role="alert">Det finns inga obehandlade rapporter</div>
+	<div ng-show="vm.reports.length == 0" class="alert alert-warning" role="alert" translate="ADMIN.NO_NEW_REPORTS"></div>
 	<loading-indicator hide="vm.reports"></loading-indicator>
 
 	<div class="col-lg-10 col-lg-push-1">
@@ -11,7 +11,7 @@
 
 				<table class="table text-left noshadow" ng-show="vm.reports">
 					<tr ng-if="!report.deleted && report.type == 'torrent'">
-						<td>Namn</td>
+						<td translate="TORRENTS.NAME"></td>
 						<td>
 							<table>
 								<tr>
@@ -26,39 +26,39 @@
 						</td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'torrent'">
-						<td>Uppladdare</td>
+						<td translate="TORRENTS.UPLOADER"></td>
 						<td><user user="report.torrent.user"></user> <button ng-click="vm.sendMessage(report.torrent.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'comment'">
-						<td>Inlägg</td>
-						<td><p ng-bind-html="report.comment.text | bbCode"></p> <a target="_blank" ui-sref="torrent({id:report.comment.torrent})"><i class="fa fa-external-link"></i> Gå till torrent</a></td>
+						<td translate="FORUM.POST"></td>
+						<td><p ng-bind-html="report.comment.text | bbCode"></p> <a target="_blank" ui-sref="torrent({id:report.comment.torrent})"><i class="fa fa-external-link"></i> {{ 'ADMIN.GO_TO_TORRENT' | translate }}</a></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'comment'">
-						<td>Skribent</td>
+						<td translate="FORUM.CREATOR"></td>
 						<td><user user="report.comment.user"></user> <button ng-click="vm.sendMessage(report.comment.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'post'">
-						<td>Inlägg</td>
-						<td><p ng-bind-html="report.post.body | bbCode"></p><a target="_blank" ui-sref="forum.topic({id: report.post.topicid, forumid: report.post.forumid, 'lastpost': 1})"><i class="fa fa-external-link"></i> Gå till tråd</a></td>
+						<td translate="FORUM.POST"></td>
+						<td><p ng-bind-html="report.post.body | bbCode"></p><a target="_blank" ui-sref="forum.topic({id: report.post.topicid, forumid: report.post.forumid, 'lastpost': 1})"><i class="fa fa-external-link"></i> {{ 'FORUM.GO_TO_THREAD' | translate }}</a></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'post'">
-						<td>Skribent</td>
+						<td translate="FORUM.CREATOR"></td>
 						<td><user user="report.post.user"></user> <button ng-click="vm.sendMessage(report.post.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'pm'">
-						<td>Meddelande</td>
+						<td translate="MAILBOX.MESSAGE"></td>
 						<td><p ng-bind-html="report.pm.msg | bbCode" style="padding: 5px;"></p></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'pm'">
-						<td>Avsändare</td>
+						<td translate="MAILBOX.SENDER"></td>
 						<td><user user="report.pm.user"></user> <button ng-click="vm.sendMessage(report.pm.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'user'">
-						<td>Användare</td>
+						<td translate="TORRENTS.USER"></td>
 						<td><user user="report.reportedUser"></user> <button ng-click="vm.sendMessage(report.reportedUser)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'request'">
-						<td>Namn</td>
+						<td translate="TORRENTS.NAME"></td>
 						<td>
 							<table>
 								<tr>
@@ -66,7 +66,7 @@
 										<img class="categoryImage category{{ report.request.type }}" />
 									</td>
 									<td class="text-left vert-align">
-										<a href="" ui-sref="requests.request({id:report.request.id})">{{ report.request.request }}<span ng-show="report.request.season > 0"> (Säsong {{report.request.season}})</span></a>
+										<a href="" ui-sref="requests.request({id:report.request.id})">{{ report.request.request }}<span ng-show="report.request.season > 0"> ({{ 'REQUESTS.SEASON' | translate }} {{report.request.season}})</span></a>
 										<br />
 										<i>{{ report.request.comment }}</i>
 									</td>
@@ -75,32 +75,32 @@
 						</td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'request'">
-						<td>Uppladdare</td>
+						<td translate="TORRENTS.UPLOADER"></td>
 						<td><user user="report.request.user"></user> <button ng-click="vm.sendMessage(report.request.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'subtitle'">
-						<td>Undertext</td>
-						<td><a target="_self" href="/subdownload.php?id={{ report.subtitle.id }}">{{ report.subtitle.filnamn }}</a> <br /><a target="_blank" ui-sref="torrent({id:report.subtitle.torrentid})"><i class="fa fa-external-link"></i> Gå till torrent</a></td>
+						<td translate="WATCHER.SUBS"></td>
+						<td><a target="_self" href="/subdownload.php?id={{ report.subtitle.id }}">{{ report.subtitle.filnamn }}</a> <br /><a target="_blank" ui-sref="torrent({id:report.subtitle.torrentid})"><i class="fa fa-external-link"></i> {{ 'ADMIN.GO_TO_TORRENT' | translate }}</a></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'subtitle'">
-						<td>Uppladdare</td>
+						<td translate="TORRENTS.UPLOADER"></td>
 						<td><user user="report.subtitle.user"></user> <button ng-click="vm.sendMessage(report.subtitle.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr>
-						<td style="width: 125px;">Anledning</td>
+						<td style="width: 125px;" translate="TORRENTS.REASON"></td>
 						<td>{{ ::report.reason | bbCode }}</td>
 					</tr>
 					<tr>
-						<td>Rapportör</td>
+						<td translate="ADMIN.REPORTER"></td>
 						<td><user user="report.user"></user> <button ng-click="vm.sendMessage(report.user)" class="btn btn-xs btn-default"><i class="fa fa-envelope-o fa-fw"></i></button></td>
 					</tr>
 					<tr>
-						<td>Datum</td>
-						<td>{{ ::report.added }} ({{ ::report.added | dateDifference }} sedan)</td>
+						<td translate="TORRENTS.DATE"></td>
+						<td>{{ ::report.added }} ({{ ::report.added | dateDifference }} {{ 'MAILBOX.AGO' | translate }})</td>
 					</tr>
 					<tr>
 						<td>
-							<button ng-show="report.handledBy == null" ng-click="vm.handle(report)" class="btn btn-xs btn-default"><i class="fa fa-check"></i> Behandla</button>
+							<button ng-show="report.handledBy == null" ng-click="vm.handle(report)" class="btn btn-xs btn-default"><i class="fa fa-check"></i> {{ 'ADMIN.ATTEND' | translate }}</button>
 							<button ng-show="report.handledBy != null" class="btn btn-xs btn-default disabled"><i class="fa fa-check"></i> {{ report.handledBy.username }}</button>
 						</td>
 						<td>
@@ -108,14 +108,14 @@
 								<delete-torrent ng-if="report.type == 'torrent'" model="report" torrent="report.torrent" related-torrents="report.relatedTorrents"></delete-torrent>
 								<br ng-if="report.type == 'torrent'" />
 								<div ng-show="!report.removed">
-									<button ng-click="vm.delete(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera rapport</button>
-									<button ng-if="report.type == 'comment'" ng-click="vm.deleteComment(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera kommentar</button>
-									<button ng-if="report.type == 'post'" ng-click="vm.deletePost(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera inlägg</button>
-									<button ng-if="report.type == 'subtitle'" ng-click="vm.deleteSubtitle(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera undertext</button>
-									<button ng-if="report.type == 'request'" ng-click="vm.deleteRequest(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> Radera request</button>
-									<button ng-if="report.type == 'torrent'" ng-click="vm.deleteTorrent(report)" class="btn btn-xs btn-danger"><i class="fa fa-trash-o"></i> Radera torrent</button>
+									<button ng-click="vm.delete(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> {{ 'ADMIN.DELETE_REPORT' | translate }}</button>
+									<button ng-if="report.type == 'comment'" ng-click="vm.deleteComment(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> {{ 'ADMIN.DELETE_COMMENT' | translate }}</button>
+									<button ng-if="report.type == 'post'" ng-click="vm.deletePost(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> {{ 'FORUM.DELETE_POST' | translate }}</button>
+									<button ng-if="report.type == 'subtitle'" ng-click="vm.deleteSubtitle(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> {{ 'SUBTITLES.DELETE_TOPIC' | translate }}</button>
+									<button ng-if="report.type == 'request'" ng-click="vm.deleteRequest(report)" class="btn btn-xs btn-default"><i class="fa fa-trash-o"></i> {{ 'REQUESTS.DELETE' | translate }}</button>
+									<button ng-if="report.type == 'torrent'" ng-click="vm.deleteTorrent(report)" class="btn btn-xs btn-danger"><i class="fa fa-trash-o"></i> {{ 'TORRENTS.DELETE' | translate }}</button>
 								</div>
-								<div ng-show="report.removed"><i>Rapporten är raderad och försvinner när du laddar om sidan</i></div>
+								<div ng-show="report.removed"><i translate="ADMIN.REPORT_DELETED"></i></div>
 							</div>
 						</td>
 					</tr>
@@ -125,5 +125,5 @@
 		</div>
 	</div>
 
-	<uib-pagination ng-show="vm.reports.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadReports()" previous-text="Föregående" next-text="Nästa" boundary-links="true" first-text="Första" last-text="Sista"></uib-pagination>
+	<uib-pagination ng-show="vm.reports.length > 0" max-size="10" items-per-page="vm.itemsPerPage" total-items="vm.totalItems" ng-model="vm.currentPage" ng-click="vm.loadReports()" previous-text="{{ 'PAGER.PREVIOUS' | translate }}" next-text="{{ 'PAGER.NEXT' | translate }}" boundary-links="true" first-text="{{ 'PAGER.FIRST' | translate }}" last-text="{{ 'PAGER.LAST' | translate }}"></uib-pagination>
 </div>

@@ -10,4 +10,4 @@
 	<div class="panel-body  text-left" ng-bind-html="rule.text | bbCode"></div>
 </div>
 <div class="clearfix"></div>
-<button ng-click="vm.create()" ng-show="vm.currentUser.class >= 8" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> Skapa nytt regelblock</button>
+<button ng-click="vm.create()" ng-show="vm.currentUser.class >= 8" class="btn btn-default btn-xs"><i class="fa fa-plus"></i> {{ 'RULES.CREATE_BLOCK' | translate }}</button>

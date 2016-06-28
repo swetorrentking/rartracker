@@ -5,7 +5,7 @@
 		.module('app.mailbox')
 		.controller('SendmessageController', SendmessageController);
 
-	function SendmessageController($scope, $uibModalInstance, $timeout, message, MailboxResource) {
+	function SendmessageController($scope, $translate, $uibModalInstance, $timeout, message, MailboxResource) {
 		if (message.subject) {
 			message.subject = message.subject.toString();
 		}
@@ -18,8 +18,8 @@
 		this.message = {
 			receiver: message.user.id,
 			replyTo: message.id,
-			body: message.body ? '\n\n-------- ' + message.user.username + ' skrev: --------\n' + message.body : '',
-			subject: message.subject ? message.subject.substring(0, 5) === 'Svar:' ? message.subject : 'Svar: ' + message.subject : ''
+			body: message.body ? '\n\n-------- ' + message.user.username + ' ' + $translate.instant('MAILBOX.WROTE') + ' --------\n' + message.body : '',
+			subject: message.subject ? message.subject.indexOf($translate.instant('MAILBOX.REPLY') + ':') === 0 ? message.subject : $translate.instant('MAILBOX.REPLY') + ': ' + message.subject : ''
 		};
 
 		this.send = function () {
