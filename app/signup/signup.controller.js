@@ -29,6 +29,10 @@
 				});
 		};
 
+		this.languageChanged = function () {
+			$translate.use(this.credentials.language);
+		};
+
 		this.signup = function () {
 			AuthResource.save(this.credentials).$promise
 			.then(() => {
@@ -38,9 +42,7 @@
 				}).$promise;
 			})
 			.then((data) => {
-				return authService.setUser(data.user);
-			})
-			.then(() => {
+				authService.setUser(data.user);
 				$state.go('start');
 			})
 			.catch((error) => {

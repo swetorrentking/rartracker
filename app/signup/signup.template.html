@@ -47,7 +47,7 @@
 					<div class="form-group">
 						<label class="col-sm-4 control-label" translate="USER.LANGUAGE"></label>
 						<div class="col-sm-8">
-							<select class="form-control" ng-model="vm.credentials.language" ng-options="i.id as i.name for i in vm.languageSupport"></select>
+							<select class="form-control" ng-model="vm.credentials.language" ng-change="vm.languageChanged()" ng-options="i.id as i.name for i in vm.languageSupport"></select>
 						</div>
 					</div>
 					<div class="form-group">
