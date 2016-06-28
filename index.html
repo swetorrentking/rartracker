@@ -27,7 +27,7 @@
 <h2>
 <a id="version" class="anchor" href="#version" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Version</h2>
 
-<p>0.2.0</p>
+<p>0.3.0</p>
 
 <h2>
 <a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h2>
@@ -44,6 +44,7 @@
 <li>Awesome features like bonus-system, leech bonus, seed-time, request system and rss-system.</li>
 <li>Highly skinnable and mobile friendly design with Bootstrap CSS</li>
 <li>Very clean code to grasp for developers</li>
+<li>Dynamic multi language support</li>
 </ul>
 
 <h1>
@@ -95,7 +96,7 @@ $username = 'root';
 $password = '';
 </code></pre>
 
-<p>Some site settings in api/Config.php and app/app.config.js</p>
+<p>Some site settings in api/Config.php and app/app.config.js should be changed!</p>
 
 <h3>
 <a id="2-generate-new-unique-salt-hashes-optional-for-security" class="anchor" href="#2-generate-new-unique-salt-hashes-optional-for-security" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2. Generate new unique salt hashes (optional for security)</h3>
@@ -117,10 +118,10 @@ The "System" account <strong>must remain</strong> as a parked account and have S
 <h3>
 <a id="recommended-packages" class="anchor" href="#recommended-packages" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Recommended packages</h3>
 
-<p><code>php5 apache2 mariadb-server libapache2-mod-php5 php5-xcache php5-mysql memcached php5-curl php5-memcached</code></p>
+<p><code>php5 apache2 mariadb-server libapache2-mod-php5 php5-mysql memcached php5-curl php5-memcached</code></p>
 
 <h3>
-<a id="enable-rewrite-module-for-htaccess" class="anchor" href="#enable-rewrite-module-for-htaccess" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Enable rewrite module for .htaccess</h3>
+<a id="enable-rewrite-module-and-change-allowoverride-from-none-to-all-in-httpdconf-in-order-for-htaccess-to-work" class="anchor" href="#enable-rewrite-module-and-change-allowoverride-from-none-to-all-in-httpdconf-in-order-for-htaccess-to-work" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Enable rewrite module and change AllowOverride from "None" to "All" in httpd.conf in order for .htaccess to work</h3>
 
 <p><code>a2enmod rewrite</code></p>
 
@@ -152,10 +153,14 @@ max_heap_table_size=2G</pre></div>
 <pre><code>12      *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-leechbonus
 */20    *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-cleanup
 0       0       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/fetch-tvdata
-0       0       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/fetch-moviedata
 0       0       *       *       5       wget -O /dev/null http://127.0.0.1/api/v1/run-bonus
 0       20      *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-statistics
 </code></pre>
+
+<h2>
+<a id="language-support" class="anchor" href="#language-support" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Language support</h2>
+
+<p>The default language is English, but if you want the back and front end to default to another of the available languages you need to change the default language variable in <strong>Config.php</strong> and <strong>app.config.js</strong>. If the user changes the display language, the default language will still be used for site wide logs and automatic messages.</p>
 
 <h2>
 <a id="developing-and-deploying" class="anchor" href="#developing-and-deploying" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Developing and deploying</h2>
