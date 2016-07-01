@@ -105,7 +105,7 @@
 	"BONUS_PURCHASE_GB":							"Removal of {0} GB.",
 	"BONUS_GB_VALUE_ERROR":							"GB amount must be an even number.",
 	"BONUS_GB_MINIMUM_REQUIREMENT":					"You need at least 8 GB on your download to purchase 10 GB.",
-	"BONUS_GB_MINIMUM_REQUIREMENT_FRIEND":			"Användaren måste ha minst 8 GB nerladdat för att du ska kunna köpa bort 10 GB.",
+	"BONUS_GB_MINIMUM_REQUIREMENT_FRIEND":			"The user needs at least 8 GB downloaded for you to purchase away 10 GB.",
 	"BONUS_GB_LIMIT":								"You can't purchase to remove more on your download than you have.",
 	"BONUS_GB_LIMIT_FRIEND":						"You can't purchase to remove more on the users download than he have.",
 	"BONUS_GB_USE_REGULAR":							"Use the regular -10GB to buy from yourself.",
