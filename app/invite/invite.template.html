@@ -1,6 +1,6 @@
 <div class="text-center">
 	<h1 class="block-center text-center" translate="INVITE.TITLE"></h1>
-	<div ng-show="vm.currentUser.class < 2" class="alert alert-warning" role="alert" translate="GENERAL.PAGE_ACCESS_LIMIT" translate-value-class="Movie star"></div>
+	<div ng-show="vm.currentUser.class < 1" class="alert alert-warning" role="alert" translate="GENERAL.PAGE_ACCESS_LIMIT" translate-value-class="Actor"></div>
 	<div ng-show="vm.currentUser.inviteban == 1" class="alert alert-warning" role="alert" translate="INVITE.BANNED"></div>
 
 	<div ng-show="vm.currentUser.class > 1 && vm.currentUser.inviteban == 0">

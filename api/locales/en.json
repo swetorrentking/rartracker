@@ -177,7 +177,7 @@
 	"USER_FRIEND_NOT_FOUND":						"The friend doesn't exist",
 
 	"INVITE_BANNED":								"You are banned from inviting users.",
-	"INVITE_MINIMUM_CLASS_ERROR":					"You need to be atleast Super User to invite people.",
+	"INVITE_MINIMUM_CLASS_ERROR":					"You need to be atleast Actor to invite people.",
 	"INVITES_DEPLETED":								"You have no invites.",
 	"INVITE_NOT_FOUND":								"The invite doesn't exist.",
 

@@ -3,7 +3,7 @@
 	<br />
 	<span style="color: #1900D1;">{{ 'STATUS.RATIO' | translate }}:</span> <b ng-bind-html="vm.currentUser.uploaded/vm.currentUser.downloaded | ratio"></b> <span style="color: #008000;">{{ 'TORRENTS.UPLOADED' | translate }}:</span> <b>{{ vm.currentUser.uploaded | prettysize }}</b> <span style="color: #800000;">{{ 'TORRENTS.DOWNLOADED' | translate }}:</span> <b>{{ vm.currentUser.downloaded | prettysize }}</b>
 	<br />
-	<a ui-sref="leechbonus"><span style="color: #999900;">{{ 'STATUS.LEECHBONUS' | translate }}:</span></a> <b>{{ vm.currentUser.leechbonus }}%</b> <span ng-show="vm.currentUser.class > 0"><a ui-sref="bonus"><span style="color: #999900;">{{ 'STATUS.BONUS' | translate }}:</span></a>&nbsp;<b>{{ vm.currentUser.bonuspoang }}p</b></span>&nbsp;<span ng-show="vm.currentUser.class > 1"><a ui-sref="invite"><span style="color: #c245a3;">{{ 'STATUS.INVITES' | translate }}:</span></a>&nbsp;<b>{{ vm.currentUser.invites }}</b></span>
+	<a ui-sref="leechbonus"><span style="color: #999900;">{{ 'STATUS.LEECHBONUS' | translate }}:</span></a> <b>{{ vm.currentUser.leechbonus }}%</b> <span ng-show="vm.currentUser.class > 0"><a ui-sref="bonus"><span style="color: #999900;">{{ 'STATUS.BONUS' | translate }}:</span></a>&nbsp;<b>{{ vm.currentUser.bonuspoang }}p</b></span>&nbsp;<span ng-show="vm.currentUser.class > 0"><a ui-sref="invite"><span style="color: #c245a3;">{{ 'STATUS.INVITES' | translate }}:</span></a>&nbsp;<b>{{ vm.currentUser.invites }}</b></span>
 	<br />
 	<span style="font-weight: bold; font-size: 14px;" ng-show="vm.leechTime" translate="USER.LEECH_TIME_LEFT" translate-value-time="{{ vm.leechTime }}"></span>
 </div>

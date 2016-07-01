@@ -20,7 +20,7 @@ class Invite implements IResource {
 			throw new Exception(L::get("INVITE_BANNED"), 401);
 		}
 
-		if ($this->user->getClass() < User::CLASS_DIRECTOR) {
+		if ($this->user->getClass() < User::CLASS_ACTOR) {
 			throw new Exception(L::get("INVITE_MINIMUM_CLASS_ERROR"), 401);
 		}
 
