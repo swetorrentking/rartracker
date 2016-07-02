@@ -16,7 +16,7 @@
 			<img class="categoryImage category{{ request.type }}" />
 		</td>
 		<td class="text-left vert-align">
-			<a href="" ui-sref="requests.request({ id: request.id, slug: request.slug })" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ request.request }}<span ng-show="request.season > 0"> ({{ 'REQUEST.SEASON' | translate }} {{request.season}})</span></a>
+			<a href="" ui-sref="requests.request({ id: request.id, slug: request.slug })" ng-mouseenter="showPoster = true" ng-mouseleave="showPoster = false">{{ request.request }}<span ng-show="request.season > 0"> ({{ 'REQUESTS.SEASON' | translate }} {{request.season}})</span></a>
 			<br />
 			<i title="{{ request.comment }}">{{ request.comment }}</i>
 			<div class="hoverPoster" ng-if="showPoster && request.imdbid2" style="background-image: url('/img/imdb/{{ ::request.imdbid2 }}.jpg');"></div>
