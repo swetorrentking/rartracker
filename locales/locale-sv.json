@@ -324,7 +324,7 @@
 		"MENU_MY":						"Mina önskemål",
 		"SHOW":							"Visa önskemål",
 		"FILLED":						"Fylld önskemål",
-		"WAS_REQUESTED_BY":				"was requested by",
+		"WAS_REQUESTED_BY":				"önskades utav",
 		"WITH_VOTES_REWARD":			"med <b>{{ votes }}</b> röster och <b>{{ reward }}p</b> i hittelön.",
 		"ADD":							"Lägg nytt önskemål",
 		"EDIT":							"Redigera önskemål",
