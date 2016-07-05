@@ -267,7 +267,7 @@
 	"TORRENT_HIGHLIGHT_STRING":						"{0} {1} {2} {3} {4}",
 	"TORRENT_DELETE_BLOCK":							"Radering spärrad på torrents över 7 dagar",
 	"TORRENT_SEEDED_DELETED_PM_SUBJECT":			"En torrent du seedar har raderats",
-	"TORRENT_SEEDED_DELETED_PM_BODY":				"Torrenten [b]{0}[/b] som du seedar har blivit raderad.\n\nAnledning: [b]{0}[/b]",
+	"TORRENT_SEEDED_DELETED_PM_BODY":				"Torrenten [b]{0}[/b] som du seedar har blivit raderad.\n\nAnledning: [b]{1}[/b]",
 	"TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED":		"Ladda ner följande istället: [url=/torrent/{0}/{1}][b]{2}[/b][/url]",
 	"TORRENT_YOUR_DELETED_PM_SUBJECT":				"Din torrent har raderats",
 	"TORRENT_YOUR_DELETED_PM_BODY":					"Torrenten [b]{0}[/b] som du laddat upp har blivit raderad.\n\nAnledning: [b]{1}[/b]",

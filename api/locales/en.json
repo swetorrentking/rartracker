@@ -267,7 +267,7 @@
 	"TORRENT_HIGHLIGHT_STRING":						"{1} {2} {3} {4} {0}",
 	"TORRENT_DELETE_BLOCK":							"Deletion is disabled after 7 days",
 	"TORRENT_SEEDED_DELETED_PM_SUBJECT":			"A torrent you are seeding has been deleted",
-	"TORRENT_SEEDED_DELETED_PM_BODY":				"The torrent [b]{0}[/b] you are seeding has been deleted.\n\nReason: [b]{0}[/b]",
+	"TORRENT_SEEDED_DELETED_PM_BODY":				"The torrent [b]{0}[/b] you are seeding has been deleted.\n\nReason: [b]{1}[/b]",
 	"TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED":		"Download this one instead: [url=/torrent/{0}/{1}][b]{2}[/b][/url]",
 	"TORRENT_YOUR_DELETED_PM_SUBJECT":				"Your torrent has been deleted",
 	"TORRENT_YOUR_DELETED_PM_BODY":					"Torrent [b]{0}[/b] you uploaded has been deleted.\n\nReason: [b]{1}[/b]",
