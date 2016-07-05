@@ -84,9 +84,9 @@
 		};
 
 		this.serverResponse = function (data) {
-			this.setUser(data.user);
 			this.setSettings(data.settings);
 			this.scheduleNextStatusCheck();
+			return this.setUser(data.user);
 		};
 
 		this.statusCheck = function () {

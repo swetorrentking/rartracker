@@ -17,8 +17,7 @@
 				username: this.credentials.username,
 				password: this.credentials.password
 			}, function (data) {
-				authService.serverResponse(data);
-				$state.go('start');
+				authService.serverResponse(data).then(() => $state.go('start'));
 			}, (error) => {
 				if (error.data) {
 					this.addAlert({ type: 'danger', msg: error.data });
