@@ -361,7 +361,8 @@ class User {
 		$userId = $this->db->lastInsertId();
 
 		$mailbox = new Mailbox($this->db);
-		$mailbox->sendSystemMessage($invite["userid"], L::get("INVITE_ACCEPTED"), L::get("INVITE_ACCEPTED_BODY", [$userId, $postdata["username"], $postdata["username"]]));
+		$inviter = $this->get($invite["userid"]);
+		$mailbox->sendSystemMessage($invite["userid"], L::get("INVITE_ACCEPTED", null, $inviter["language"]), L::get("INVITE_ACCEPTED_BODY", [$userId, $postdata["username"], $postdata["username"]], $inviter["language"]));
 
 		// Security checks
 
@@ -436,6 +437,10 @@ class User {
 		$userData["notifs"] = implode(",", $userData["notifs"]);
 		$userData["warneduntil"] = $user["warneduntil"];
 
+		if (!in_array($userData["language"], Config::$languages)) {
+			$userData["language"] = Config::DEFAULT_LANGUAGE;
+		}
+
 		// Only uploaders and above can use user class mask feature
 		if ($this->getClass() < User::CLASS_UPLOADER) {
 			$userData["doljuploader"] = $user["doljuploader"];
@@ -447,29 +452,31 @@ class User {
 
 			if ($user["enabled"] != $userData["enabled"]) {
 				if ($userData["enabled"] == "yes") {
-					$adminlogs->create(L::get("ACCOUNT_ACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_ACTIVATED_LOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("ACCOUNT_ACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_ACTIVATED_LOG", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				} else {
-					$adminlogs->create(L::get("ACCOUNT_DEACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"], $userData["secret"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_DEACTIVATED_LOG", [$this->getUsername(), $userData["secret"]]));
+					$adminlogs->create(L::get("ACCOUNT_DEACTIVATED_ADMIN_LOG", [$user["id"], $user["username"], $user["username"], $userData["secret"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("ACCOUNT_DEACTIVATED_LOG", [$this->getUsername(), $userData["secret"]], Config::DEFAULT_LANGUAGE));
 				}
 			}
 
 			if ($user["class"] != $userData["class"]) {
 				if ($user["class"] < $userData["class"]) {
-					$statusChange = L::get("STATUS_UPGRADED");
-					$statusChangeTense = L::get("STATUS_WAS_UPGRADED");
+					$statusChangeUser = L::get("STATUS_UPGRADED", null, $user["language"]);
+					$statusChangeLog = L::get("STATUS_UPGRADED", null, Config::DEFAULT_LANGUAGE);
+					$statusChangeTense = L::get("STATUS_WAS_UPGRADED", null, Config::DEFAULT_LANGUAGE);
 				} else {
-					$statusChange = L::get("STATUS_DOWNGRADED");
-					$statusChangeTense = L::get("STATUS_WAS_DOWNGRADED");
+					$statusChangeUser = L::get("STATUS_DOWNGRADED", null, $user["language"]);
+					$statusChangeLog = L::get("STATUS_DOWNGRADED", null, Config::DEFAULT_LANGUAGE);
+					$statusChangeTense = L::get("STATUS_WAS_DOWNGRADED", null, Config::DEFAULT_LANGUAGE);
 				}
 
 				$newClass = Helper::getUserClassById($userData["class"]);
 				$oldClass = Helper::getUserClassById($user["class"]);
 
-				$mailbox->sendSystemMessage($user["id"], L::get("CLASS_CHANGED_SUBJECT", [ucfirst($statusChange), $newClass]), L::get("CLASS_CHANGED_MESSAGE", [$statusChange, $newClass]));
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("CLASS_CHANGED_COMMENT", [ucfirst($statusChange), $oldClass, $newClass, $this->getUsername()]));
-				$adminlogs->create(L::get("CLASS_CHANGED_ADMINLOG", [$statusChangeTense, $user["id"], $user["username"], $user["username"], $oldClass, $newClass]));
+				$mailbox->sendSystemMessage($user["id"], L::get("CLASS_CHANGED_SUBJECT", [ucfirst($statusChangeUser), $newClass], $user["language"]), L::get("CLASS_CHANGED_MESSAGE", [$statusChangeUser, $newClass], $user["language"]));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("CLASS_CHANGED_COMMENT", [ucfirst($statusChangeLog), $oldClass, $newClass, $this->getUsername()], Config::DEFAULT_LANGUAGE));
+				$adminlogs->create(L::get("CLASS_CHANGED_ADMINLOG", [$statusChangeTense, $user["id"], $user["username"], $user["username"], $oldClass, $newClass], Config::DEFAULT_LANGUAGE));
 
 				$userData["doljuploader"] = $userData["class"];
 
@@ -479,7 +486,7 @@ class User {
 			}
 
 			if ($user["passkey"] != $userData["passkey"]) {
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("PASSKEY_RENEWED", [$this->getUsername()]));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("PASSKEY_RENEWED", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 			}
 
 			if ($user["warned"] != $userData["warned"]) {
@@ -487,55 +494,55 @@ class User {
 					$days = max(1, $userData["warnDays"]);
 					$userData["warneduntil"] = date("Y-m-d H:i:s", time() + 86400 * $days);
 
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("WARNED_USERLOG", [$days, $this->getUsername(), $userData["warnReason"]]));
-					$adminlogs->create(L::get("WARNED_ADMINLOG", [$user["id"], $user["username"], $user["username"], $days, $userData["warnReason"]]));
-					$mailbox->sendSystemMessage($user["id"], L::get("WARNED_PM_SUBJECT"), L::get("WARNED_PM_BODY", [$days, $userData["warnReason"]]));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("WARNED_USERLOG", [$days, $this->getUsername(), $userData["warnReason"]], Config::DEFAULT_LANGUAGE));
+					$adminlogs->create(L::get("WARNED_ADMINLOG", [$user["id"], $user["username"], $user["username"], $days, $userData["warnReason"]], Config::DEFAULT_LANGUAGE));
+					$mailbox->sendSystemMessage($user["id"], L::get("WARNED_PM_SUBJECT", null, $user["language"]), L::get("WARNED_PM_BODY", [$days, $userData["warnReason"]], $user["language"]));
 				} else {
 					$userData["warneduntil"] = "0000-00-00 00:00:00";
 					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("WARNING_REMOVED_USERLOG", [$this->getUsername()]));
-					$adminlogs->create(L::get("WARNING_REMOVED_ADMINLOG", [$user["id"], $user["username"], $user["username"]]));
-					$mailbox->sendSystemMessage($user["id"], L::get("WARNING_REMOVED_PM_SUBJECT"), L::get("WARNING_REMOVED_PM_BODY"));
+					$adminlogs->create(L::get("WARNING_REMOVED_ADMINLOG", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$mailbox->sendSystemMessage($user["id"], L::get("WARNING_REMOVED_PM_SUBJECT", null, $user["language"]), L::get("WARNING_REMOVED_PM_BODY", null, $user["language"]));
 				}
 			}
 
 			if ($user["uploadban"] != $userData["uploadban"]) {
 				if ($userData["uploadban"] == 1) {
-					$adminlogs->create(L::get("UPLOADBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_ADDED_LOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("UPLOADBAN_ADDED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_ADDED_LOG", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				} else {
-					$adminlogs->create(L::get("UPLOADBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_REMOVED_LOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("UPLOADBAN_REMOVED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("UPLOADBAN_REMOVED_LOG", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				}
 			}
 
 			if ($user["inviteban"] != $userData["inviteban"]) {
 				if ($userData["inviteban"] == 1) {
-					$adminlogs->create(L::get("INVITEBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_ADDED_LOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("INVITEBAN_ADDED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_ADDED_LOG", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				} else {
-					$adminlogs->create(L::get("INVITEBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_REMOVED_LOG", [$this->getUsername()]));
+					$adminlogs->create(L::get("INVITEBAN_REMOVED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("INVITEBAN_REMOVED_LOG", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				}
 			}
 
 			if ($user["forumban"] != $userData["forumban"]) {
 				if ($userData["forumban"] == 1) {
-					$adminlogs->create(L::get("FORUMBAN_ADDED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_BANNED_BY", [$this->getUsername()]));
+					$adminlogs->create(L::get("FORUMBAN_ADDED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_BANNED_BY", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				} else {
-					$adminlogs->create(L::get("FORUMBAN_REMOVED", [$user["id"], $user["username"], $user["username"]]));
-					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_UNBANNED_BY", [$this->getUsername()]));
+					$adminlogs->create(L::get("FORUMBAN_REMOVED", [$user["id"], $user["username"], $user["username"]], Config::DEFAULT_LANGUAGE));
+					$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("FORUM_UNBANNED_BY", [$this->getUsername()], Config::DEFAULT_LANGUAGE));
 				}
 			}
 
 			if ($this->hashEmail($user["email"]) != $this->hashEmail($userData["email"])) {
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("EMAIL_CHANGE_LOG", [$this->hashEmail($user["email"]), $this->hashEmail($userData["email"]), $this->getUsername()]));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("EMAIL_CHANGE_LOG", [$this->hashEmail($user["email"]), $this->hashEmail($userData["email"]), $this->getUsername()], Config::DEFAULT_LANGUAGE));
 				$this->addEmailLog($user["id"], $this->hashEmail($user["email"]));
 			}
 
 			if ($user["username"] != $userData["username"]) {
-				$adminlogs->create(L::get("USERNAME_CHANGE_LOG", [$user["id"], $user["username"], $user["username"], $user["id"], $userData["username"], $userData["username"]]));
-				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("USERNAME_CHANGE_ADMIN_LOG", [$user["username"], $userData["username"], $this->getUsername()]));
+				$adminlogs->create(L::get("USERNAME_CHANGE_LOG", [$user["id"], $user["username"], $user["username"], $user["id"], $userData["username"], $userData["username"]], Config::DEFAULT_LANGUAGE));
+				$userData["modcomment"] = $this->appendAdminComments($userData["modcomment"], L::get("USERNAME_CHANGE_ADMIN_LOG", [$user["username"], $userData["username"], $this->getUsername()], Config::DEFAULT_LANGUAGE));
 			}
 		}
 
@@ -794,7 +801,7 @@ class User {
 		$this->db->query("DELETE FROM friends WHERE friendid = " . $id . " OR userid = " . $id);
 
 		$adminlogs = new AdminLogs($this->db, $this);
-		$adminlogs->create(L::get("ACCOUNT_REMOVED_LOG", [$user["username"]]));
+		$adminlogs->create(L::get("ACCOUNT_REMOVED_LOG", [$user["username"]], Config::DEFAULT_LANGUAGE));
 	}
 
 	public function loggaUt() {
@@ -1093,7 +1100,8 @@ class User {
 			'users.anonymratio',
 			'users.anonymicons',
 			'users.section',
-			'users.p2p'
+			'users.p2p',
+			'users.language'
 			);
 	}
 
@@ -1138,8 +1146,7 @@ class User {
 			'design',
 			'css',
 			'invited_by',
-			'search_sort',
-			'language'
+			'search_sort'
 			);
 	}
 
@@ -1344,6 +1351,7 @@ class User {
 		if (($row["anonymratio"] == "yes" && $anonymousRatio) || ($anonymousTorrents && $row["anonym"] == "yes")) {
 			$user["anonymous"] = yes;
 		}
+		$user["language"] = $row["language"];
 
 		return $user;
 	}
@@ -1352,7 +1360,7 @@ class User {
 		if ($this->getId() != $userId && $this->getClass() < self::CLASS_ADMIN) {
 			throw new Exception(L::get("PERMISSION_DENIED"), 401);
 		}
-		$sth = $this->db->query('SELECT imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, '.implode(Torrent::$torrentFieldsUser, ', ').' FROM torrents LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE torrents.reqid '. ($requests == 1 ? '> 1' : '< 2') . ' AND torrents.owner = '.$userId.' ORDER BY torrents.name ASC');
+		$sth = $this->db->query('SELECT imdbinfo.genres, imdbinfo.photo, imdbinfo.rating, imdbinfo.imdbid AS imdbid2, '.implode(Torrent::$torrentFieldsUser, ', ').' FROM torrents LEFT JOIN imdbinfo ON torrents.imdbid = imdbinfo.id WHERE '. ($requests == 1 ? 'torrents.reqid > 0 AND' : '') . ' torrents.owner = '.$userId.' ORDER BY torrents.name ASC');
 		return $sth->fetchAll(PDO::FETCH_ASSOC);
 	}
 

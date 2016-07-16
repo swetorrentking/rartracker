@@ -80,7 +80,7 @@ class BonusShop {
 				}
 				$this->user->bonusLog(-$item["price"], L::get("BONUS_HEART_PURCHASE", [$receiver["username"]]), $this->user->getId());
 				$this->db->query("UPDATE users SET hearts = hearts + 1 WHERE id = " . $receiver["id"]);
-				$this->mailbox->sendSystemMessage($receiver["id"], L::get("BONUS_HEART_PM_SUBJECT"), L::get("BONUS_HEART_PM_BODY", [$this->user->getId(), $this->user->getUsername(), $this->user->getUsername(), $postdata["motivation"]]));
+				$this->mailbox->sendSystemMessage($receiver["id"], L::get("BONUS_HEART_PM_SUBJECT", null, $receiver["language"]), L::get("BONUS_HEART_PM_BODY", [$this->user->getId(), $this->user->getUsername(), $this->user->getUsername(), $postdata["motivation"]], $receiver["language"]));
 				break;
 			case 3: // gigabyte to self
 				$user = $this->user->getUser();
@@ -124,7 +124,7 @@ class BonusShop {
 					throw new Exception(L::get("NOT_ENOUGH_BONUS"));
 				}
 				$this->user->bonusLog(-$item["price"]*($postdata["amount"]/10), L::get("BONUS_GB_FRIEND", [$postdata["amount"], $receiver["username"]]), $this->user->getId());
-				$this->mailbox->sendSystemMessage($receiver["id"], L::get("BONUS_GB_FRIEND_PM_SUBJECT", [$postdata["amount"], $this->user->getUsername()]), L::get("BONUS_GB_FRIEND_PM_BODY", [$this->user->getId(), $this->user->getUsername(), $this->user->getUsername(), $postdata["amount"]]));
+				$this->mailbox->sendSystemMessage($receiver["id"], L::get("BONUS_GB_FRIEND_PM_SUBJECT", [$postdata["amount"], $this->user->getUsername()], $receiver["language"]), L::get("BONUS_GB_FRIEND_PM_BODY", [$this->user->getId(), $this->user->getUsername(), $this->user->getUsername(), $postdata["amount"]], $receiver["language"]));
 				if ($receiver["downloaded"] < 10737418240) {
 					$this->db->query("UPDATE users SET downloaded = 0 WHERE id = " . $receiver["id"]);
 				} else {

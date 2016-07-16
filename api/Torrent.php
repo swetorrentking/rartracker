@@ -383,7 +383,7 @@ class Torrent {
 	}
 
 	public function delete($id, $reason, $pmUploader = 0, $pmPeers = 0, $banRelease = 0, $attachTorrentId = 0, $restoreRequest = 0) {
-		$sth = $this->db->prepare('SELECT ano_owner, owner, name, reqid, pack, p2p, size, UNIX_TIMESTAMP(added) AS added FROM torrents WHERE id = ?');
+		$sth = $this->db->prepare('SELECT torrents.ano_owner, torrents.owner, torrents.name, torrents.reqid, torrents.pack, torrents.p2p, torrents.size, UNIX_TIMESTAMP(torrents.added) AS added, users.language FROM torrents LEFT JOIN users ON users.id = torrents.owner WHERE torrents.id = ?');
 		$sth->bindParam(1, $id, PDO::PARAM_INT);
 		$sth->execute();
 		$torrent = $sth->fetch(PDO::FETCH_ASSOC);
@@ -404,28 +404,29 @@ class Torrent {
 		}
 
 		if ($pmPeers == 1) {
-			$subject = L::get("TORRENT_SEEDED_DELETED_PM_SUBJECT");
-			$message = L::get("TORRENT_SEEDED_DELETED_PM_BODY", [$torrent["name"], $reason]);
-
-			if ($betterTorrent) {
-				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
-			}
-
-			$sth = $this->db->query("SELECT userid FROM peers WHERE torrent = ".$id." GROUP BY userid");
+			$sth = $this->db->query("SELECT peers.userid, users.language FROM peers LEFT JOIN users ON users.id = peers.userid WHERE peers.torrent = " . $id . " GROUP BY peers.userid");
 			while($user = $sth->fetch(PDO::FETCH_ASSOC)) {
 				if ($user["userid"] == $this->user->getId() || ($user["userid"] == $torrent["owner"] && $pmUploader == 1)) {
 					continue;
 				}
+
+				$subject = L::get("TORRENT_SEEDED_DELETED_PM_SUBJECT", null, $user["language"]);
+				$message = L::get("TORRENT_SEEDED_DELETED_PM_BODY", [$torrent["name"], $reason], $user["language"]);
+
+				if ($betterTorrent) {
+					$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]], $user["language"]);
+				}
+
 				$this->mailbox->sendSystemMessage($user["userid"], $subject, $message);
 			}
 		}
 
 		if ($pmUploader == 1 && $torrent["owner"] != $this->user->getId()) {
-			$subject = L::get("TORRENT_YOUR_DELETED_PM_SUBJECT");
-			$message = L::get("TORRENT_YOUR_DELETED_PM_BODY", [$torrent["name"], $reason]);
+			$subject = L::get("TORRENT_YOUR_DELETED_PM_SUBJECT", null, $torrent["language"]);
+			$message = L::get("TORRENT_YOUR_DELETED_PM_BODY", [$torrent["name"], $reason], $torrent["language"]);
 
 			if ($betterTorrent) {
-				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
+				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]], $torrent["language"]);
 			}
 
 			$this->mailbox->sendSystemMessage($torrent["owner"], $subject, $message);
@@ -476,7 +477,7 @@ class Torrent {
 		} else {
 			$anonymous = 0;
 		}
-		$this->log->log(3, L::get("TORRENT_DELETED_LOG", [$torrent["name"], $reason]), $this->user->getId(), $anonymous);
+		$this->log->log(3, L::get("TORRENT_DELETED_LOG", [$torrent["name"], $reason], Config::DEFAULT_LANGUAGE), $this->user->getId(), $anonymous);
 	}
 
 	public function deleteTorrentsInPack($id) {
@@ -507,21 +508,21 @@ class Torrent {
 				continue;
 			}
 
-			$sth3 = $this->db->query("SELECT userid FROM peers WHERE torrent = ".$packTorrent["id"]." GROUP BY userid");
+			$sth3 = $this->db->query("SELECT peers.userid, users.language FROM peers LEFT JOIN users ON users.id = peers.userid WHERE torrent = ".$packTorrent["id"]." GROUP BY userid");
 			while($user = $sth3->fetch()) {
-				$userToPmArray[$user[0]][] = $packTorrent["name"];
+				$userToPmArray[$user[0]][] = array("torrent" => $packTorrent["name"], "language" => $user[1]);
 			}
 
 			$this->delete($packTorrent["id"], L::get("TORRENT_NOW_EXISTS_IN_PACK"), 0, 0, 0);
 		}
 
 		foreach ($userToPmArray as $userid => $torrents) {
-			$subject = L::get("TORRENT_REPLACED_WITH_PACK_PM_SUBJECT");
-			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY") . "\n\n";
 			foreach($torrents as $t) {
-				$message .= "[b]".$t."[/b]\n";
+				$message .= "[b]".$t["torrent"]."[/b]\n";
 			}
-			$message .= L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY_2") . " [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]";
+			$subject = L::get("TORRENT_REPLACED_WITH_PACK_PM_SUBJECT", null, $t["language"]);
+			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY", null, $t["language"]) . "\n\n";
+			$message .= L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY_2", null, $t["language"]) . " [url=/torrent/" . $torrent["id"] . "/".$torrent["name"]."][b]".$torrent["name"]."[/b][/url]";
 
 			$this->mailbox->sendSystemMessage($userid, $subject, $message);
 		}
@@ -548,9 +549,9 @@ class Torrent {
 			}
 
 			if ($options["pmPeers"]) {
-				$sth3 = $this->db->query("SELECT userid FROM peers WHERE torrent = ".$torrentId." GROUP BY userid");
+				$sth3 = $this->db->query("SELECT peers.userid, users.language FROM peers LEFT JOIN users ON users.id = peers.userid WHERE torrent = ".$torrentId." GROUP BY userid");
 				while($user = $sth3->fetch()) {
-					$userToPmArray[$user[0]][] = $torrent["name"];
+					$userToPmArray[$user[0]][] = array("torrent" => $torrent["name"], "language" => $user[1]);
 				}
 			}
 
@@ -558,14 +559,14 @@ class Torrent {
 		}
 
 		foreach ($userToPmArray as $userid => $torrents) {
-			$subject = L::get("TORRENT_MULTI_SEEDING_DELETED_PM_TOPIC");
-			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY") . "\n\n";
 			foreach($torrents as $t) {
-				$message .= "[b]".$t."[/b]\n";
+				$message .= "[b]".$t['torrent']."[/b]\n";
 			}
-			$message .= L::get("TORRENT_MULTI_SEEDING_DELETED_REASON", [$options["reason"]]);
+			$subject = L::get("TORRENT_MULTI_SEEDING_DELETED_PM_TOPIC", null, $t["language"]);
+			$message = L::get("TORRENT_REPLACED_WITH_PACK_PM_BODY", null, $t["language"]) . "\n\n";
+			$message .= L::get("TORRENT_MULTI_SEEDING_DELETED_REASON", [$options["reason"]], $t["language"]);
 			if ($betterTorrent) {
-				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]]);
+				$message .= "\n\n" . L::get("TORRENT_SEEDED_DELETED_PM_BODY_EXTENDED", [$betterTorrent["id"], $betterTorrent["name"], $betterTorrent["name"]], $t["language"]);
 			}
 			$this->mailbox->sendSystemMessage($userid, $subject, $message);
 		}
@@ -678,7 +679,7 @@ class Torrent {
 			$anonymousEdit = 0;
 		}
 
-		$this->log->log(2, L::get("TORRENT_EDITED_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]]), $this->user->getId(), $anonymousEdit);
+		$this->log->log(2, L::get("TORRENT_EDITED_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]], Config::DEFAULT_LANGUAGE), $this->user->getId(), $anonymousEdit);
 	}
 
 	public function upload($uploaded_file, $post) {
@@ -928,12 +929,12 @@ class Torrent {
 			foreach($foundBanned as $f)
 				$files .= '\''.$f. '\', ';
 
-			$this->adminlog->create(L::get("TORRENT_CONTAINING_BANNED_FILES_LOG", [$this->user->getUsername(), $name, $files]));
+			$this->adminlog->create(L::get("TORRENT_CONTAINING_BANNED_FILES_LOG", [$this->user->getUsername(), $name, $files], Config::DEFAULT_LANGUAGE));
 			throw new Exception(L::get("TORRENT_CONTAINING_BANNED_FILES", [$files]));
 		}
 
 		if(($txt = $this->detectMissingFiles($filelist)) != false) {
-			$this->adminlog->create(L::get("TORRENT_PREVENTED_BANNED_FILE", [$this->user->getUsername(), $name]) . $txt);
+			$this->adminlog->create(L::get("TORRENT_PREVENTED_BANNED_FILE", [$this->user->getUsername(), $name], Config::DEFAULT_LANGUAGE) . $txt);
 			throw new Exception(L::get("TORRENT_MISSING_FOLLOWING_FILES") . $txt);
 		}
 
@@ -967,9 +968,9 @@ class Torrent {
 			/* Use pre-time to determine New or Archive section */
 			if ($section == 'archive' && $pre > time() - 604800) {
 				$section = 'new';
-				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_NEW", [$this->user->getUsername(), $name]));
+				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_NEW", [$this->user->getUsername(), $name], Config::DEFAULT_LANGUAGE));
 			} else if ($section == 'new' && time() - $pre > 604800) {
-				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_ARCHIVE", [$this->user->getUsername(), $name]));
+				$this->adminlog->create(L::get("TORRENT_AUTO_MOVED_ARCHIVE", [$this->user->getUsername(), $name], Config::DEFAULT_LANGUAGE));
 				$section = 'archive';
 			}
 		}
@@ -1109,18 +1110,19 @@ class Torrent {
   			$votes = $this->requests->getVotes($reqid);
 
 			$uploader = "[url=/user/".$this->user->getId() ."/".$this->user->getUsername()."][b]".$this->user->getUsername()."[/b][/url]";
-			if ($anonymousUpload) {
-				$uploader = "[i]".L::get("TORRENT_ANONYMOUS")."[/i]";
-  			}
-			$message = L::get("TORRENT_REQUEST_FILLED_PM_BODY", [$insertId, $name, $name, $uploader]);
+
   			foreach ($votes as $vote) {
+				if ($anonymousUpload) {
+					$uploader = "[i]".L::get("TORRENT_ANONYMOUS", null, $vote["user"]["language"])."[/i]";
+	  			}
+				$message = L::get("TORRENT_REQUEST_FILLED_PM_BODY", [$insertId, $name, $name, $uploader], $vote["user"]["language"]);
   				if ($vote["user"]["id"] !== $this->user->getId()) {
-  					$this->mailbox->sendSystemMessage($vote["user"]["id"], L::get("TORRENT_REQUEST_FILLED_PM_TOPIC"), $message);
+  					$this->mailbox->sendSystemMessage($vote["user"]["id"], L::get("TORRENT_REQUEST_FILLED_PM_TOPIC", null, $vote["user"]["language"]), $message);
   				}
 			}
 		}
 
-		$this->log->log(1, L::get("TORRENT_UPLOADED_LOG", [$insertId, $name, $name]), $this->user->getId(), $anonymousUpload);
+		$this->log->log(1, L::get("TORRENT_UPLOADED_LOG", [$insertId, $name, $name], Config::DEFAULT_LANGUAGE), $this->user->getId(), $anonymousUpload);
 
 		/* Flush memcached */
 		if ($memcached && $category == 8) {

@@ -14,7 +14,7 @@
 		<table class="table table-stripedSpecial table-hover" style="table-layout: fixed;" ng-init="itemNew=[]">
 			<thead>
 				<th class="text-left" style="width: 165px;"><span ng-show="vm.currentView == 0" translate="MAILBOX.FROM"></span><span ng-show="vm.currentView == 1" translate="MAILBOX.TO"></span></th>
-				<th class="text-left">{{ 'MAILBOX.SUBJECT' | translate }} <span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 0" translate="MAILBOX.RECEIVED"></span><span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 1" translate="MAILBOX.SENT"></span></th>
+				<th class="text-left"><span class="pull-left" translate="MAILBOX.SUBJECT"></span> <span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 0" translate="MAILBOX.RECEIVED"></span><span class="pull-right hidden-xs" style="margin-right: 80px;" ng-show="vm.currentView == 1" translate="MAILBOX.SENT"></span></th>
 				<th style="width: 50px;white-space: nowrap;"><a class="whiteLink" href="" ng-click="vm.checkAll()" translate="MAILBOX.SELECT"></a></th>
 			</thead>
 			<tbody>

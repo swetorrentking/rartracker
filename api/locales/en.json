@@ -153,7 +153,7 @@
 	"COMMENT_REQUEST_NOT_MATCHING":					"Post and request doesn't match.",
 
 	"REQUEST_COMMENT_PM_SUBJECT":					"Comment on request: {0}",
-	"REQUEST_COMMENT_PM_BODY":						"You have a new comment on your request [b]{0}[/b]\n\nLink: [url=/request/{1}/{2}#comments]/request/{3}/[/url]",
+	"REQUEST_COMMENT_PM_BODY":						"You have a new comment on your request [b]{0}[/b]\n\nLink: [url=/requests/{1}/{2}#comments]/requests/{3}/[/url]",
 
 	"FORUM_THREAD_PERMISSION_DENIED":				"You don't have permission to this thread.",
 	"FORUM_NOT_FOUND":								"The forum doesn't exist.",
@@ -217,7 +217,7 @@
 	"REQUEST_REWARD_PAYBACK_BONUS_LOG":				"Refund of reward for request: {0}.",
 	"REQUEST_RESTORED_SITE_LOG":					"Request ([url=/requests/{0}/][b]{1}[/b][/url]) have been restored.",
 	"REQUEST_RESTORED_PM_SUBJECT":					"Request restored",
-	"REQUEST_RESTORED_PM_BODY":						"Your request ([url=/archive/requests/{0}/][b]{1}[/b][/url]) is now restored because the torrent was deleted with reason: [b]{2}[/b]",
+	"REQUEST_RESTORED_PM_BODY":						"Your request ([url=/requests/{0}/][b]{1}[/b][/url]) is now restored because the torrent was deleted with reason: [b]{2}[/b]",
 	"REQUEST_REWARD_BONUS_LOG":						"Request reward {0}.",
 
 	"SEED_REQUEST_CLASS_REQUIREMENT":				"You need to be atleast Power User to request seed",

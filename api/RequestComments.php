@@ -95,8 +95,8 @@ class RequestComments {
 
 		// Notify requester of new comment
 		if ($this->user->getId() != $request["user"]["id"]) {
-			$message = L::get("REQUEST_COMMENT_PM_BODY", [$request["request"], $request["id"], $request["slug"], $request["id"]]);
-			$this->mailbox->sendSystemMessage($request["user"]["id"], L::get("REQUEST_COMMENT_PM_SUBJECT", [$request["request"]]), $message);
+			$message = L::get("REQUEST_COMMENT_PM_BODY", [$request["request"], $request["id"], $request["slug"], $request["id"]], $request["user"]["language"]);
+			$this->mailbox->sendSystemMessage($request["user"]["id"], L::get("REQUEST_COMMENT_PM_SUBJECT", [$request["request"]], $request["user"]["language"]), $message);
 		}
 
 		$this->request->updateCommentsAmount($request["id"], 1);

@@ -27,6 +27,9 @@
 			this.user = user;
 			this.deferred.resolve(user);
 			$rootScope.$broadcast('userUpdated', user);
+			try {
+				localStorage.setItem('default-language', user.language);
+			} catch (error) {}
 			return $translate.use(user.language);
 		};
 

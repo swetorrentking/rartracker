@@ -166,7 +166,7 @@ class Requests {
 			return Array("id" => $request["id"], "slug" => $slug);
 		} else {
 			$insertId = $this->db->lastInsertId();
-			$this->log->log(1, L::get("REQUEST_SITE_LOG", [$insertId, $slug, $requestName]), $this->user->getId(), false);
+			$this->log->log(1, L::get("REQUEST_SITE_LOG", [$insertId, $slug, $requestName], Config::DEFAULT_LANGUAGE), $this->user->getId(), false);
 			$this->vote($insertId, 0);
 			return Array("id" => $insertId, "name" => $requestName);
 		}
@@ -179,7 +179,7 @@ class Requests {
 		}
 
 		$votes = $this->getVotes($reqId);
-		$this->log->log(3, L::get("REQUEST_DELETED_SITE_LOG", [$request["request"], $reason]), $this->user->getId(), false);
+		$this->log->log(3, L::get("REQUEST_DELETED_SITE_LOG", [$request["request"], $reason], Config::DEFAULT_LANGUAGE), $this->user->getId(), false);
 
 		foreach ($votes as $vote) {
 			$message = L::get("REQUEST_DELETED_PM_BODY", [$request["request"], $this->user->getUsername(), $reason]);
@@ -204,7 +204,7 @@ class Requests {
 	public function restore($reqId, $reason) {
 		$request = $this->get($reqId);
 		$this->db->query("UPDATE requests SET filled = 0 WHERE id = " . $reqId);
-		$this->log->log(1, L::get("REQUEST_RESTORED_SITE_LOG", [$reqId, $request["slug"]]), 0, false);
+		$this->log->log(1, L::get("REQUEST_RESTORED_SITE_LOG", [$reqId, $request["slug"]], Config::DEFAULT_LANGUAGE), 0, false);
 		if ($this->user->getId() != $request["user"]["id"]) {
 			$this->mailbox->sendSystemMessage($request["user"]["id"], L::get("REQUEST_RESTORED_PM_SUBJECT"), L::get("REQUEST_RESTORED_PM_BODY", [$reqId, $request["request"], $reason]));
 		}

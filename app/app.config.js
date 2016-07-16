@@ -61,7 +61,7 @@
 				suffix: '.json'
 			})
 			.useSanitizeValueStrategy(null)
-			.preferredLanguage(configs.DEFAULT_LANGUAGE);
+			.preferredLanguage(localStorage.getItem('default-language') ? localStorage.getItem('default-language') : configs.DEFAULT_LANGUAGE);
 	}
 
 	function ResourceExtension($resource, configs) {

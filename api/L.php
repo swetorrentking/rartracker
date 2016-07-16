@@ -1,31 +1,28 @@
 <?php
 
 class L {
+	private static $defaultLanguage;
+	private static $cache = [];
 
-	private static $fallbackLanguage = "en";
-	private static $language;
-	private static $data;
-
-	public static function setLanguage($language) {
-		if (self::$language === $language) {
-			return;
-		}
-		if (!in_array($language, Config::$languages)) {
-			$language = self::$fallbackLanguage;
-		}
-		self::$language = $language;
-		self::$data = json_decode(file_get_contents("locales/" . $language . ".json"), true);
+	public static function setDefaultLanguage($language) {
+		self::$defaultLanguage = $language;
 	}
 
-	public static function get($string, $variables = []) {
-		$output = self::$data[$string];
-		if (!$output) {
+	public static function get($string, $variables = [], $language = null) {
+		if (!$language || ($language && !in_array($language, Config::$languages))) {
+			$language = self::$defaultLanguage;
+		}
+		if (!self::$cache[$language]) {
+			self::$cache[$language] = json_decode(file_get_contents("locales/" . $language . ".json"), true);
+		}
+		$sentence = self::$cache[$language][$string];
+		if (!$sentence) {
 			return $string;
 		}
 		for($i = 0; $i < count($variables); $i++) {
-			$output = str_replace("{".$i."}", $variables[$i], $output);
+			$sentence = str_replace("{".$i."}", $variables[$i], $sentence);
 		}
-		return $output;
+		return $sentence;
 	}
 
 }

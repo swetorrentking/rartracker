@@ -153,7 +153,7 @@
 	"COMMENT_REQUEST_NOT_MATCHING":					"Inlägg och önskemål matchar inte.",
 
 	"REQUEST_COMMENT_PM_SUBJECT":					"Kommentar på önskemål: {0}",
-	"REQUEST_COMMENT_PM_BODY":						"Du har fått en ny kommentar på ditt önskemål [b]{0}[/b]\n\nLänk: [url=/request/{1}/{2}#comments]/request/{3}/[/url]",
+	"REQUEST_COMMENT_PM_BODY":						"Du har fått en ny kommentar på ditt önskemål [b]{0}[/b]\n\nLänk: [url=/requests/{1}/{2}#comments]/requests/{3}/[/url]",
 
 	"FORUM_THREAD_PERMISSION_DENIED":				"Du saknar rättigheter till denna tråd",
 	"FORUM_NOT_FOUND":								"Forumdelen finns inte.",
@@ -217,7 +217,7 @@
 	"REQUEST_REWARD_PAYBACK_BONUS_LOG":				"Återbetalning av hittelön för önskemål: {0}.",
 	"REQUEST_RESTORED_SITE_LOG":					"Önskemål ([url=/requests/{0}/][b]{1}[/b][/url]) har blivit återställd.",
 	"REQUEST_RESTORED_PM_SUBJECT":					"Önskemål återställd",
-	"REQUEST_RESTORED_PM_BODY":						"Ditt önskemål ([url=/archive/requests/{0}/][b]{1}[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{2}[/b]",
+	"REQUEST_RESTORED_PM_BODY":						"Ditt önskemål ([url=/requests/{0}/][b]{1}[/b][/url]) har blivit återställd då torrenten raderades med anledningen: [b]{2}[/b]",
 	"REQUEST_REWARD_BONUS_LOG":						"Hittelön på önskemål {0}.",
 
 	"SEED_REQUEST_CLASS_REQUIREMENT":				"Du måste vara minst Skådis för att kunna önska seed",

@@ -71,14 +71,17 @@ class Subtitles {
 		$anonymous = 1;
 
 		if ($subtitle["userid"] != $this->user->getId()) {
-			$torrent = $this->torrent->get($subtitle["torrentid"]);
-			$subject = L::get("SUBTITLE_DELETED_PM_SUBJECT");
-			$message = L::get("SUBTITLE_DELETED_PM_BODY", [$subtitle["filnamn"], $torrent["id"], $torrent["name"], $torrent["name"], $reason]);
-			$this->mailbox->sendSystemMessage($subtitle["userid"], $subject, $message);
-			$anonymous = 0;
+			$user = $this->user->get($subtitle["userid"]);
+			if ($user) {
+				$torrent = $this->torrent->get($subtitle["torrentid"]);
+				$subject = L::get("SUBTITLE_DELETED_PM_SUBJECT", null, $user["language"]);
+				$message = L::get("SUBTITLE_DELETED_PM_BODY", [$subtitle["filnamn"], $torrent["id"], $torrent["name"], $torrent["name"], $reason], $user["language"]);
+				$this->mailbox->sendSystemMessage($user["id"], $subject, $message);
+				$anonymous = 0;
+			}
 		}
 
-		$this->log->log(3, L::get("SUBTITLE_DELETED_SITE_LOG", [$subtitle["filnamn"], ($reason?:"-")]), $this->user->getId(), $anonymous);
+		$this->log->log(3, L::get("SUBTITLE_DELETED_SITE_LOG", [$subtitle["filnamn"], ($reason?:"-")], Config::DEFAULT_LANGUAGE), $this->user->getId(), $anonymous);
 	}
 
 	public function upload($file, $post) {
@@ -113,7 +116,7 @@ class Subtitles {
 
 		$torrent = $this->torrent->get($post["torrentid"]);
 		$this->db->query("UPDATE torrents SET swesub = 1 WHERE id = " . $torrent["id"]);
-		$this->log->log(1, L::get("SUBTITLE_UPLOAD_SITE_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]]), $this->user->getId(), true);
+		$this->log->log(1, L::get("SUBTITLE_UPLOAD_SITE_LOG", [$torrent["id"], $torrent["name"], $torrent["name"]], Config::DEFAULT_LANGUAGE), $this->user->getId(), true);
 
 		// Inform users watching for subtitles
 		$sth = $this->db->prepare("SELECT * FROM bevakasubs WHERE torrentid = ? AND userid != ?");

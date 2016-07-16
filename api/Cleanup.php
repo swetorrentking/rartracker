@@ -121,11 +121,11 @@ class Cleanup {
 
 		/* Remove unused invit codes */
 		$maxdt = time() - 86400 * $this->invite_code_expiration_days;
-		$res = $this->db->query("SELECT * FROM invites WHERE skapad < FROM_UNIXTIME($maxdt)");
+		$res = $this->db->query("SELECT invites.id, invites.userid, users.username, users.language FROM invites LEFT JOIN users ON invites.userid = users.id WHERE skapad < FROM_UNIXTIME($maxdt)");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("DELETE FROM invites WHERE id = " . $arr["id"]);
 			$this->db->query("UPDATE users SET invites = invites + 1 WHERE id = " . $arr["userid"]);
-			$this->mailbox->sendSystemMessage($arr["userid"], L::get("UNCONFIRMED_INVITE_PM_SUBJECT"), L::get("UNCONFIRMED_INVITE_PM_BODY"));
+			$this->mailbox->sendSystemMessage($arr["userid"], L::get("UNCONFIRMED_INVITE_PM_SUBJECT", null, $arr["language"]), L::get("UNCONFIRMED_INVITE_PM_BODY", null, $arr["language"]));
 		}
 
 		/* Remove free leech from new torrents */
@@ -138,16 +138,16 @@ class Cleanup {
 		$siteName = Config::NAME;
 		$min_downloaded = $this->ratio_warning_minimum_gb*1024*1024*1024;
 		$warned_until = time() + $this->ratio_warning_length*86400;
-		$res = $this->db->query("SELECT id, username FROM users WHERE class = 0 AND enabled = 'yes' AND downloaded > {$min_downloaded} AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND warned = 'no'");
+		$res = $this->db->query("SELECT id, username, language FROM users WHERE class = 0 AND enabled = 'yes' AND downloaded > {$min_downloaded} AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND warned = 'no'");
 		$modcomment = date("Y-m-d") . " - " . L::get("RATIO_WARNING_LOG") . "\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET warned = 'yes', warneduntil = FROM_UNIXTIME({$warned_until}), modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], L::get("RATIO_WARNING_PM_SUBJECT"), L::get("RATIO_WARNING_PM_BODY", [$this->ratio_warning_length, $siteName]));
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("RATIO_WARNING_PM_SUBJECT", null, $arr["language"]), L::get("RATIO_WARNING_PM_BODY", [$this->ratio_warning_length, $siteName], $arr["language"]));
 			$this->adminlog->create(L::get("RATIO_WARNING_ADMIN_LOG", [$arr["id"], $arr["username"], $arr["username"]]));
 		}
 
 		/* Ban when warning expired and ratio still bad */
-		$res = $this->db->query("SELECT id, ip, username, modcomment FROM users WHERE class = 0 AND warned = 'yes' AND warneduntil < NOW() AND enabled = 'yes' AND downloaded > $limit AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND donor = 'no'");
+		$res = $this->db->query("SELECT id, ip, username, modcomment, language FROM users WHERE class = 0 AND warned = 'yes' AND warneduntil < NOW() AND enabled = 'yes' AND downloaded > $limit AND uploaded / downloaded < {$this->ratio_warning_minimum_ratio} AND donor = 'no'");
 		$modcomment = date("Y-m-d") . " - " .L::get("BAD_RATIO_AUTO_DISABLED"). "\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET enabled = 'no', modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
@@ -155,11 +155,11 @@ class Cleanup {
 		}
 
 		/* Remove expired warnings */
-		$res = $this->db->query("SELECT id FROM users WHERE warned = 'yes' AND warneduntil < NOW() AND warneduntil <> '0000-00-00 00:00:00'") or sqlerr(__FILE__,__LINE__);
+		$res = $this->db->query("SELECT id, language FROM users WHERE warned = 'yes' AND warneduntil < NOW() AND warneduntil <> '0000-00-00 00:00:00'") or sqlerr(__FILE__,__LINE__);
 		$modcomment = date("Y-m-d") . " - Varning automatiskt borttagen\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET warned = 'no', warneduntil = '0000-00-00 00:00:00', modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], L::get("WARNING_REMOVED_PM_SUBJECT"), L::get("WARNING_AUTO_REMOVED_PM_BODY"));
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("WARNING_REMOVED_PM_SUBJECT", null, $arr["language"]), L::get("WARNING_AUTO_REMOVED_PM_BODY", null, $arr["language"]));
 		}
 
 		/* Move torrents from New to Archive */
@@ -207,12 +207,12 @@ class Cleanup {
 
 		/* Demote inactive Uploaders */
 		$dt = time() - $this->demote_uploaders_after_days_inactive * 86400;
-		$res = $this->db->query("SELECT users.id, users.username FROM `users` WHERE class = 6 AND (SELECT added FROM torrents WHERE owner = users.id ORDER BY `added` DESC LIMIT 1) < FROM_UNIXTIME({$dt})");
+		$res = $this->db->query("SELECT users.id, users.username, users.language FROM `users` WHERE class = 6 AND (SELECT added FROM torrents WHERE owner = users.id ORDER BY `added` DESC LIMIT 1) < FROM_UNIXTIME({$dt})");
 		$modcomment = date("Y-m-d") . " - ".L::get("UPLOADED_AUTO_DOWNGRADED").".\n";
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)){
 			$this->db->query("UPDATE users SET class = 1, modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
 			$this->adminlog->create(L::get("UPLOADED_AUTO_DOWNGRADED_ADMIN_LOG", [$arr["id"], $arr["username"], $arr["username"]]));
-			$this->mailbox->sendSystemMessage($arr["id"], ucfirst(L::get("STATUS_DOWNGRADED")), L::get("UPLOADED_AUTO_DOWNGRADED_PM_BODY", [$this->demote_uploaders_after_days_inactive]));
+			$this->mailbox->sendSystemMessage($arr["id"], ucfirst(L::get("STATUS_DOWNGRADED", null, $arr["language"])), L::get("UPLOADED_AUTO_DOWNGRADED_PM_BODY", [$this->demote_uploaders_after_days_inactive], $arr["language"]));
 		}
 
 		/* Delete old inbox messages */
@@ -226,11 +226,11 @@ class Cleanup {
 		/* Give gold coin icon to users invited users with high leech bonus */
 		$res = $this->db->query("SELECT invited_by, username FROM users WHERE leechbonus >= 25 AND invited_by > 1");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-			$who = $this->db->query("SELECT id, coin FROM users WHERE id = " . $arr["invited_by"]);
+			$who = $this->db->query("SELECT id, coin, language FROM users WHERE id = " . $arr["invited_by"]);
 			while ($arr2 = $who->fetch(PDO::FETCH_ASSOC)) {
 				if ($arr2["coin"] == 0) {
 					$this->db->query("UPDATE users SET coin = 1 WHERE id = ". $arr2["id"]);
-					$this->mailbox->sendSystemMessage($arr2["id"], L::get("GOLD_COIN_PM_SUBJECT"), L::get("GOLD_COIN_PM_BODY", [$arr["username"]]));
+					$this->mailbox->sendSystemMessage($arr2["id"], L::get("GOLD_COIN_PM_SUBJECT", null, $arr2["language"]), L::get("GOLD_COIN_PM_BODY", [$arr["username"]], $arr2["language"]));
 				}
 			}
 		}
@@ -264,9 +264,9 @@ class Cleanup {
 			}
 			$modcomment = date("Y-m-d") . " - " . L::get("AUTO_PROMOTED_LOG", [$class["className"]]) ."\n";
 
-			$res = $this->db->query("SELECT id, class, doljuploader, title FROM users WHERE class < ".$class["classId"]." AND uploaded >= ".$limit." AND uploaded / downloaded >= ".$class["minratio"]." AND added < FROM_UNIXTIME({$dt})");
+			$res = $this->db->query("SELECT id, class, doljuploader, title, language FROM users WHERE class < ".$class["classId"]." AND uploaded >= ".$limit." AND uploaded / downloaded >= ".$class["minratio"]." AND added < FROM_UNIXTIME({$dt})");
 			while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
-				$this->mailbox->sendSystemMessage($arr["id"], L::get("AUTO_PROMOTED_PM_SUBJECT", [$class["className"]]), $message);
+				$this->mailbox->sendSystemMessage($arr["id"], L::get("AUTO_PROMOTED_PM_SUBJECT", [$class["className"]], $arr["language"]), $message);
 				$this->db->query("UPDATE users SET class = ".$class["classId"].", modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
 				if ($class["classId"] >= 2) {
 					$this->db->query('DELETE FROM iplog WHERE userid = ' . $arr["id"]);
@@ -276,10 +276,10 @@ class Cleanup {
 
 		/* Demote users with bad ratio */
 		$modcomment = date("Y-m-d") . " - ".L::get("AUTO_DEMOTED_TO_CLASS_1")."\n";
-		$res = $this->db->query("SELECT id, class FROM users WHERE class > 0 AND class < 4 AND uploaded / downloaded < 0.90");
+		$res = $this->db->query("SELECT id, class, language FROM users WHERE class > 0 AND class < 4 AND uploaded / downloaded < 0.90");
 		while ($arr = $res->fetch(PDO::FETCH_ASSOC)) {
 			$this->db->query("UPDATE users SET class = 0, modcomment = concat('{$modcomment}', modcomment) WHERE id = " . $arr["id"]);
-			$this->mailbox->sendSystemMessage($arr["id"], L::get("DEMOTED_TO_CLASS_1_PM_SUBJECT"), L::get("DEMOTED_TO_CLASS_1_PM_BODY"));
+			$this->mailbox->sendSystemMessage($arr["id"], L::get("DEMOTED_TO_CLASS_1_PM_SUBJECT", null, $arr["language"]), L::get("DEMOTED_TO_CLASS_1_PM_BODY", null, $arr["language"]));
 		}
 
 		/* Update peer record */

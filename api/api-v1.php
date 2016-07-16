@@ -47,7 +47,7 @@ if (class_exists('Memcached')) {
 }
 
 /* Load default language */
-L::setLanguage(Config::DEFAULT_LANGUAGE);
+L::setDefaultLanguage(Config::DEFAULT_LANGUAGE);
 
 /* Routes acceptable not logged in */
 try {
@@ -128,7 +128,7 @@ try {
 
 	/* Login check before the following routes */
 	$user->loginCheck();
-	L::setLanguage($user->getLanguage());
+	L::setDefaultLanguage($user->getLanguage());
 
 	switch(true) {
 		case validateRoute('GET', 'status'):

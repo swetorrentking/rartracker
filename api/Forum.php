@@ -324,17 +324,20 @@ class Forum {
 			$stdPostCount->execute();
 			$postCount = $stdPostCount->fetch();
 
-			$sth = $this->db->prepare('SELECT postsperpage FROM users WHERE id = ?');
+			$sth = $this->db->prepare('SELECT postsperpage, language FROM users WHERE id = ?');
 			$sth->bindParam(1, $post["quote"], PDO::PARAM_INT);
 			$sth->execute();
 			$user = $sth->fetch(PDO::FETCH_ASSOC);
+			if (!$user) {
+				return;
+			}
 			$postsPerPage = $this->defaultPostsPerPage;
 			if ($user["postsperpage"] > 0) {
 				$postsPerPage = $user["postsperpage"];
 			}
 			$pageNumber = ceil($postCount[0] / $postsPerPage ?: 15);
 
-			$this->mailbox->sendSystemMessage($post["quote"], L::get("FORUM_QUOTED_PM_SUBJECT", [$topic["subject"]]), L::get("FORUM_QUOTED_PM_BODY", [$this->user->getUsername(), $topic["subject"], $forum["id"], $topic["id"], $topic["slug"], $pageNumber, $postId]));
+			$this->mailbox->sendSystemMessage($post["quote"], L::get("FORUM_QUOTED_PM_SUBJECT", [$topic["subject"]], $user["language"]), L::get("FORUM_QUOTED_PM_BODY", [$this->user->getUsername(), $topic["subject"], $forum["id"], $topic["id"], $topic["slug"], $pageNumber, $postId], $user["language"]));
 		}
 	}
 

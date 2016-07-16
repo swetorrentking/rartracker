@@ -45,7 +45,7 @@ class Nonscene {
 		$sth->bindParam(3, $postdata["whitelist"],	PDO::PARAM_INT);
 		$sth->execute();
 
-		$this->adminlogs->create(L::get("NOSCENE_ADDED_ADMIN_LOG", [$postdata["groupname"]]));
+		$this->adminlogs->create(L::get("NOSCENE_ADDED_ADMIN_LOG", [$postdata["groupname"]], Config::DEFAULT_LANGUAGE));
 	}
 
 	public function delete($id) {
@@ -54,7 +54,7 @@ class Nonscene {
 		}
 		$release = $this->get($id);
 		$this->db->query('DELETE FROM nonscene WHERE id = ' . $release["id"]);
-		$this->adminlogs->create(L::get("NOSCENE_REMOVED_ADMIN_LOG", [$release["groupname"]]));
+		$this->adminlogs->create(L::get("NOSCENE_REMOVED_ADMIN_LOG", [$release["groupname"]], Config::DEFAULT_LANGUAGE));
 	}
 
 	private function get($id) {
