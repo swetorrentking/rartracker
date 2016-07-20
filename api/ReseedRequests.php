@@ -38,7 +38,7 @@ class ReseedRequests {
 		}
 		$this->user->bonusLog(-5, L::get("SEED_REQUEST_BONUS_LOG"), $this->user->getId());
 
-		$sth = $this->db->query("SELECT snatch.userid, users.language FROM snatch LEFT JOIN users ON users.id = snatch.userid WHERE torrentid = ".$torrent["id"]." AND lastaction > DATE_ADD(NOW(),INTERVAL -6 MONTH) AND userid != " . $this->user->getId());
+		$sth = $this->db->query("SELECT snatch.userid, users.language FROM snatch LEFT JOIN users ON users.id = snatch.userid WHERE torrentid = ".$torrent["id"]." AND lastaction > DATE_ADD(NOW(),INTERVAL -6 MONTH) AND timesCompleted > 0 AND userid != " . $this->user->getId());
 
 		while($res = $sth->fetch(PDO::FETCH_ASSOC)) {
 			$this->mailbox->sendSystemMessage($res["userid"], L::get("SEED_REQUEST_PM_SUBJECT", null, $res["language"]), L::get("SEED_REQUEST_PM_BODY", [$torrent["id"], $torrent["name"], $torrent["name"]], $res["language"]));
