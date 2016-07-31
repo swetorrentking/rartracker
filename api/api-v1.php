@@ -14,7 +14,7 @@ ob_start("ob_gzhandler");
 
 /* Will auto include needed class php files */
 function __autoload($class) {
-	if ($class == "Memcached") {
+	if ($class === "Memcached") {
 		return;
 	}
 	require_once $class . '.php';
@@ -151,38 +151,38 @@ try {
 			break;
 
 		case validateRoute('POST', 'rules'):
-            $rules= new Rules($db, $user);
-            httpResponse($rules->create($postdata));
-            break;
+            		$rules= new Rules($db, $user);
+            		httpResponse($rules->create($postdata));
+            		break;
 
-        case validateRoute('PATCH', 'rules/\d+'):
-            $rules = new Rules($db, $user);
-            httpResponse($rules->update($params[1], $postdata));
-            break;
+        	case validateRoute('PATCH', 'rules/\d+'):
+            		$rules = new Rules($db, $user);
+            		httpResponse($rules->update($params[1], $postdata));
+            		break;
 
-        case validateRoute('DELETE', 'rules/\d+'):
-            $rules = new Rules($db, $user);
-            httpResponse($rules->delete($params[1]));
+        	case validateRoute('DELETE', 'rules/\d+'):
+            		$rules = new Rules($db, $user);
+            		httpResponse($rules->delete($params[1]));
 			break;
 
 		case validateRoute('GET', 'faq'):
-            $faq = new Faq($db, $user);
-            httpResponse($faq->query());
-            break;
+            		$faq = new Faq($db, $user);
+            		httpResponse($faq->query());
+            		break;
 
-        case validateRoute('POST', 'faq'):
-            $faq = new Faq($db, $user);
-            httpResponse($faq->create($postdata));
-            break;
+        	case validateRoute('POST', 'faq'):
+            		$faq = new Faq($db, $user);
+            		httpResponse($faq->create($postdata));
+            		break;
 
-        case validateRoute('PATCH', 'faq/\d+'):
-            $faq = new Faq($db, $user);
-            httpResponse($faq->update($params[1], $postdata));
-            break;
+        	case validateRoute('PATCH', 'faq/\d+'):
+            		$faq = new Faq($db, $user);
+            		httpResponse($faq->update($params[1], $postdata));
+            		break;
 
-        case validateRoute('DELETE', 'faq/\d+'):
-            $faq = new Faq($db, $user);
-            httpResponse($faq->delete($params[1]));
+        	case validateRoute('DELETE', 'faq/\d+'):
+            		$faq = new Faq($db, $user);
+            		httpResponse($faq->delete($params[1]));
 			break;
 
 		case validateRoute('GET', 'polls'):
