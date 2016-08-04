@@ -1,5 +1,15 @@
 # rartracker changelog
 
+# 0.3.1 (2016-08-04)
+
+### New features and improvements
+
+* JS-libs and CSS files are now bundled and bower_components are no longer needed in deployment
+
+### Bugfixes
+
+* Language fixed
+
 # 0.3.0 (2016-06-29)
 
 ### New features and improvements

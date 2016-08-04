@@ -1,7 +1,7 @@
 # rartracker
 A modern front and backend bittorrent tracker written in AngularJS and PHP.
 ## Version
-0.3.0
+0.3.1
 ## Author
 the swedish torrent king
 ## Feature highlights
@@ -32,8 +32,7 @@ From the project folder install all build script packages and all 3rd party depe
 $ npm install --global bower
 $ npm install --global gulp-cli
 $ npm install
-$ bower install
-$ gulp dist
+$ npm run dist
 ```
 ## 3. Import database (databse/database.sql)
 
@@ -97,11 +96,14 @@ The default language is English, but if you want the back and front end to defau
 
 ## Developing and deploying
 ### Developing
-In the project folder run ``gulp watch``. This will lauch a watcher that continuously build the code into the dist/.
+In the project folder run ``npm run watch``. This will lauch a watcher that continuously build the code into the dist/.
 ### Deploying
-In the project folder run ``gulp dist`` and the code will be minified and scrambled, a JsHint check will also be made.
+In the project folder run ``npm run dist`` and the code will be minified and scrambled, a JsHint check will also be made.
 
-The **app/** folder should never be exposed in live production, since its html/js is beeing packaged into **dist/**
+The following folders should not exist in production. The bundles contains everything needed.
+app/
+bower_components/
+node_modules/
 
 # License
 [WTFPL]

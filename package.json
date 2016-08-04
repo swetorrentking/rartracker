@@ -1,6 +1,6 @@
 {
-  "name": "angular-tracker",
-  "version": "0.3.0",
+  "name": "rartracker",
+  "version": "0.3.1",
   "scripts": {
     "postinstall": "bower install",
 	"watch": "gulp watch",
