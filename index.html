@@ -27,7 +27,7 @@
 <h2>
 <a id="version" class="anchor" href="#version" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Version</h2>
 
-<p>0.3.0</p>
+<p>0.3.1</p>
 
 <h2>
 <a id="author" class="anchor" href="#author" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Author</h2>
@@ -74,8 +74,7 @@ $ sudo apt-get install -y git-core</pre></div>
 <div class="highlight highlight-source-shell"><pre>$ npm install --global bower
 $ npm install --global gulp-cli
 $ npm install
-$ bower install
-$ gulp dist</pre></div>
+$ npm run dist</pre></div>
 
 <h2>
 <a id="3-import-database-databsedatabasesql" class="anchor" href="#3-import-database-databsedatabasesql" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>3. Import database (databse/database.sql)</h2>
@@ -168,14 +167,17 @@ max_heap_table_size=2G</pre></div>
 <h3>
 <a id="developing" class="anchor" href="#developing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Developing</h3>
 
-<p>In the project folder run <code>gulp watch</code>. This will lauch a watcher that continuously build the code into the dist/.</p>
+<p>In the project folder run <code>npm run watch</code>. This will lauch a watcher that continuously build the code into the dist/.</p>
 
 <h3>
 <a id="deploying" class="anchor" href="#deploying" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Deploying</h3>
 
-<p>In the project folder run <code>gulp dist</code> and the code will be minified and scrambled, a JsHint check will also be made.</p>
+<p>In the project folder run <code>npm run dist</code> and the code will be minified and scrambled, a JsHint check will also be made.</p>
 
-<p>The <strong>app/</strong> folder should never be exposed in live production, since its html/js is beeing packaged into <strong>dist/</strong></p>
+<p>The following folders should not exist in production. The bundles contains everything needed.
+app/
+bower_components/
+node_modules/</p>
 
 <h1>
 <a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h1>
