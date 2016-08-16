@@ -32,6 +32,10 @@ var filePaths = {
 		'bower_components/angular-chart.js/dist/angular-chart.min.css',
 		'css/rartracker.css'
 	],
+	FONT_FOLDERS: [
+		'bower_components/font-awesome/fonts',
+		'bower_components/bootstrap/fonts'
+	],
 	OUTPUT_DEST: 'dist/',
 	OUTPUT_JS_LIBS_FILE: 'libs.bundle.js',
 	OUTPUT_CSS_FILE: 'styles.bundle.css',
@@ -89,11 +93,11 @@ gulp.task('css', function() {
 		.pipe(gulp.dest(filePaths.OUTPUT_DEST));
 });
 
-gulp.task('copy-fontawesome', function() {
-	copydir('./bower_components/font-awesome/fonts', './fonts', function(err){
-		if(err){
-			console.log(err);
-		}
+gulp.task('copy-fonts', function() {
+	filePaths.FONT_FOLDERS.forEach(function (folder) {
+		copydir(folder, './fonts', function(err){
+			if (err){ console.log(err); }
+		});
 	});
 });
 
@@ -110,10 +114,10 @@ gulp.task('lint', function() {
 		.pipe(jshint.reporter('default'));
 });
 
-gulp.task('watch', ['dev-js', 'dev-html', 'libs', 'css', 'copy-fontawesome'], function() {
+gulp.task('watch', ['dev-js', 'dev-html', 'libs', 'css', 'copy-fonts'], function() {
 	gulp.watch(filePaths.JS_FILES, ['dev-js']);
 	gulp.watch(filePaths.HTML_FILES, ['dev-html']);
 	gulp.watch(filePaths.CSS_FILES, ['css']);
 });
 
-gulp.task('dist', ['dist-js', 'dist-html', 'libs', 'css', 'copy-fontawesome']);
+gulp.task('dist', ['dist-js', 'dist-html', 'libs', 'css', 'copy-fonts']);
