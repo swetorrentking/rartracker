@@ -31,7 +31,7 @@
 				{ id: 0, name: $translate.instant('START.SORT_RATING') },
 				{ id: 1, name: $translate.instant('START.SORT_DATE') }
 			],
-			genre: [{
+			genres: [{
 				id: 'Action',
 			}, {
 				id: 'Adventure',
