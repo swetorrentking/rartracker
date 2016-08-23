@@ -6,6 +6,14 @@ class Helper {
 		return Config::$userClasses[$id];
 	}
 
+	public static function getCategoryById($id) {
+		foreach(Config::$categories as $cat){
+			if ($cat["id"] == $id) {
+				return $cat["name"];
+			}
+		}
+	}
+
 	public static function searchfield($s) {
 		$s = strtolower($s);
 		$s = str_ireplace("å", "a", trim($s));
@@ -51,5 +59,16 @@ class Helper {
 
 	public static function slugify($string) {
 		return strtolower(trim(preg_replace('~[^0-9a-z]+~i', '-', html_entity_decode(preg_replace('~&([a-z]{1,2})(?:acute|cedil|circ|grave|lig|orn|ring|slash|th|tilde|uml);~i', '$1', htmlentities($string, ENT_QUOTES, 'UTF-8')), ENT_QUOTES, 'UTF-8')), '-'));
+	}
+
+	public static function mksize($bytes) {
+		if ($bytes < 1000 * 1024)
+			return number_format($bytes / 1024, 2) . " KiB";
+		elseif ($bytes < 1000 * 1048576)
+			return number_format($bytes / 1048576, 2) . " MiB";
+		elseif ($bytes < 1000 * 1073741824)
+			return number_format($bytes / 1073741824, 2) . " GiB";
+		else
+			return number_format($bytes / 1099511627776, 3) . " TiB";
 	}
 }

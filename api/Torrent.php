@@ -14,22 +14,6 @@ class Torrent {
 	private $subsDir = "../subs/";
 	public static $torrentFieldsUser = array('torrents.id', 'name', 'category', 'size', 'torrents.added', 'type', 'numfiles', 'comments', 'times_completed', 'leechers', 'seeders', 'reqid', 'torrents.section', 'torrents.frileech', 'torrents.imdbid', 'p2p', 'swesub', 'sweaudio', 'pack', '3d');
 
-	const DVDR_PAL = 1;
-	const DVDR_CUSTOM = 2;
-	const DVDR_TV = 3;
-	const MOVIE_720P = 4;
-	const MOVIE_1080P = 5;
-	const TV_720P = 6;
-	const TV_1080P = 7;
-	const TV_SWE = 8;
-	const AUDIOBOOKS = 9;
-	const EBOOKS = 10;
-	const EPAPERS = 11;
-	const MUSIC = 12;
-	const BLURAY = 13;
-	const SUBPACK = 14;
-	const MOVIE_4K = 15;
-
 	public function __construct($db, $user = null, $log = null, $movieData = null, $sweTv = null, $requests = null, $mailbox = null, $subtitles = null, $adminlog = null) {
 		$this->db = $db;
 		$this->user = $user;
@@ -616,7 +600,7 @@ class Torrent {
 		$tvEpisode = $post["tv_episode"];
 		$tvInfo = $post["tv_info"];
 
-		if ($post["category"] == Torrent::TV_SWE && $tvProgramId > 0 && $tvChannel > 0 && $tvProgramId != $torrent["tv_programid"]) {
+		if ($post["category"] == Config::$categories["TV_SWE"]["id"] && $tvProgramId > 0 && $tvChannel > 0 && $tvProgramId != $torrent["tv_programid"]) {
 			/* Manual entered program */
 			if ($tvProgramId == 1){
 				$tvProgram = $post["programTitle"];
@@ -693,7 +677,7 @@ class Torrent {
 
 		include('benc.php');
 
-		if ($post["category"] < 1 || $post["category"] > 15) {
+		if ($post["category"] < Config::$categories["DVDR_PAL"]["id"] || $post["category"] > Config::$categories["MOVIE_4K"]["id"]) {
 			throw new Exception(L::get("TORRENT_INVALID_CATEGORY"));
 		}
 
@@ -713,7 +697,7 @@ class Torrent {
 			throw new Exception(L::get("TORRENT_EMPTY_FILE_ERROR"));
 		}
 
-		if ($post["category"] == Torrent::TV_SWE && $post["section"] == 'new' && ($post["channel"] == 0 || $post["program"] == 0)){
+		if ($post["category"] == Config::$categories["TV_SWE"]["id"] && $post["section"] == 'new' && ($post["channel"] == 0 || $post["program"] == 0)){
 			throw new Exception(L::get("TORRENT_SWE_TV_DATA_MISSING"), 412);
 		}
 
@@ -742,33 +726,33 @@ class Torrent {
 		$swesub = 0;
 		/* The following categories should always be tagged with "has swesub" */
 		if (in_array($category, array(
-			Torrent::DVDR_PAL,
-			Torrent::DVDR_CUSTOM,
-			Torrent::DVDR_TV,
-			Torrent::EBOOKS,
-			Torrent::EPAPERS,
-			Torrent::BLURAY,
-			Torrent::SUBPACK))) {
+			Config::$categories["DVDR_PAL"]["id"],
+			Config::$categories["DVDR_CUSTOM"]["id"],
+			Config::$categories["DVDR_TV"]["id"],
+			Config::$categories["EBOOKS"]["id"],
+			Config::$categories["EPAPERS"]["id"],
+			Config::$categories["BLURAY"]["id"],
+			Config::$categories["SUBPACK"]["id"]))) {
 			$swesub = 2;
 		}
 		/* The following categories should be marked with "has swesub" if release "contains" swesub */
 		if ($post["swesub"] == 1 && in_array($category, array(
-				Torrent::MOVIE_720P,
-				Torrent::MOVIE_1080P,
-				Torrent::TV_720P,
-				Torrent::TV_1080P,
-				Torrent::MOVIE_4K))) {
+				Config::$categories["MOVIE_720P"]["id"],
+				Config::$categories["MOVIE_1080P"]["id"],
+				Config::$categories["TV_720P"]["id"],
+				Config::$categories["TV_1080P"]["id"],
+				Config::$categories["MOVIE_4K"]["id"]))) {
 			$swesub = 2;
 		}
 
 		/* SWE TV is excepted from swe audio tag */
 		if ($post["sweaudio"] && in_array($category, array(
-				Torrent::TV_SWE,
-				Torrent::AUDIOBOOKS,
-				Torrent::EBOOKS,
-				Torrent::EPAPERS,
-				Torrent::MUSIC,
-				Torrent::SUBPACK))) {
+				Config::$categories["TV_SWE"]["id"],
+				Config::$categories["AUDIOBOOKS"]["id"],
+				Config::$categories["EBOOKS"]["id"],
+				Config::$categories["EPAPERS"]["id"],
+				Config::$categories["MUSIC"]["id"],
+				Config::$categories["SUBPACK"]["id"]))) {
 			$sweaudio = 0;
 		}
 
@@ -780,7 +764,7 @@ class Torrent {
 		$tvInfo = '';
 		$tvTime = 0;
 
-		if ($category == Torrent::TV_SWE && $tvProgramId > 0 && $tvChannel > 0) {
+		if ($category == Config::$categories["TV_SWE"]["id"] && $tvProgramId > 0 && $tvChannel > 0) {
 			/* Manual entered program */
 			if ($tvProgramId == 1){
 				$tvProgram = $post["programTitle"];
@@ -981,15 +965,15 @@ class Torrent {
 
 		/* Presume p2p release when not rar archive */
 		if (in_array($category, [
-			Torrent::DVDR_PAL,
-			Torrent::DVDR_CUSTOM,
-			Torrent::DVDR_TV,
-			Torrent::MOVIE_720P,
-			Torrent::MOVIE_1080P,
-			Torrent::TV_720P,
-			Torrent::TV_1080P,
-			Torrent::BLURAY,
-			Torrent::MOVIE_4K
+			Config::$categories["DVDR_PAL"]["id"],
+			Config::$categories["DVDR_CUSTOM"]["id"],
+			Config::$categories["DVDR_TV"]["id"],
+			Config::$categories["MOVIE_720P"]["id"],
+			Config::$categories["MOVIE_1080P"]["id"],
+			Config::$categories["TV_720P"]["id"],
+			Config::$categories["TV_1080P"]["id"],
+			Config::$categories["BLURAY"]["id"],
+			Config::$categories["MOVIE_4K"]["id"]
 			]) && count($filelist) < 10) {
 			$p2p = 1;
 		}
@@ -1009,7 +993,7 @@ class Torrent {
 		}
 
 		/* Torrents sized 15GB+ should be free leech */
-		if ($totallen > 16106127360 && $category != Torrent::BLURAY && $category != Torrent::MOVIE_4K) {
+		if ($totallen > 16106127360 && $category != Config::$categories["BLURAY"]["id"] && $category != Config::$categories["MOVIE_4K"]["id"]) {
 			$freeleech = 1;
 		}
 
@@ -1032,7 +1016,7 @@ class Torrent {
 		if ($imdbId) {
 			$imdbInfo = $this->movieData->getData($imdbId);
 			/* Always replace the release name start when empty or tv-show to keep it up to date for auto-matching */
-			if ($imdbInfo["releaseNameStart"] == "" || in_array($category, [Torrent::TV_720P, Torrent::TV_1080P])) {
+			if ($imdbInfo["releaseNameStart"] == "" || in_array($category, [Config::$categories["TV_720P"]["id"], Config::$categories["TV_1080P"]["id"]])) {
 				$this->movieData->updateReleaseNameStart($name, $imdbId);
 			}
 		}
@@ -1146,7 +1130,25 @@ class Torrent {
 		return Array("id" => $insertId, "name" => $name);
 	}
 
-	public function download($id) {
+	public function download($id, $passkey = null) {
+		$useHttps = null;
+
+		if ($passkey) {
+			$sth = $this->db->prepare("SELECT https FROM users WHERE passkey = ? AND enabled = 'yes'");
+			$sth->bindParam(1, $passkey, PDO::PARAM_STR);
+			$sth->execute();
+			$user = $sth->fetch(PDO::FETCH_ASSOC);
+
+			if (!$user) {
+				throw new Exception(L::get("USER_NOT_EXIST"), 404);
+			}
+
+			$useHttps = $user["https"] == 1;
+		} else {
+			$useHttps = $this->user->getHttps();
+			$passkey = $this->user->getPasskey();
+		}
+
 		$torrent = $this->get($id);
 
 		include('benc.php');
@@ -1157,10 +1159,10 @@ class Torrent {
 			throw new Exception(L::get("TORRENT_NOT_FOUND"), 404);
 		}
 
-		if ($this->user->getHttps()) {
-			$announce = Config::TRACKER_URL_SSL . "/tracker.php/".$this->user->getPasskey()."/announce";
+		if ($useHttps) {
+			$announce = Config::TRACKER_URL_SSL . "/tracker.php/".$passkey."/announce";
 		} else {
-			$announce = Config::TRACKER_URL . "/tracker.php/".$this->user->getPasskey()."/announce";
+			$announce = Config::TRACKER_URL . "/tracker.php/".$passkey."/announce";
 		}
 
 		$dict = bdec_file($filepath, filesize($filepath));

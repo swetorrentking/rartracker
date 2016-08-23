@@ -124,6 +124,23 @@ try {
 			$bonus->run();
 			httpResponse();
 			break;
+
+		case validateRoute('GET', 'torrents/download/\d+/[a-z0-9]{32}'):
+			$torrent = new Torrent($db, $user);
+			$torrent->download((int)$params[2], $params[3]);
+			break;
+
+		case validateRoute('GET', 'rss'):
+			$rss = new Rss($db);
+			$rss->renderRssFeed($_GET);
+			die;
+			break;
+
+		case validateRoute('GET', 'watcher-rss'):
+			$watching = new Watching($db);
+			$watching->renderRssFeed($_GET);
+			die;
+			break;
 	}
 
 	/* Login check before the following routes */
@@ -1099,6 +1116,18 @@ try {
 			$mailbox = new Mailbox($db, $user);
 			$subtitles = new Subtitles($db, $user, $log, $torrent, $mailbox);
 			httpResponse($subtitles->delete((int)$params[1], $_GET["reason"]));
+			break;
+
+		case validateRoute('GET', 'subtitles/\d+/download'):
+			$subtitles = new Subtitles($db, $user);
+			$subtitles->download((int)$params[1]);
+			die;
+			break;
+
+		case validateRoute('GET', 'torrents/\d+/subtitle'):
+			$subtitles = new Subtitles($db, $user);
+			$subtitles->downloadByTorrentId((int)$params[1]);
+			die;
 			break;
 
 		case validateRoute('GET', 'donations'):

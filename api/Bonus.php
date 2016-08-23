@@ -88,7 +88,7 @@ class Bonus {
 
 				} else if($torr["section"] == 'new') {
 
-			 	 	if ($torr["category"] > Torrent::MOVIE_1080P || $torr["category"] == Torrent::BLURAY) {
+			 	 	if ($torr["category"] > Config::$categories["MOVIE_1080P"]["id"] || $torr["category"] == Config::$categories["BLURAY"]["id"]) {
 			 	 		$torrp += 5;
 			 	 	}
 			 	 	else {

@@ -7,7 +7,7 @@
 
 	function WatchRssController(user, configs) {
 
-		var url = configs.SITE_URL + '/brss.php';
+		var url = configs.SITE_URL + '/api/v1/watcher-rss';
 
 		this.model = {
 			url: url,

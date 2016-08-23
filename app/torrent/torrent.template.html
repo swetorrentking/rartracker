@@ -29,7 +29,7 @@
 								<torrent torrent="vm.torrent" viewing-torrent="{{ ::vm.torrent.id }}"></torrent>
 							</td>
 							<td style="width: 168px; vertical-align: middle;">
-				    			<a class="noBorder" target="_self" href="/download.php?id={{ ::vm.torrent.id }}&passkey={{ vm.currentUser.passkey }}" style="float: right;">
+				    			<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{ ::vm.torrent.id }}/{{ ::vm.currentUser.passkey }}" style="float: right;">
 				    				<button class="btn btn-default btn-xs"><i class="fa fa-link"></i></button>
 				    			</a>
 				    			<a class="noBorder" target="_self" href="/api/v1/torrents/download/{{ ::vm.torrent.id }}" style="float: right;">
@@ -78,7 +78,7 @@
 							<td style="width: 35px;"><img src="/img/icons/subfile.png" alt="subtitle" style="width: 29px;" /></td>
 							<td class="alignMiddle">
 								<div class="ellipsis">
-									<a target="_self" href="/subdownload.php?id={{ ::subtitle.id }}">{{ ::subtitle.filename }}</a>
+									<a target="_self" ng-href="/api/v1/subtitles/{{ ::subtitle.id }}/download">{{ ::subtitle.filename }}</a>
 								</div>
 								<span class="label label-warning" ng-show="subtitle.quality == 'custom'" translate="TORRENTS.SUBTITLE_QUALITY_CUSTOM"></span>
 								<span class="label label-success" ng-show="subtitle.quality == 'retail'" translate="TORRENTS.SUBTITLE_QUALITY_RETAIL"></span>

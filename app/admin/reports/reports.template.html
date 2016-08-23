@@ -80,7 +80,7 @@
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'subtitle'">
 						<td translate="WATCHER.SUBS"></td>
-						<td><a target="_self" href="/subdownload.php?id={{ report.subtitle.id }}">{{ report.subtitle.filnamn }}</a> <br /><a target="_blank" ui-sref="torrent({id:report.subtitle.torrentid})"><i class="fa fa-external-link"></i> {{ 'ADMIN.GO_TO_TORRENT' | translate }}</a></td>
+						<td><a target="_self" ng-href="/api/v1/subtitles/{{ report.subtitle.id }}/download">{{ report.subtitle.filnamn }}</a> <br /><a target="_blank" ui-sref="torrent({id:report.subtitle.torrentid})"><i class="fa fa-external-link"></i> {{ 'ADMIN.GO_TO_TORRENT' | translate }}</a></td>
 					</tr>
 					<tr ng-if="!report.deleted && report.type == 'subtitle'">
 						<td translate="TORRENTS.UPLOADER"></td>

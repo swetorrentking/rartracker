@@ -361,9 +361,10 @@ class User {
 		$userId = $this->db->lastInsertId();
 
 		$mailbox = new Mailbox($this->db);
-		$inviter = $this->get($invite["userid"]);
-		$mailbox->sendSystemMessage($invite["userid"], L::get("INVITE_ACCEPTED", null, $inviter["language"]), L::get("INVITE_ACCEPTED_BODY", [$userId, $postdata["username"], $postdata["username"]], $inviter["language"]));
-
+		if ($invite["userid"] > 0) {
+			$inviter = $this->get($invite["userid"]);
+			$mailbox->sendSystemMessage($invite["userid"], L::get("INVITE_ACCEPTED", null, $inviter["language"]), L::get("INVITE_ACCEPTED_BODY", [$userId, $postdata["username"], $postdata["username"]], $inviter["language"]));
+		}
 		// Security checks
 
 		$ip = $_SERVER["REMOTE_ADDR"];
@@ -1293,9 +1294,9 @@ class User {
 
 	public function resetIndexList($category) {
 
-		if ($category == Torrent::DVDR_CUSTOM) {
+		if ($category == Config::$categories["DVDR_CUSTOM"]["id"]) {
 			$customlist = '1,141'; // 720p
-		} else if ($category == Torrent::DVDR_TV) {
+		} else if ($category == Config::$categories["DVDR_TV"]["id"]) {
 			$customlist = '11,163'; // 1080p
 		} else {
 			$customlist = '2,6'; // DVDR

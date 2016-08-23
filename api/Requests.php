@@ -124,7 +124,7 @@ class Requests {
 			}
 		}
 
-		if ($postData["category"] < Torrent::DVDR_PAL || $postData["category"] > Torrent::SUBPACK) {
+		if ($postData["category"] < Config::$categories["DVDR_PAL"]["id"] || $postData["category"] > Config::$categories["SUBPACK"]["id"]) {
 			throw new Exception(L::get("REQUEST_INVALID_CATEGORY"));
 		}
 

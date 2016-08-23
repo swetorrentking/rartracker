@@ -6,7 +6,7 @@
 		.controller('RssController', RssController);
 
 	function RssController(configs, categories, user) {
-		var url = configs.SITE_URL + '/rss.php';
+		var url = configs.SITE_URL + '/api/v1/rss';
 
 		this.settings = {
 			url: url,

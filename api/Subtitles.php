@@ -133,4 +133,32 @@ class Subtitles {
 
 		return array("status" => "ok");
 	}
+
+	public function download($id) {
+		$sth = $this->db->prepare("SELECT * FROM subs WHERE id = ?");
+		$sth->bindParam(1, $id, PDO::PARAM_INT);
+		$sth->execute();
+		$row = $sth->fetch(PDO::FETCH_ASSOC);
+		$this->downloadRow($row);
+	}
+
+	public function downloadByTorrentId($id) {
+		$sth = $this->db->prepare("SELECT * FROM subs WHERE torrentid = ? LIMIT 1");
+		$sth->bindParam(1, $id, PDO::PARAM_INT);
+		$sth->execute();
+		$row = $sth->fetch(PDO::FETCH_ASSOC);
+		$this->downloadRow($row);
+	}
+
+	private function downloadRow($row){
+		if (!$row || !file_exists($this->subsDir . $row["filnamn"])) {
+			header($_SERVER["SERVER_PROTOCOL"]." 404 Not Found");
+			header("Status: 404 Not Found");
+			exit;
+		}
+
+		header('Content-Disposition: attachment; filename="'.$row["filnamn"].'"');
+
+		echo file_get_contents($this->subsDir . $row["filnamn"]);
+	}
 }

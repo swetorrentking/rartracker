@@ -27,4 +27,22 @@ class Config {
 		7 => "VIP",
 		8 => "Staff");
 
+	public static $categories = array(
+		"DVDR_PAL" => array("id" => 1, "name" => "DVDR PAL"),
+		"DVDR_CUSTOM" => array("id" => 2, "name" => "DVDR CUSTOM"),
+		"DVDR_TV" => array("id" => 3, "name" => "DVDR TV"),
+		"MOVIE_720P" => array("id" => 4, "name" => "720p Movie"),
+		"MOVIE_1080P" => array("id" => 5, "name" => "1080p Movie"),
+		"TV_720P" => array("id" => 6, "name" => "720p TV"),
+		"TV_1080P" => array("id" => 7, "name" => "1080p TV"),
+		"TV_SWE" => array("id" => 8, "name" => "Swedish TV"),
+		"AUDIOBOOKS" => array("id" => 9, "name" => "Audiobook"),
+		"EBOOKS" => array("id" => 10, "name" => "E-book"),
+		"EPAPERS" => array("id" => 11, "name" => "E-paper"),
+		"MUSIC" => array("id" => 12, "name" => "Music"),
+		"BLURAY" => array("id" => 13, "name" => "Full BluRay"),
+		"SUBPACK" => array("id" => 14, "name" => "Subpack"),
+		"MOVIE_4K" => array("id" => 15, "name" => "4K Movie"),
+	);
+
 }

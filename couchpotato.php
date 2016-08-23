@@ -56,7 +56,7 @@ foreach($result as &$res) {
 		"release_name" => $res["name"],
 		"torrent_id" => $res["id"],
 		"details_url" => Config::SITE_URL . "/torrent/" . $res["id"] . "/" . $res["name"],
-		"download_url" => Config::SITE_URL . "/download.php?id=" . $res["id"] . "&passkey=" . $passkey,
+		"download_url" => Config::SITE_URL . "/api/v1/torrents/download/". $res["id"]. "/ " . $passkey,
 		"imdb_id" => $res["imdbid2"],
 		"freeleech" => (bool)$res["frileech"],
 		"type" => typeByCategory($res["category"]),
