@@ -78,9 +78,14 @@ try {
 			httpResponse($user->gotRecoverByEmail($_GET["secret"]));
 			break;
 
-		case validateRoute('POST', 'find-torrents'):
-			$torrentsFinder = new TorrentsFinder($db);
-			httpResponse($torrentsFinder->getTorrents($_POST));
+		case validateRoute('GET', 'torrents-matcher/torrents'):
+			$torrentsMatcher = new TorrentsMatcher($db);
+			httpResponse($torrentsMatcher->getTorrents($_GET["passkey"]));
+			break;
+
+		case validateRoute('GET', 'torrents-matcher/configs'):
+			$torrentsMatcher = new TorrentsMatcher($db);
+			httpResponse($torrentsMatcher->getSettings($_GET["passkey"]));
 			break;
 
 		case validateRoute('GET', 'run-cleanup'):
