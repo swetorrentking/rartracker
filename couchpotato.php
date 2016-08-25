@@ -19,15 +19,15 @@ $imdbid = $_GET["imdbid"];
 $search = $_GET["search"];
 
 $categories = [
-	Torrent::DVDR_PAL,
-	Torrent::DVDR_CUSTOM,
-	Torrent::DVDR_TV,
-	Torrent::MOVIE_720P,
-	Torrent::MOVIE_1080P,
-	Torrent::TV_720P,
-	Torrent::TV_1080P,
-	Torrent::BLURAY,
-	Torrent::MOVIE_4K
+	Config::$categories["DVDR_PAL"]["id"],
+	Config::$categories["DVDR_CUSTOM"]["id"],
+	Config::$categories["DVDR_TV"]["id"],
+	Config::$categories["MOVIE_720P"]["id"],
+	Config::$categories["MOVIE_1080P"]["id"],
+	Config::$categories["TV_720P"]["id"],
+	Config::$categories["TV_1080P"]["id"],
+	Config::$categories["BLURAY"]["id"],
+	Config::$categories["MOVIE_4K"]["id"]
 ];
 
 if (!preg_match("/^[a-z0-9]{32}$/", $passkey) || (empty($imdbid) && empty($search))) {
@@ -80,12 +80,12 @@ function bitsToMb($bits) {
 
 function typeByCategory($category) {
 	switch($category) {
-		case Torrent::DVDR_PAL:
-		case Torrent::DVDR_CUSTOM:
-		case Torrent::MOVIE_720P:
-		case Torrent::MOVIE_1080P:
-		case Torrent::BLURAY:
-		case Torrent::MOVIE_4K:
+		case Config::$categories["DVDR_PAL"]["id"]:
+		case Config::$categories["DVDR_CUSTOM"]["id"]:
+		case Config::$categories["MOVIE_720P"]["id"]:
+		case Config::$categories["MOVIE_1080P"]["id"]:
+		case Config::$categories["BLURAY"]["id"]:
+		case Config::$categories["MOVIE_4K"]["id"]:
 			return "movie";
 		default:
 			return "show";
