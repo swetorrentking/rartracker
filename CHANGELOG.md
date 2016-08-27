@@ -1,5 +1,20 @@
 # rartracker changelog
 
+# 0.3.2 (2016-08-27)
+
+### New features and improvements
+
+* Refactored (removed) rss.php, brss.php and subdownload.php into new /api/v1 URLs
+* Categories are now specified in Config.php on server side
+* API for "torrents matcher" which is a client application for matching and loading torrents into bittorrent clients. (Application soon to be released on this github account)
+
+### Bugfixes
+
+* SweTV fetch now works again
+* Genre selector in custom start page edit was missing
+* Bootstrap fonts on /start were missing
+* Additional language fixes
+
 # 0.3.1 (2016-08-04)
 
 ### New features and improvements

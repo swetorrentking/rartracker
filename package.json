@@ -1,6 +1,6 @@
 {
   "name": "rartracker",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "scripts": {
     "postinstall": "bower install",
 	"watch": "gulp watch",
