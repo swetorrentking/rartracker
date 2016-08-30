@@ -81,6 +81,14 @@ tmp_table_size=2G
 max_heap_table_size=2G
 ```
 
+##Nginx configuration
+
+location / { try_files $uri /index.html;}
+location ~ ./img { } 
+location ~ ./phpMyAdmin { } 
+location ~ .(html)$ { } 
+location /api { rewrite ^/api/v1/(.*)$ /api/api-v1.php?url=$1 break; }
+
 ## General Configurations
 
 You'll need to listen on:
@@ -98,7 +106,8 @@ Obviously replace <hostname> with whatever hostname you use.
 
 Dev-hint
 
-If you want to force regular HTTP tracker communication, just set TRACKER_URL_SSL to the same value as TRACKER_URL. This allows you to ignore messing with SSL for a while.
+If you want to force regular HTTP tracker communication, just set TRACKER_URL_SSL to the same value as TRACKER_URL.
+This allows you to ignore messing with SSL for a while.
 
 I do recommend setting up SSL if you're using this in production.
 
