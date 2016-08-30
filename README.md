@@ -81,6 +81,27 @@ tmp_table_size=2G
 max_heap_table_size=2G
 ```
 
+## General Configurations
+
+You'll need to listen on:
+
+Port 80 to reach the site
+Port 1337 so torrent clients can talk to the tracker
+Port 1338 ( with SSL enabled! ) so torrent clients can securely talk to the tracker
+By default this option is enabled for every member
+In /api/Config.php you'll need to edit TRACKER_URL and TRACKER_URL_SSL.
+
+<?php
+    const TRACKER_URL = "http://<hostname>:1337";
+    const TRACKER_URL_SSL = "https://<hostname>:1338"
+Obviously replace <hostname> with whatever hostname you use.
+
+Dev-hint
+
+If you want to force regular HTTP tracker communication, just set TRACKER_URL_SSL to the same value as TRACKER_URL. This allows you to ignore messing with SSL for a while.
+
+I do recommend setting up SSL if you're using this in production.
+
 ## Crontab settings (crontab -e)
 ````
 12      *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-leechbonus
