@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `imdbinfo` (
   `trailer` varchar(300) CHARACTER SET utf8 NOT NULL,
   `releaseNameStart` varchar(100) CHARACTER SET utf8 NOT NULL,
   `lastUpdated` datetime NOT NULL,
+  `youtube_id` varchar(15) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `imdbid` (`imdbid`),
   KEY `releaseNameStart` (`releaseNameStart`),
