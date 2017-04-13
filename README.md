@@ -81,13 +81,14 @@ tmp_table_size=2G
 max_heap_table_size=2G
 ```
 
-##Nginx configuration
-
+## Nginx configuration
+```sh
 location / { try_files $uri /index.html;}
 location ~ ./img { } 
 location ~ ./phpMyAdmin { } 
 location ~ .(html)$ { } 
 location /api { rewrite ^/api/v1/(.*)$ /api/api-v1.php?url=$1 break; }
+```
 
 ## General Configurations
 
@@ -99,9 +100,12 @@ Port 1338 ( with SSL enabled! ) so torrent clients can securely talk to the trac
 By default this option is enabled for every member
 In /api/Config.php you'll need to edit TRACKER_URL and TRACKER_URL_SSL.
 
+```php
 <?php
     const TRACKER_URL = "http://<hostname>:1337";
     const TRACKER_URL_SSL = "https://<hostname>:1338"
+```
+
 Obviously replace <hostname> with whatever hostname you use.
 
 Dev-hint
@@ -112,13 +116,13 @@ This allows you to ignore messing with SSL for a while.
 I do recommend setting up SSL if you're using this in production.
 
 ## Crontab settings (crontab -e)
-````
+```sh
 12      *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-leechbonus
 */20    *       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-cleanup
 0       0       *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/fetch-tvdata
 0       0       *       *       5       wget -O /dev/null http://127.0.0.1/api/v1/run-bonus
 0       20      *       *       *       wget -O /dev/null http://127.0.0.1/api/v1/run-statistics
-````
+```
 
 ## Language support
 
